@@ -12,9 +12,14 @@ namespace TallerTotal.Api.Controllers;
 [Authorize]
 public class UsersController(AppDbContext db) : ControllerBase
 {
+    // Roles que se pueden asignar al crear un usuario desde este panel.
+    // Owner y SuperAdmin quedan afuera a propósito: no se auto-otorgan por acá.
+    private static readonly HashSet<string> AssignableRoles =
+        [nameof(UserRole.Admin), nameof(UserRole.Employee), nameof(UserRole.Mechanic)];
+
     private Guid TenantId => Guid.Parse(User.FindFirst("tenantId")!.Value);
     private string Role => User.FindFirst("role")!.Value;
-    private bool CanManage => Role is nameof(UserRole.Owner) or nameof(UserRole.SuperAdmin);
+    private bool CanManage => Role is nameof(UserRole.Owner) or nameof(UserRole.SuperAdmin) or nameof(UserRole.Admin);
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<UserListItemDto>>> GetAll()
@@ -28,26 +33,29 @@ public class UsersController(AppDbContext db) : ControllerBase
             .ToListAsync());
     }
 
-    [HttpPost("employees")]
-    public async Task<ActionResult<UserListItemDto>> CreateEmployee(CreateEmployeeDto dto)
+    [HttpPost]
+    public async Task<ActionResult<UserListItemDto>> Create(CreateUserDto dto)
     {
         if (!CanManage) return Forbid();
+
+        if (!AssignableRoles.Contains(dto.Role))
+            return BadRequest("Rol inválido. Usar Admin, Employee o Mechanic.");
 
         var username = dto.Username.Trim();
         if (await db.Users.AnyAsync(u => u.TenantId == TenantId && u.Username == username))
             return BadRequest("Ya existe un usuario con ese nombre.");
 
-        var employee = new User
+        var user = new User
         {
             TenantId = TenantId,
             Username = username,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
-            Role = UserRole.Employee
+            Role = Enum.Parse<UserRole>(dto.Role),
         };
-        db.Users.Add(employee);
+        db.Users.Add(user);
         await db.SaveChangesAsync();
 
-        return new UserListItemDto(employee.Id, employee.Username, employee.Role.ToString(), employee.CreatedAt);
+        return new UserListItemDto(user.Id, user.Username, user.Role.ToString(), user.CreatedAt);
     }
 
     [HttpDelete("{id:guid}")]
@@ -57,7 +65,8 @@ public class UsersController(AppDbContext db) : ControllerBase
 
         var user = await db.Users.FirstOrDefaultAsync(u => u.Id == id && u.TenantId == TenantId);
         if (user is null) return NotFound();
-        if (user.Role == UserRole.Owner) return BadRequest("No se puede eliminar al usuario dueño.");
+        if (user.Role is UserRole.Owner or UserRole.SuperAdmin)
+            return BadRequest("No se puede eliminar a este usuario.");
 
         db.Users.Remove(user);
         await db.SaveChangesAsync();

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { usersApi } from "@/lib/api";
-import type { UserListItem, CreateEmployeeDto } from "@/types";
+import type { UserListItem, CreateUserDto } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -11,23 +11,35 @@ import { Label } from "@/components/ui/label";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogClose,
 } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, UserRound, Trash2, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 
-const emptyForm = (): CreateEmployeeDto => ({ username: "", password: "" });
+const emptyForm = (): CreateUserDto => ({ username: "", password: "", role: "Employee" });
 
 const roleLabel: Record<string, string> = {
   Owner: "Dueño",
+  SuperAdmin: "SuperAdmin",
+  Admin: "Administrador",
   Employee: "Empleado",
   Mechanic: "Mecánico",
 };
 
-export default function EmpleadosPage() {
+const assignableRoles = [
+  { value: "Admin", label: "Administrador" },
+  { value: "Employee", label: "Empleado" },
+  { value: "Mechanic", label: "Mecánico" },
+];
+
+// Roles que no se pueden borrar desde acá: el dueño y el superadmin de la plataforma
+const undeletableRoles = new Set(["Owner", "SuperAdmin"]);
+
+export default function UsuariosPage() {
   const [canManage, setCanManage] = useState<boolean | null>(null);
   const [users, setUsers] = useState<UserListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState<CreateEmployeeDto>(emptyForm());
+  const [form, setForm] = useState<CreateUserDto>(emptyForm());
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<UserListItem | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -35,7 +47,7 @@ export default function EmpleadosPage() {
   useEffect(() => {
     const match = document.cookie.match(/(?:^|;\s*)tallertotal_role=([^;]*)/);
     const role = match ? decodeURIComponent(match[1]) : null;
-    setCanManage(role === "Owner" || role === "SuperAdmin");
+    setCanManage(role === "Owner" || role === "SuperAdmin" || role === "Admin");
   }, []);
 
   const load = useCallback(async () => {
@@ -43,7 +55,7 @@ export default function EmpleadosPage() {
     try {
       setUsers(await usersApi.getAll());
     } catch {
-      toast.error("Error al cargar empleados");
+      toast.error("Error al cargar usuarios");
     } finally {
       setLoading(false);
     }
@@ -57,12 +69,12 @@ export default function EmpleadosPage() {
     if (!form.username || form.password.length < 6) return;
     setSaving(true);
     try {
-      await usersApi.createEmployee(form);
-      toast.success("Empleado creado");
+      await usersApi.create(form);
+      toast.success("Usuario creado");
       setOpen(false);
       load();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Error al crear el empleado");
+      toast.error(e instanceof Error ? e.message : "Error al crear el usuario");
     } finally {
       setSaving(false);
     }
@@ -73,7 +85,7 @@ export default function EmpleadosPage() {
     setDeleting(true);
     try {
       await usersApi.delete(deleteTarget.id);
-      toast.success("Empleado eliminado");
+      toast.success("Usuario eliminado");
       setDeleteTarget(null);
       load();
     } catch {
@@ -89,7 +101,7 @@ export default function EmpleadosPage() {
     return (
       <div className="max-w-md mx-auto py-16 text-center space-y-2">
         <ShieldAlert className="h-8 w-8 text-gray-300 mx-auto" />
-        <p className="text-sm text-gray-500">Solo el dueño del taller puede gestionar empleados</p>
+        <p className="text-sm text-gray-500">Solo el dueño del taller puede gestionar usuarios</p>
       </div>
     );
   }
@@ -98,18 +110,18 @@ export default function EmpleadosPage() {
     <div className="space-y-6 max-w-3xl mx-auto">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Empleados</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Usuarios</h1>
           <p className="text-sm text-gray-500 mt-1">Usuarios con acceso al sistema</p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger render={
             <Button onClick={openCreate}>
-              <Plus className="h-4 w-4 mr-1" /> Nuevo Empleado
+              <Plus className="h-4 w-4 mr-1" /> Nuevo Usuario
             </Button>
           } />
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>Nuevo empleado</DialogTitle>
+              <DialogTitle>Nuevo usuario</DialogTitle>
             </DialogHeader>
             <div className="grid gap-3 py-2">
               <div className="space-y-1">
@@ -119,6 +131,17 @@ export default function EmpleadosPage() {
               <div className="space-y-1">
                 <Label required>Contraseña</Label>
                 <Input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="Mínimo 6 caracteres" />
+              </div>
+              <div className="space-y-1">
+                <Label required>Rol</Label>
+                <Select value={form.role} onValueChange={(v) => v && setForm({ ...form, role: v })}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue>{(v: string) => assignableRoles.find((r) => r.value === v)?.label ?? v}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {assignableRoles.map((r) => <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             <DialogFooter>
@@ -161,7 +184,7 @@ export default function EmpleadosPage() {
                       <TableCell className="text-sm text-gray-600">{roleLabel[u.role] ?? u.role}</TableCell>
                       <TableCell className="text-sm text-gray-500">{new Date(u.createdAt).toLocaleDateString("es-AR")}</TableCell>
                       <TableCell className="text-right">
-                        {u.role !== "Owner" && (
+                        {!undeletableRoles.has(u.role) && (
                           <Button
                             variant="ghost" size="icon-sm"
                             onClick={() => setDeleteTarget(u)}
@@ -183,7 +206,7 @@ export default function EmpleadosPage() {
       <Dialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle>Eliminar empleado</DialogTitle>
+            <DialogTitle>Eliminar usuario</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-gray-600">
             ¿Estás seguro de eliminar a <span className="font-semibold">{deleteTarget?.username}</span>? Perderá acceso al sistema.

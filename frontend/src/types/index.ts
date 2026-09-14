@@ -392,9 +392,10 @@ export interface UserListItem {
   createdAt: string;
 }
 
-export interface CreateEmployeeDto {
+export interface CreateUserDto {
   username: string;
   password: string;
+  role: string;
 }
 
 export interface ActivityLogItem {

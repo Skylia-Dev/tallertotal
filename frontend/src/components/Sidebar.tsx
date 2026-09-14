@@ -27,7 +27,7 @@ const navItems = [
 
 // Ítems visibles solo para ciertos roles, además de los módulos normales de arriba
 const restrictedItems = [
-  { href: "/empleados", label: "Empleados", icon: UserRound, roles: ["Owner", "SuperAdmin"] },
+  { href: "/usuarios", label: "Usuarios", icon: UserRound, roles: ["Owner", "Admin", "SuperAdmin"] },
 ];
 
 export function Sidebar() {

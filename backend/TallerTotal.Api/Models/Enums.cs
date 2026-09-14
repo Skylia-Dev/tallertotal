@@ -19,7 +19,8 @@ public enum UserRole
     Owner,
     Mechanic,
     Employee,
-    SuperAdmin
+    SuperAdmin,
+    Admin
 }
 
 public enum QuoteStatus
