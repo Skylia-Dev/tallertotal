@@ -1,4 +1,5 @@
 "use client";
+// redeploy check: Vercel GitHub auto-deploy reconnected 2026-09-14
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
