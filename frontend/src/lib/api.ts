@@ -34,6 +34,8 @@ import type {
   TopArticulo,
   StockBajo,
   ActivityLogPage,
+  UserListItem,
+  CreateEmployeeDto,
 } from "@/types";
 
 // All calls go through the Next.js proxy which adds the JWT from httpOnly cookie
@@ -232,6 +234,14 @@ export const activityLogsApi = {
     const q = qs.toString();
     return request<ActivityLogPage>(`/activity-logs${q ? `?${q}` : ""}`);
   },
+};
+
+// Usuarios / Empleados (gestión propia del tenant, distinta del panel SuperAdmin)
+export const usersApi = {
+  getAll: () => request<UserListItem[]>("/users"),
+  createEmployee: (dto: CreateEmployeeDto) =>
+    request<UserListItem>("/users/employees", { method: "POST", body: JSON.stringify(dto) }),
+  delete: (id: string) => request<void>(`/users/${id}`, { method: "DELETE" }),
 };
 
 // Dashboard

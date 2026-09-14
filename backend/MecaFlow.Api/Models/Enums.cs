@@ -17,7 +17,8 @@ public enum ServiceItemType
 public enum UserRole
 {
     Owner,
-    Mechanic
+    Mechanic,
+    Employee
 }
 
 public enum QuoteStatus

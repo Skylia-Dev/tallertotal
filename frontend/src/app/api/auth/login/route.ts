@@ -33,9 +33,12 @@ export async function POST(request: Request) {
 
   response.cookies.set("tallertotal_token", data.token, { ...cookieOpts, httpOnly: true });
 
-  // Readable cookie so the client-side sidebar can show the tenant name
+  // Readable cookies so the client-side sidebar can show the tenant name and gate owner-only pages
   if (data.tenantName) {
     response.cookies.set("tallertotal_tenant", data.tenantName, { ...cookieOpts, httpOnly: false });
+  }
+  if (data.role) {
+    response.cookies.set("tallertotal_role", data.role, { ...cookieOpts, httpOnly: false });
   }
 
   return response;

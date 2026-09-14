@@ -385,6 +385,18 @@ export interface StockBajo {
   stock: number;
 }
 
+export interface UserListItem {
+  id: string;
+  username: string;
+  role: string;
+  createdAt: string;
+}
+
+export interface CreateEmployeeDto {
+  username: string;
+  password: string;
+}
+
 export interface ActivityLogItem {
   id: string;
   username: string;

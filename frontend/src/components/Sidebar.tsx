@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { LayoutDashboard, Users, Car, ClipboardList, Wrench, Package, Truck, ShoppingBag, Receipt, Wallet, FileText, Banknote, BarChart3, History, LogOut } from "lucide-react";
+import { LayoutDashboard, Users, Car, ClipboardList, Wrench, Package, Truck, ShoppingBag, Receipt, Wallet, FileText, Banknote, BarChart3, History, UserRound, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TallerTotalLogo } from "@/components/TallerTotalLogo";
 
@@ -24,14 +24,21 @@ const navItems = [
   { href: "/auditoria", label: "Auditoría", icon: History },
 ];
 
+const ownerOnlyItems = [
+  { href: "/empleados", label: "Empleados", icon: UserRound },
+];
+
 export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const [tenantName, setTenantName] = useState("");
+  const [isOwner, setIsOwner] = useState(false);
 
   useEffect(() => {
-    const match = document.cookie.match(/(?:^|;\s*)tallertotal_tenant=([^;]*)/);
-    if (match) setTenantName(decodeURIComponent(match[1]));
+    const tenantMatch = document.cookie.match(/(?:^|;\s*)tallertotal_tenant=([^;]*)/);
+    if (tenantMatch) setTenantName(decodeURIComponent(tenantMatch[1]));
+    const roleMatch = document.cookie.match(/(?:^|;\s*)tallertotal_role=([^;]*)/);
+    setIsOwner(roleMatch ? decodeURIComponent(roleMatch[1]) === "Owner" : false);
   }, []);
 
   const handleLogout = async () => {
@@ -51,6 +58,21 @@ export function Sidebar() {
       </div>
       <nav className="flex-1 p-3 space-y-1">
         {navItems.map(({ href, label, icon: Icon }) => (
+          <Link
+            key={href}
+            href={href}
+            className={cn(
+              "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+              pathname === href
+                ? "bg-blue-600 text-white shadow-sm"
+                : "text-slate-400 hover:bg-slate-800 hover:text-white"
+            )}
+          >
+            <Icon className="h-4 w-4 shrink-0" />
+            {label}
+          </Link>
+        ))}
+        {isOwner && ownerOnlyItems.map(({ href, label, icon: Icon }) => (
           <Link
             key={href}
             href={href}
