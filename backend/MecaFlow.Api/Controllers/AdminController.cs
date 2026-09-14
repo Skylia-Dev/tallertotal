@@ -13,7 +13,9 @@ namespace TallerTotal.Api.Controllers;
 [ApiController]
 [Route("api/admin")]
 [Authorize(Roles = "SuperAdmin")]
-public class AdminController(AppDbContext db, IWhatsAppService whatsApp, IConfiguration config, IPushService push, IMemoryCache cache) : ControllerBase
+public class AdminController(
+    AppDbContext db, IWhatsAppService whatsApp, IWhatsAppChannelInspector whatsAppChannels, IWhatsAppChannelStore whatsAppChannelStore,
+    IConfiguration config, IPushService push, IMemoryCache cache) : ControllerBase
 {
     // GET /api/admin/whatsapp/status
     [HttpGet("whatsapp/status")]
@@ -21,6 +23,30 @@ public class AdminController(AppDbContext db, IWhatsAppService whatsApp, IConfig
     {
         var status = await whatsApp.GetStatusAsync();
         return Ok(status);
+    }
+
+    // GET /api/admin/whatsapp/channels — status of BOTH channels + which one is active
+    [HttpGet("whatsapp/channels")]
+    public async Task<IActionResult> WhatsAppChannels()
+    {
+        var statuses = await whatsAppChannels.GetAllStatusesAsync();
+        var active = await whatsAppChannelStore.GetAsync();
+        return Ok(new
+        {
+            active = active.ToString(),
+            channels = statuses.ToDictionary(kv => kv.Key.ToString(), kv => kv.Value)
+        });
+    }
+
+    // PUT /api/admin/whatsapp/channel — switch the active channel
+    [HttpPut("whatsapp/channel")]
+    public async Task<IActionResult> SetWhatsAppChannel([FromBody] SetWhatsAppChannelRequest req)
+    {
+        if (!Enum.TryParse<WhatsAppChannel>(req.Channel, out var channel))
+            return BadRequest(new { error = "Canal inválido. Usar Evolution o Meta" });
+
+        await whatsAppChannelStore.SetAsync(channel);
+        return Ok(new { active = channel.ToString() });
     }
 
     // GET /api/admin/whatsapp/qr
@@ -31,6 +57,24 @@ public class AdminController(AppDbContext db, IWhatsAppService whatsApp, IConfig
         return Ok(result);
     }
 
+    // POST /api/admin/whatsapp/pairing-code
+    [HttpPost("whatsapp/pairing-code")]
+    public async Task<IActionResult> WhatsAppPairingCode([FromBody] WhatsAppTestRequest req)
+    {
+        var code = await whatsApp.GetPairingCodeAsync(req.Phone);
+        if (code is null) return BadRequest(new { error = "No se pudo generar el código de vinculación" });
+        return Ok(new { code });
+    }
+
+    // POST /api/admin/whatsapp/logout
+    [HttpPost("whatsapp/logout")]
+    public async Task<IActionResult> WhatsAppLogout()
+    {
+        var error = await whatsApp.LogoutAsync();
+        if (error is null) return Ok(new { ok = true });
+        return BadRequest(new { error });
+    }
+
     // POST /api/admin/whatsapp/test
     [HttpPost("whatsapp/test")]
     public async Task<IActionResult> WhatsAppTest([FromBody] WhatsAppTestRequest req)
@@ -38,6 +82,19 @@ public class AdminController(AppDbContext db, IWhatsAppService whatsApp, IConfig
         var error = await whatsApp.SendTestAsync(req.Phone, req.Message ?? "🔧 TallerTotal - test de conexión WhatsApp");
         if (error is null) return Ok(new { ok = true });
         return BadRequest(new { error });
+    }
+
+    // GET /api/admin/email/status
+    [HttpGet("email/status")]
+    public IActionResult EmailStatus()
+    {
+        var apiKey = config["Resend:ApiKey"];
+        var from = config["Resend:From"];
+        return Ok(new
+        {
+            isConfigured = !string.IsNullOrWhiteSpace(apiKey) && !string.IsNullOrWhiteSpace(from),
+            from
+        });
     }
 
     // GET /api/admin/push/status

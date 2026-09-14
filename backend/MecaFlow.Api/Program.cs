@@ -36,7 +36,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorization();
-builder.Services.AddSingleton<IWhatsAppService, WhatsAppService>();
+
+// WhatsApp — dual channel (Evolution API or Meta Cloud API), switchable at runtime from the admin panel
+builder.Services.AddHttpClient("meta-whatsapp");
+builder.Services.AddSingleton<EvolutionWhatsAppService>();
+builder.Services.AddSingleton<MetaWhatsAppService>();
+builder.Services.AddSingleton<IWhatsAppChannelStore, WhatsAppChannelStore>();
+builder.Services.AddSingleton<WhatsAppServiceRouter>();
+builder.Services.AddSingleton<IWhatsAppService>(sp => sp.GetRequiredService<WhatsAppServiceRouter>());
+builder.Services.AddSingleton<IWhatsAppChannelInspector>(sp => sp.GetRequiredService<WhatsAppServiceRouter>());
 builder.Services.AddHostedService<WhatsAppHealthService>();
 builder.Services.AddHostedService<WhatsAppReminderService>();
 

@@ -324,12 +324,19 @@ export const adminApi = {
     request<UserResponse>(`/admin/tenants/${tenantId}/users`, { method: "POST", body: JSON.stringify(dto) }),
   deleteUser: (userId: string) => request<void>(`/admin/users/${userId}`, { method: "DELETE" }),
   getWhatsAppStatus: () => request<WhatsAppStatusResponse>("/admin/whatsapp/status"),
+  getWhatsAppChannels: () => request<WhatsAppChannelsResponse>("/admin/whatsapp/channels"),
+  setWhatsAppChannel: (channel: "Evolution" | "Meta") =>
+    request<{ active: string }>("/admin/whatsapp/channel", { method: "PUT", body: JSON.stringify({ channel }) }),
   getWhatsAppQr: () => request<WhatsAppQrResponse>("/admin/whatsapp/qr"),
+  getWhatsAppPairingCode: (phone: string) =>
+    request<{ code: string }>("/admin/whatsapp/pairing-code", { method: "POST", body: JSON.stringify({ phone }) }),
+  whatsAppLogout: () => request<{ ok: boolean }>("/admin/whatsapp/logout", { method: "POST" }),
   testWhatsApp: (phone: string, message?: string) =>
     request<{ ok: boolean }>("/admin/whatsapp/test", {
       method: "POST",
       body: JSON.stringify({ phone, message }),
     }),
+  getEmailStatus: () => request<EmailStatusResponse>("/admin/email/status"),
   getPushStatus: () => request<PushStatusResponse>("/admin/push/status"),
   setVapidKeys: (publicKey: string, privateKey: string) =>
     request<{ ok: boolean }>("/admin/push/vapid", {
@@ -361,12 +368,22 @@ export interface UserResponse {
   createdAt: string;
 }
 
+export type WhatsAppChannelId = "Evolution" | "Meta";
+
 export interface WhatsAppStatusResponse {
   isConfigured: boolean;
   baseUrl?: string;
   instance?: string;
   connectionState?: string;
   error?: string;
+  channel: WhatsAppChannelId;
+  linkedNumber?: string;
+  supportsLinking: boolean;
+}
+
+export interface WhatsAppChannelsResponse {
+  active: WhatsAppChannelId;
+  channels: Record<WhatsAppChannelId, WhatsAppStatusResponse>;
 }
 
 export interface WhatsAppQrResponse {
@@ -374,6 +391,11 @@ export interface WhatsAppQrResponse {
   isAlreadyConnected: boolean;
   qrBase64?: string;
   error?: string;
+}
+
+export interface EmailStatusResponse {
+  isConfigured: boolean;
+  from?: string;
 }
 
 export interface PushStatusResponse {

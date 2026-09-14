@@ -5,7 +5,7 @@ using System.Text.Json.Nodes;
 
 namespace TallerTotal.Api.Services;
 
-public class WhatsAppService(IConfiguration config, ILogger<WhatsAppService> logger) : IWhatsAppService
+public class EvolutionWhatsAppService(IConfiguration config, ILogger<EvolutionWhatsAppService> logger) : IWhatsAppService
 {
     private static readonly JsonSerializerOptions JsonOpts = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
@@ -64,7 +64,7 @@ public class WhatsAppService(IConfiguration config, ILogger<WhatsAppService> log
     public async Task<WhatsAppStatus> GetStatusAsync()
     {
         if (!IsConfigured)
-            return new WhatsAppStatus(false, BaseUrl, Instance, null, "Evolution not configured (missing BaseUrl, ApiKey or Instance)");
+            return new WhatsAppStatus(false, BaseUrl, Instance, null, "Evolution not configured (missing BaseUrl, ApiKey or Instance)", WhatsAppChannel.Evolution);
 
         try
         {
@@ -75,7 +75,7 @@ public class WhatsAppService(IConfiguration config, ILogger<WhatsAppService> log
             logger.LogInformation("WhatsApp status check → {Status}: {Body}", res.StatusCode, body);
 
             if (!res.IsSuccessStatusCode)
-                return new WhatsAppStatus(true, BaseUrl, Instance, null, $"HTTP {(int)res.StatusCode}: {body}");
+                return new WhatsAppStatus(true, BaseUrl, Instance, null, $"HTTP {(int)res.StatusCode}: {body}", WhatsAppChannel.Evolution);
 
             // Parse connection state from response
             var json = JsonNode.Parse(body);
@@ -83,12 +83,52 @@ public class WhatsAppService(IConfiguration config, ILogger<WhatsAppService> log
                      ?? json?["state"]?.GetValue<string>()
                      ?? body;
 
-            return new WhatsAppStatus(true, BaseUrl, Instance, state, null);
+            return new WhatsAppStatus(true, BaseUrl, Instance, state, null, WhatsAppChannel.Evolution);
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "WhatsApp status check failed");
-            return new WhatsAppStatus(true, BaseUrl, Instance, null, ex.Message);
+            return new WhatsAppStatus(true, BaseUrl, Instance, null, ex.Message, WhatsAppChannel.Evolution);
+        }
+    }
+
+    public async Task<string?> GetPairingCodeAsync(string phone)
+    {
+        if (!IsConfigured) return null;
+
+        var normalized = NormalizePhone(phone);
+        if (normalized is null) return null;
+
+        try
+        {
+            using var http = BuildClient();
+            var res = await http.GetAsync($"{BaseUrl}/instance/connect/{Instance}?number={normalized}");
+            var body = await res.Content.ReadAsStringAsync();
+            var json = JsonNode.Parse(body);
+            return json?["pairingCode"]?.GetValue<string>();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "GetPairingCodeAsync failed");
+            return null;
+        }
+    }
+
+    public async Task<string?> LogoutAsync()
+    {
+        if (!IsConfigured) return "Evolution no está configurado";
+
+        try
+        {
+            using var http = BuildClient();
+            var res = await http.DeleteAsync($"{BaseUrl}/instance/logout/{Instance}");
+            if (res.IsSuccessStatusCode) return null;
+            var body = await res.Content.ReadAsStringAsync();
+            return $"HTTP {(int)res.StatusCode}: {body}";
+        }
+        catch (Exception ex)
+        {
+            return ex.Message;
         }
     }
 
