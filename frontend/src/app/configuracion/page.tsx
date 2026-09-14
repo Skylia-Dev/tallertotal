@@ -907,7 +907,9 @@ function ModulosTab() {
         <div className="space-y-1.5 max-w-xs">
           <Label>Taller</Label>
           <Select value={tenantId} onValueChange={(v) => v && setTenantId(v)}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectTrigger>
+              <SelectValue>{(id: string) => tenants.find((t) => t.id === id)?.name ?? "Seleccionar..."}</SelectValue>
+            </SelectTrigger>
             <SelectContent>
               {tenants.map((t) => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}
             </SelectContent>
