@@ -20,6 +20,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Proveedor> Proveedores => Set<Proveedor>();
     public DbSet<Compra> Compras => Set<Compra>();
     public DbSet<CompraItem> CompraItems => Set<CompraItem>();
+    public DbSet<Venta> Ventas => Set<Venta>();
+    public DbSet<VentaItem> VentaItems => Set<VentaItem>();
+    public DbSet<DeudaCliente> DeudasClientes => Set<DeudaCliente>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -207,6 +210,60 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.HasOne(x => x.Articulo)
                 .WithMany()
                 .HasForeignKey(x => x.ArticuloId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<Venta>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.Property(x => x.CreatedByUsername).HasMaxLength(60).IsRequired();
+            e.Property(x => x.FormaPago).HasConversion<string>();
+            e.Property(x => x.Total).HasPrecision(10, 2);
+            e.Property(x => x.Descuento).HasPrecision(10, 2);
+            e.Property(x => x.MontoPagado).HasPrecision(10, 2);
+            e.Property(x => x.SaldoPendiente).HasPrecision(10, 2);
+            e.HasOne(x => x.Tenant)
+                .WithMany(x => x.Ventas)
+                .HasForeignKey(x => x.TenantId)
+                .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(x => x.Customer)
+                .WithMany()
+                .HasForeignKey(x => x.CustomerId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<VentaItem>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.Property(x => x.PrecioUnitario).HasPrecision(10, 2);
+            e.Property(x => x.Subtotal).HasPrecision(10, 2);
+            e.HasOne(x => x.Venta)
+                .WithMany(x => x.Items)
+                .HasForeignKey(x => x.VentaId)
+                .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(x => x.Articulo)
+                .WithMany()
+                .HasForeignKey(x => x.ArticuloId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<DeudaCliente>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.Property(x => x.MontoOriginal).HasPrecision(10, 2);
+            e.Property(x => x.MontoPagado).HasPrecision(10, 2);
+            e.Property(x => x.SaldoPendiente).HasPrecision(10, 2);
+            e.HasOne(x => x.Tenant)
+                .WithMany(x => x.DeudasClientes)
+                .HasForeignKey(x => x.TenantId)
+                .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(x => x.Customer)
+                .WithMany()
+                .HasForeignKey(x => x.CustomerId)
+                .OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.Venta)
+                .WithMany()
+                .HasForeignKey(x => x.VentaId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
     }

@@ -20,6 +20,10 @@ import type {
   Compra,
   CompraListItem,
   CreateCompraDto,
+  Venta,
+  VentaListItem,
+  CreateVentaDto,
+  Deuda,
 } from "@/types";
 
 // All calls go through the Next.js proxy which adds the JWT from httpOnly cookie
@@ -162,6 +166,22 @@ export const comprasApi = {
     request<Compra>("/compras", { method: "POST", body: JSON.stringify(dto) }),
   registrarPago: (id: string, monto: number) =>
     request<Compra>(`/compras/${id}/pagar`, { method: "POST", body: JSON.stringify(monto) }),
+};
+
+// Ventas
+export const ventasApi = {
+  getAll: () => request<VentaListItem[]>("/ventas"),
+  getById: (id: string) => request<Venta>(`/ventas/${id}`),
+  create: (dto: CreateVentaDto) =>
+    request<Venta>("/ventas", { method: "POST", body: JSON.stringify(dto) }),
+};
+
+// Deudas
+export const deudasApi = {
+  getAll: (onlyPending?: boolean) =>
+    request<Deuda[]>(`/deudas${onlyPending ? "?onlyPending=true" : ""}`),
+  registrarPago: (id: string, monto: number) =>
+    request<Deuda>(`/deudas/${id}/pagar`, { method: "POST", body: JSON.stringify(monto) }),
 };
 
 // Dashboard

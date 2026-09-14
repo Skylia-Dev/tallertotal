@@ -27,3 +27,11 @@ public enum QuoteStatus
     Approved,
     Rejected
 }
+
+public enum PaymentMethod
+{
+    Contado,
+    Tarjeta,
+    Transferencia,
+    Deuda
+}

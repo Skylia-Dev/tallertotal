@@ -236,3 +236,61 @@ export interface CreateCompraDto {
   pagoInmediato: boolean;
   items: CompraItemRequest[];
 }
+
+export type PaymentMethod = "Contado" | "Tarjeta" | "Transferencia" | "Deuda";
+
+export interface VentaItem {
+  id: string;
+  articuloId: string;
+  articuloNombre: string;
+  cantidad: number;
+  precioUnitario: number;
+  subtotal: number;
+}
+
+export interface Venta {
+  id: string;
+  fecha: string;
+  customerId?: string;
+  customerName?: string;
+  createdByUsername: string;
+  total: number;
+  descuento: number;
+  formaPago: PaymentMethod;
+  montoPagado: number;
+  saldoPendiente: number;
+  items: VentaItem[];
+}
+
+export interface VentaListItem {
+  id: string;
+  fecha: string;
+  customerName?: string;
+  itemsCount: number;
+  total: number;
+  formaPago: PaymentMethod;
+}
+
+export interface VentaItemRequest {
+  articuloId: string;
+  cantidad: number;
+  precioUnitario: number;
+}
+
+export interface CreateVentaDto {
+  customerId?: string;
+  descuento: number;
+  formaPago: PaymentMethod;
+  items: VentaItemRequest[];
+}
+
+export interface Deuda {
+  id: string;
+  customerId: string;
+  customerName: string;
+  ventaId: string;
+  montoOriginal: number;
+  montoPagado: number;
+  saldoPendiente: number;
+  createdAt: string;
+}

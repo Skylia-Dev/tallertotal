@@ -13,4 +13,6 @@ public class Tenant
     public ICollection<Articulo> Articulos { get; set; } = [];
     public ICollection<Proveedor> Proveedores { get; set; } = [];
     public ICollection<Compra> Compras { get; set; } = [];
+    public ICollection<Venta> Ventas { get; set; } = [];
+    public ICollection<DeudaCliente> DeudasClientes { get; set; } = [];
 }
