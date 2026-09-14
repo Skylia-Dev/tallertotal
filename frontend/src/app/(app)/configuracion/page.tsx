@@ -55,7 +55,7 @@ export default function ConfiguracionPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-2xl mx-auto">
+    <div className="space-y-6 max-w-5xl mx-auto">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Configuración</h1>
         <p className="text-sm text-gray-500 mt-1">Personalizá qué se ve en el sistema</p>
@@ -68,11 +68,11 @@ export default function ConfiguracionPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 max-w-2xl">
             Desmarcá los módulos que este taller no usa — desaparecen del menú para todos los usuarios.
             Dashboard, Empleados y Configuración siempre quedan visibles.
           </p>
-          <div className="grid grid-cols-2 gap-x-4 gap-y-2 pt-2 border-t">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-2 pt-3 border-t">
             {HIDEABLE_MODULES.map((m) => (
               <label key={m.key} className="flex items-center gap-2 text-sm cursor-pointer py-1">
                 <input
