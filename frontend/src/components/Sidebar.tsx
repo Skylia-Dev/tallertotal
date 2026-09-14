@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { LayoutDashboard, Users, Car, ClipboardList, Wrench, Package, Truck, ShoppingBag, Receipt, Wallet, FileText, Banknote, BarChart3, History, UserRound, Settings } from "lucide-react";
+import { LayoutDashboard, Users, Car, ClipboardList, Wrench, Package, Truck, ShoppingBag, Receipt, Wallet, FileText, Banknote, BarChart3, History, UserRound } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TallerTotalLogo } from "@/components/TallerTotalLogo";
 import { useModuleConfig } from "@/contexts/ModuleConfigContext";
@@ -28,7 +28,6 @@ const navItems = [
 // Ítems visibles solo para ciertos roles, además de los módulos normales de arriba
 const restrictedItems = [
   { href: "/empleados", label: "Empleados", icon: UserRound, roles: ["Owner", "SuperAdmin"] },
-  { href: "/configuracion", label: "Configuración", icon: Settings, roles: ["SuperAdmin"] },
 ];
 
 export function Sidebar() {
