@@ -13,6 +13,10 @@ import type {
   Mechanic,
   CreateMechanicDto,
   PortalOrder,
+  Articulo,
+  CreateArticuloDto,
+  Proveedor,
+  CreateProveedorDto,
 } from "@/types";
 
 // All calls go through the Next.js proxy which adds the JWT from httpOnly cookie
@@ -114,6 +118,37 @@ export const serviceOrdersApi = {
     request<ServiceOrderLog[]>(`/serviceorders/${id}/logs`),
   generatePaymentLink: (id: string) =>
     request<{ url: string }>(`/serviceorders/${id}/payment-link`, { method: "POST" }),
+};
+
+// Articulos (stock)
+export const articulosApi = {
+  getAll: (params?: { search?: string; lowStock?: boolean }) => {
+    const qs = new URLSearchParams();
+    if (params?.search) qs.set("search", params.search);
+    if (params?.lowStock) qs.set("lowStock", "true");
+    const q = qs.toString();
+    return request<Articulo[]>(`/articulos${q ? `?${q}` : ""}`);
+  },
+  create: (dto: CreateArticuloDto) =>
+    request<Articulo>("/articulos", { method: "POST", body: JSON.stringify(dto) }),
+  update: (id: string, dto: CreateArticuloDto) =>
+    request<Articulo>(`/articulos/${id}`, { method: "PUT", body: JSON.stringify(dto) }),
+  toggle: (id: string) =>
+    request<{ id: string; activo: boolean }>(`/articulos/${id}/toggle`, { method: "PATCH" }),
+  delete: (id: string) => request<void>(`/articulos/${id}`, { method: "DELETE" }),
+};
+
+// Proveedores
+export const proveedoresApi = {
+  getAll: (search?: string) =>
+    request<Proveedor[]>(`/proveedores${search ? `?search=${encodeURIComponent(search)}` : ""}`),
+  create: (dto: CreateProveedorDto) =>
+    request<Proveedor>("/proveedores", { method: "POST", body: JSON.stringify(dto) }),
+  update: (id: string, dto: CreateProveedorDto) =>
+    request<Proveedor>(`/proveedores/${id}`, { method: "PUT", body: JSON.stringify(dto) }),
+  toggle: (id: string) =>
+    request<{ id: string; activo: boolean }>(`/proveedores/${id}/toggle`, { method: "PATCH" }),
+  delete: (id: string) => request<void>(`/proveedores/${id}`, { method: "DELETE" }),
 };
 
 // Dashboard

@@ -154,3 +154,41 @@ export interface CreateMechanicDto {
   phone?: string;
   specialty?: string;
 }
+
+export interface Articulo {
+  id: string;
+  marca: string;
+  modelo: string;
+  descripcion?: string;
+  stock: number;
+  stockMinimo: number;
+  precio: number;
+  activo: boolean;
+  createdAt: string;
+}
+
+export interface CreateArticuloDto {
+  marca: string;
+  modelo: string;
+  descripcion?: string;
+  stock: number;
+  stockMinimo: number;
+  precio: number;
+}
+
+export interface Proveedor {
+  id: string;
+  nombre: string;
+  contacto?: string;
+  telefono?: string;
+  email?: string;
+  activo: boolean;
+  createdAt: string;
+}
+
+export interface CreateProveedorDto {
+  nombre: string;
+  contacto?: string;
+  telefono?: string;
+  email?: string;
+}

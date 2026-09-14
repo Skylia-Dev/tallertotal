@@ -16,6 +16,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<AppSetting> AppSettings => Set<AppSetting>();
     public DbSet<ServiceDocument> ServiceDocuments => Set<ServiceDocument>();
     public DbSet<ServiceScheduleEntry> ServiceScheduleEntries => Set<ServiceScheduleEntry>();
+    public DbSet<Articulo> Articulos => Set<Articulo>();
+    public DbSet<Proveedor> Proveedores => Set<Proveedor>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -145,6 +147,32 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.HasOne(x => x.ServiceOrder)
                 .WithMany(x => x.Items)
                 .HasForeignKey(x => x.ServiceOrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Articulo>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Marca).HasMaxLength(80).IsRequired();
+            e.Property(x => x.Modelo).HasMaxLength(80).IsRequired();
+            e.Property(x => x.Descripcion).HasMaxLength(300);
+            e.Property(x => x.Precio).HasPrecision(10, 2);
+            e.HasOne(x => x.Tenant)
+                .WithMany(x => x.Articulos)
+                .HasForeignKey(x => x.TenantId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Proveedor>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Nombre).HasMaxLength(150).IsRequired();
+            e.Property(x => x.Contacto).HasMaxLength(150);
+            e.Property(x => x.Telefono).HasMaxLength(30);
+            e.Property(x => x.Email).HasMaxLength(150);
+            e.HasOne(x => x.Tenant)
+                .WithMany(x => x.Proveedores)
+                .HasForeignKey(x => x.TenantId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
     }

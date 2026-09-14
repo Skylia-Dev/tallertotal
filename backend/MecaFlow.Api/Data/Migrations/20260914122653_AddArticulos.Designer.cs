@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TallerTotal.Api.Data;
@@ -11,9 +12,11 @@ using TallerTotal.Api.Data;
 namespace TallerTotal.Api.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260914122653_AddArticulos")]
+    partial class AddArticulos
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -153,45 +156,6 @@ namespace TallerTotal.Api.Data.Migrations
                     b.HasIndex("TenantId");
 
                     b.ToTable("Mechanics");
-                });
-
-            modelBuilder.Entity("TallerTotal.Api.Models.Proveedor", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<bool>("Activo")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Contacto")
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.Property<string>("Telefono")
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)");
-
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TenantId");
-
-                    b.ToTable("Proveedores");
                 });
 
             modelBuilder.Entity("TallerTotal.Api.Models.ServiceDocument", b =>
@@ -546,17 +510,6 @@ namespace TallerTotal.Api.Data.Migrations
                     b.Navigation("Tenant");
                 });
 
-            modelBuilder.Entity("TallerTotal.Api.Models.Proveedor", b =>
-                {
-                    b.HasOne("TallerTotal.Api.Models.Tenant", "Tenant")
-                        .WithMany("Proveedores")
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Tenant");
-                });
-
             modelBuilder.Entity("TallerTotal.Api.Models.ServiceDocument", b =>
                 {
                     b.HasOne("TallerTotal.Api.Models.Tenant", "Tenant")
@@ -658,8 +611,6 @@ namespace TallerTotal.Api.Data.Migrations
                     b.Navigation("Customers");
 
                     b.Navigation("Mechanics");
-
-                    b.Navigation("Proveedores");
 
                     b.Navigation("Users");
                 });

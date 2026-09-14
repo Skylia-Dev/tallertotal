@@ -10,4 +10,6 @@ public class Tenant
     public ICollection<User> Users { get; set; } = [];
     public ICollection<Customer> Customers { get; set; } = [];
     public ICollection<Mechanic> Mechanics { get; set; } = [];
+    public ICollection<Articulo> Articulos { get; set; } = [];
+    public ICollection<Proveedor> Proveedores { get; set; } = [];
 }
