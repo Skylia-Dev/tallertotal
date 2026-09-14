@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { LayoutDashboard, Users, Car, ClipboardList, Wrench, Package, Truck, ShoppingBag, Receipt, Wallet, FileText, Banknote, LogOut } from "lucide-react";
+import { LayoutDashboard, Users, Car, ClipboardList, Wrench, Package, Truck, ShoppingBag, Receipt, Wallet, FileText, Banknote, BarChart3, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TallerTotalLogo } from "@/components/TallerTotalLogo";
 
@@ -20,6 +20,7 @@ const navItems = [
   { href: "/presupuestos", label: "Presupuestos", icon: FileText },
   { href: "/deudas", label: "Deudas", icon: Wallet },
   { href: "/caja", label: "Caja", icon: Banknote },
+  { href: "/informes", label: "Informes", icon: BarChart3 },
 ];
 
 export function Sidebar() {

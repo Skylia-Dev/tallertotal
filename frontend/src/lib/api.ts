@@ -29,6 +29,10 @@ import type {
   CreatePresupuestoDto,
   CajaResumen,
   CreateCajaMovimientoDto,
+  InformeResumen,
+  VentaPorDia,
+  TopArticulo,
+  StockBajo,
 } from "@/types";
 
 // All calls go through the Next.js proxy which adds the JWT from httpOnly cookie
@@ -203,6 +207,17 @@ export const cajaApi = {
   getAll: () => request<CajaResumen>("/caja"),
   create: (dto: CreateCajaMovimientoDto) =>
     request<CajaResumen["movimientos"][number]>("/caja", { method: "POST", body: JSON.stringify(dto) }),
+};
+
+// Informes
+export const informesApi = {
+  getResumen: (desde: string, hasta: string) =>
+    request<InformeResumen>(`/informes/resumen?desde=${desde}&hasta=${hasta}`),
+  getVentasPorDia: (desde: string, hasta: string) =>
+    request<VentaPorDia[]>(`/informes/ventas-por-dia?desde=${desde}&hasta=${hasta}`),
+  getTopArticulos: (desde: string, hasta: string, top = 10) =>
+    request<TopArticulo[]>(`/informes/top-articulos?desde=${desde}&hasta=${hasta}&top=${top}`),
+  getStockBajo: () => request<StockBajo[]>("/informes/stock-bajo"),
 };
 
 // Dashboard

@@ -351,6 +351,40 @@ export interface CreateCajaMovimientoDto {
   observacion?: string;
 }
 
+export interface VentasPorFormaPago {
+  formaPago: string;
+  total: number;
+  cantidad: number;
+}
+
+export interface InformeResumen {
+  totalVentas: number;
+  cantidadVentas: number;
+  ticketPromedio: number;
+  totalCompras: number;
+  cantidadCompras: number;
+  ventasPorFormaPago: VentasPorFormaPago[];
+}
+
+export interface VentaPorDia {
+  fecha: string;
+  total: number;
+  cantidad: number;
+}
+
+export interface TopArticulo {
+  articulo: string;
+  unidadesVendidas: number;
+  totalVendido: number;
+}
+
+export interface StockBajo {
+  id: string;
+  marca: string;
+  modelo: string;
+  stock: number;
+}
+
 export interface Deuda {
   id: string;
   customerId: string;
