@@ -24,6 +24,9 @@ import type {
   VentaListItem,
   CreateVentaDto,
   Deuda,
+  Presupuesto,
+  PresupuestoListItem,
+  CreatePresupuestoDto,
 } from "@/types";
 
 // All calls go through the Next.js proxy which adds the JWT from httpOnly cookie
@@ -182,6 +185,15 @@ export const deudasApi = {
     request<Deuda[]>(`/deudas${onlyPending ? "?onlyPending=true" : ""}`),
   registrarPago: (id: string, monto: number) =>
     request<Deuda>(`/deudas/${id}/pagar`, { method: "POST", body: JSON.stringify(monto) }),
+};
+
+// Presupuestos
+export const presupuestosApi = {
+  getAll: () => request<PresupuestoListItem[]>("/presupuestos"),
+  getById: (id: string) => request<Presupuesto>(`/presupuestos/${id}`),
+  create: (dto: CreatePresupuestoDto) =>
+    request<Presupuesto>("/presupuestos", { method: "POST", body: JSON.stringify(dto) }),
+  delete: (id: string) => request<void>(`/presupuestos/${id}`, { method: "DELETE" }),
 };
 
 // Dashboard

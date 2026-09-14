@@ -284,6 +284,51 @@ export interface CreateVentaDto {
   items: VentaItemRequest[];
 }
 
+export interface PresupuestoItem {
+  id: string;
+  articuloId: string;
+  articuloNombre: string;
+  stock: number;
+  cantidad: number;
+  precioUnitario: number;
+  subtotal: number;
+}
+
+export interface Presupuesto {
+  id: string;
+  fecha: string;
+  vencimiento: string;
+  customerId?: string;
+  customerName?: string;
+  createdByUsername: string;
+  total: number;
+  observacion?: string;
+  vencido: boolean;
+  items: PresupuestoItem[];
+}
+
+export interface PresupuestoListItem {
+  id: string;
+  fecha: string;
+  vencimiento: string;
+  customerName?: string;
+  itemsCount: number;
+  total: number;
+  vencido: boolean;
+}
+
+export interface PresupuestoItemRequest {
+  articuloId: string;
+  cantidad: number;
+}
+
+export interface CreatePresupuestoDto {
+  customerId?: string;
+  vencimiento: string;
+  observacion?: string;
+  items: PresupuestoItemRequest[];
+}
+
 export interface Deuda {
   id: string;
   customerId: string;

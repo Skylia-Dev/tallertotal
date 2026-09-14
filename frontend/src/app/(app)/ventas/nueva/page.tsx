@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { ventasApi, customersApi, articulosApi } from "@/lib/api";
+import { useRouter, useSearchParams } from "next/navigation";
+import { ventasApi, customersApi, articulosApi, presupuestosApi } from "@/lib/api";
 import type { Customer, Articulo, PaymentMethod } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -29,6 +29,8 @@ const formasPago: { value: PaymentMethod; label: string }[] = [
 
 export default function NuevaVentaPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const fromPresupuestoId = searchParams.get("from");
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [articulos, setArticulos] = useState<Articulo[]>([]);
   const [customerId, setCustomerId] = useState("");
@@ -43,6 +45,21 @@ export default function NuevaVentaPage() {
     customersApi.getAll().then(setCustomers);
     articulosApi.getAll().then((data) => setArticulos(data.filter((a) => a.activo && a.stock > 0)));
   }, []);
+
+  useEffect(() => {
+    if (!fromPresupuestoId) return;
+    presupuestosApi.getById(fromPresupuestoId).then((p) => {
+      if (p.customerId) setCustomerId(p.customerId);
+      setItems(p.items.map((i) => ({
+        articuloId: i.articuloId,
+        label: i.articuloNombre,
+        precio: i.precioUnitario,
+        cantidad: Math.min(i.cantidad, Math.max(1, i.stock)),
+        stockDisponible: i.stock,
+      })));
+      toast.info("Se precargó el presupuesto. Revisá stock y precios antes de confirmar.");
+    }).catch(() => toast.error("No se pudo cargar el presupuesto"));
+  }, [fromPresupuestoId]);
 
   const articulosDisponibles = articulos.filter((a) => !items.find((i) => i.articuloId === a.id));
 
