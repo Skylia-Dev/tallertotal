@@ -23,7 +23,7 @@ const roleLabel: Record<string, string> = {
 };
 
 export default function EmpleadosPage() {
-  const [isOwner, setIsOwner] = useState<boolean | null>(null);
+  const [canManage, setCanManage] = useState<boolean | null>(null);
   const [users, setUsers] = useState<UserListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
@@ -34,7 +34,8 @@ export default function EmpleadosPage() {
 
   useEffect(() => {
     const match = document.cookie.match(/(?:^|;\s*)tallertotal_role=([^;]*)/);
-    setIsOwner(match ? decodeURIComponent(match[1]) === "Owner" : false);
+    const role = match ? decodeURIComponent(match[1]) : null;
+    setCanManage(role === "Owner" || role === "SuperAdmin");
   }, []);
 
   const load = useCallback(async () => {
@@ -48,7 +49,7 @@ export default function EmpleadosPage() {
     }
   }, []);
 
-  useEffect(() => { if (isOwner) load(); }, [isOwner, load]);
+  useEffect(() => { if (canManage) load(); }, [canManage, load]);
 
   const openCreate = () => { setForm(emptyForm()); setOpen(true); };
 
@@ -82,9 +83,9 @@ export default function EmpleadosPage() {
     }
   };
 
-  if (isOwner === null) return null;
+  if (canManage === null) return null;
 
-  if (!isOwner) {
+  if (!canManage) {
     return (
       <div className="max-w-md mx-auto py-16 text-center space-y-2">
         <ShieldAlert className="h-8 w-8 text-gray-300 mx-auto" />

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { LayoutDashboard, Users, Car, ClipboardList, Wrench, Package, Truck, ShoppingBag, Receipt, Wallet, FileText, Banknote, BarChart3, History, UserRound } from "lucide-react";
+import { LayoutDashboard, Users, Car, ClipboardList, Wrench, Package, Truck, ShoppingBag, Receipt, Wallet, FileText, Banknote, BarChart3, History, UserRound, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TallerTotalLogo } from "@/components/TallerTotalLogo";
 import { useModuleConfig } from "@/contexts/ModuleConfigContext";
@@ -25,21 +25,23 @@ const navItems = [
   { href: "/auditoria", label: "Auditoría", icon: History, moduleKey: "auditoria" },
 ];
 
-const ownerOnlyItems = [
-  { href: "/empleados", label: "Empleados", icon: UserRound },
+// Ítems visibles solo para ciertos roles, además de los módulos normales de arriba
+const restrictedItems = [
+  { href: "/empleados", label: "Empleados", icon: UserRound, roles: ["Owner", "SuperAdmin"] },
+  { href: "/configuracion", label: "Configuración", icon: Settings, roles: ["SuperAdmin"] },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
   const { hiddenModules } = useModuleConfig();
   const [tenantName, setTenantName] = useState("");
-  const [isOwner, setIsOwner] = useState(false);
+  const [role, setRole] = useState<string | null>(null);
 
   useEffect(() => {
     const tenantMatch = document.cookie.match(/(?:^|;\s*)tallertotal_tenant=([^;]*)/);
     if (tenantMatch) setTenantName(decodeURIComponent(tenantMatch[1]));
     const roleMatch = document.cookie.match(/(?:^|;\s*)tallertotal_role=([^;]*)/);
-    setIsOwner(roleMatch ? decodeURIComponent(roleMatch[1]) === "Owner" : false);
+    setRole(roleMatch ? decodeURIComponent(roleMatch[1]) : null);
   }, []);
 
   return (
@@ -68,7 +70,7 @@ export function Sidebar() {
             {label}
           </Link>
         ))}
-        {isOwner && ownerOnlyItems.map(({ href, label, icon: Icon }) => (
+        {restrictedItems.filter((item) => role !== null && item.roles.includes(role)).map(({ href, label, icon: Icon }) => (
           <Link
             key={href}
             href={href}

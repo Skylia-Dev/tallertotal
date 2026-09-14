@@ -14,11 +14,12 @@ public class UsersController(AppDbContext db) : ControllerBase
 {
     private Guid TenantId => Guid.Parse(User.FindFirst("tenantId")!.Value);
     private string Role => User.FindFirst("role")!.Value;
+    private bool CanManage => Role is nameof(UserRole.Owner) or nameof(UserRole.SuperAdmin);
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<UserListItemDto>>> GetAll()
     {
-        if (Role != nameof(UserRole.Owner)) return Forbid();
+        if (!CanManage) return Forbid();
 
         return Ok(await db.Users
             .Where(u => u.TenantId == TenantId)
@@ -30,7 +31,7 @@ public class UsersController(AppDbContext db) : ControllerBase
     [HttpPost("employees")]
     public async Task<ActionResult<UserListItemDto>> CreateEmployee(CreateEmployeeDto dto)
     {
-        if (Role != nameof(UserRole.Owner)) return Forbid();
+        if (!CanManage) return Forbid();
 
         var username = dto.Username.Trim();
         if (await db.Users.AnyAsync(u => u.TenantId == TenantId && u.Username == username))
@@ -52,7 +53,7 @@ public class UsersController(AppDbContext db) : ControllerBase
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {
-        if (Role != nameof(UserRole.Owner)) return Forbid();
+        if (!CanManage) return Forbid();
 
         var user = await db.Users.FirstOrDefaultAsync(u => u.Id == id && u.TenantId == TenantId);
         if (user is null) return NotFound();
