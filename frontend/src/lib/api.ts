@@ -244,11 +244,9 @@ export const usersApi = {
   delete: (id: string) => request<void>(`/users/${id}`, { method: "DELETE" }),
 };
 
-// Módulos visibles del tenant
+// Módulos visibles del tenant (solo lectura — editar es exclusivo del SuperAdmin, ver adminApi)
 export const tenantModuleConfigApi = {
   get: () => request<{ hiddenModules: string[] }>("/tenant/modules"),
-  update: (hiddenModules: string[]) =>
-    request<{ hiddenModules: string[] }>("/tenant/modules", { method: "PUT", body: JSON.stringify({ hiddenModules }) }),
 };
 
 // Dashboard
@@ -330,6 +328,9 @@ export const adminApi = {
   createUser: (tenantId: string, dto: { username: string; password: string; role: string }) =>
     request<UserResponse>(`/admin/tenants/${tenantId}/users`, { method: "POST", body: JSON.stringify(dto) }),
   deleteUser: (userId: string) => request<void>(`/admin/users/${userId}`, { method: "DELETE" }),
+  getTenantModules: (tenantId: string) => request<{ hiddenModules: string[] }>(`/admin/tenants/${tenantId}/modules`),
+  setTenantModules: (tenantId: string, hiddenModules: string[]) =>
+    request<{ hiddenModules: string[] }>(`/admin/tenants/${tenantId}/modules`, { method: "PUT", body: JSON.stringify({ hiddenModules }) }),
   getWhatsAppStatus: () => request<WhatsAppStatusResponse>("/admin/whatsapp/status"),
   getWhatsAppChannels: () => request<WhatsAppChannelsResponse>("/admin/whatsapp/channels"),
   setWhatsAppChannel: (channel: "Evolution" | "Meta") =>

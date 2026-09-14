@@ -25,9 +25,9 @@ export async function proxy(request: NextRequest) {
       audience: "tallertotal",
     });
 
-    // Protect /admin routes — SuperAdmin only
+    // Protect /configuracion — SuperAdmin only
     const role = payload["role"] as string | undefined;
-    if (pathname.startsWith("/admin") && role !== "SuperAdmin") {
+    if (pathname.startsWith("/configuracion") && role !== "SuperAdmin") {
       return NextResponse.redirect(new URL("/", request.url));
     }
 

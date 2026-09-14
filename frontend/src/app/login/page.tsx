@@ -33,7 +33,7 @@ export default function LoginPage() {
       }
 
       const data = await res.json();
-      router.push(data.role === "SuperAdmin" ? "/admin" : "/");
+      router.push(data.role === "SuperAdmin" ? "/configuracion" : "/");
     } catch {
       toast.error("Error de conexión");
     } finally {

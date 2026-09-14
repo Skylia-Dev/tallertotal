@@ -26,7 +26,7 @@ import {
 import { toast } from "sonner";
 import {
   Plus, ChevronDown, ChevronRight, Loader2, Trash2, Power,
-  Wifi, WifiOff, Send, QrCode, RefreshCw, Building2, Plug,
+  Wifi, WifiOff, Send, QrCode, RefreshCw, Building2, Plug, Settings,
 } from "lucide-react";
 import {
   adminApi,
@@ -39,6 +39,7 @@ import {
   type EmailStatusResponse,
   type PushStatusResponse,
 } from "@/lib/api";
+import { HIDEABLE_MODULES } from "@/lib/modules";
 
 // ── Tenant row ────────────────────────────────────────────────────────────────
 
@@ -850,23 +851,119 @@ function IntegracionesTab() {
   );
 }
 
+// ── Módulos tab ───────────────────────────────────────────────────────────────
+
+function ModulosTab() {
+  const [tenants, setTenants] = useState<TenantResponse[]>([]);
+  const [tenantId, setTenantId] = useState<string>("");
+  const [hidden, setHidden] = useState<Set<string>>(new Set());
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    adminApi.getTenants()
+      .then((list) => { setTenants(list); if (list.length > 0) setTenantId(list[0].id); })
+      .catch(() => toast.error("No se pudo cargar la lista de talleres"))
+      .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    if (!tenantId) return;
+    setLoading(true);
+    adminApi.getTenantModules(tenantId)
+      .then((r) => setHidden(new Set(r.hiddenModules)))
+      .catch(() => toast.error("No se pudieron cargar los módulos del taller"))
+      .finally(() => setLoading(false));
+  }, [tenantId]);
+
+  const toggle = (key: string) => {
+    setHidden((prev) => {
+      const next = new Set(prev);
+      next.has(key) ? next.delete(key) : next.add(key);
+      return next;
+    });
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await adminApi.setTenantModules(tenantId, Array.from(hidden));
+      toast.success("Cambios guardados");
+    } catch {
+      toast.error("Error al guardar");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-base font-semibold flex items-center gap-2">
+          <Settings className="h-4 w-4" /> Módulos visibles por taller
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-1.5 max-w-xs">
+          <Label>Taller</Label>
+          <Select value={tenantId} onValueChange={(v) => v && setTenantId(v)}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {tenants.map((t) => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {loading ? (
+          <div className="py-8 flex items-center justify-center gap-2 text-sm text-gray-400">
+            <Loader2 className="h-4 w-4 animate-spin" /> Cargando...
+          </div>
+        ) : (
+          <>
+            <p className="text-sm text-gray-500">
+              Desmarcá los módulos que este taller no usa — desaparecen del menú para todos sus usuarios.
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-2 pt-3 border-t">
+              {HIDEABLE_MODULES.map((m) => (
+                <label key={m.key} className="flex items-center gap-2 text-sm cursor-pointer py-1">
+                  <input
+                    type="checkbox"
+                    checked={!hidden.has(m.key)}
+                    onChange={() => toggle(m.key)}
+                    className="h-4 w-4 rounded border-gray-300 cursor-pointer"
+                  />
+                  {m.label}
+                </label>
+              ))}
+            </div>
+            <Button onClick={handleSave} disabled={saving || !tenantId}>
+              {saving ? "Guardando..." : "Guardar cambios"}
+            </Button>
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 // ── Main page ─────────────────────────────────────────────────────────────────
 
-type Tab = "talleres" | "integraciones";
+type Tab = "talleres" | "integraciones" | "modulos";
 
 const TABS: { key: Tab; label: string; icon: React.ReactNode }[] = [
   { key: "talleres",      label: "Talleres",      icon: <Building2 className="h-4 w-4" /> },
   { key: "integraciones", label: "Integraciones", icon: <Plug className="h-4 w-4" /> },
+  { key: "modulos",       label: "Módulos",       icon: <Settings className="h-4 w-4" /> },
 ];
 
-export default function AdminPage() {
+export default function ConfiguracionPage() {
   const [tab, setTab] = useState<Tab>("talleres");
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Administración</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Configuración</h1>
         <p className="text-sm text-gray-500 mt-1">Panel de control del sistema</p>
       </div>
 
@@ -891,6 +988,7 @@ export default function AdminPage() {
       {/* Content */}
       {tab === "talleres"      && <TalleresTab />}
       {tab === "integraciones" && <IntegracionesTab />}
+      {tab === "modulos"       && <ModulosTab />}
     </div>
   );
 }

@@ -1,21 +1,11 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { Settings, LogOut } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
+import { LogOut } from "lucide-react";
 import { ThemePicker } from "@/components/ThemePicker";
 
 export function Topbar() {
-  const pathname = usePathname();
   const router = useRouter();
-  const [isOwner, setIsOwner] = useState(false);
-
-  useEffect(() => {
-    const roleMatch = document.cookie.match(/(?:^|;\s*)tallertotal_role=([^;]*)/);
-    setIsOwner(roleMatch ? decodeURIComponent(roleMatch[1]) === "Owner" : false);
-  }, []);
 
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -24,20 +14,6 @@ export function Topbar() {
 
   return (
     <div className="h-14 shrink-0 border-b bg-white flex items-center justify-end gap-1 px-4 md:px-6">
-      {isOwner && (
-        <Link
-          href="/configuracion"
-          title="Configuración"
-          className={cn(
-            "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-            pathname === "/configuracion" ? "bg-blue-50 text-blue-600" : "text-gray-500 hover:bg-gray-100 hover:text-gray-900"
-          )}
-        >
-          <Settings className="h-4 w-4 shrink-0" />
-          <span className="hidden sm:inline">Configuración</span>
-        </Link>
-      )}
-
       <ThemePicker />
 
       <button

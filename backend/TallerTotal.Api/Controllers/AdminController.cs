@@ -1,4 +1,5 @@
 // redeploy: force Railway to load updated env vars
+using System.Text.Json;
 using Microsoft.Extensions.Caching.Memory;
 using TallerTotal.Api.Data;
 using TallerTotal.Api.DTOs;
@@ -255,6 +256,38 @@ public class AdminController(
         db.Users.Add(user);
         await db.SaveChangesAsync();
         return Ok(new UserResponse(user.Id, user.Username, user.Role.ToString(), user.CreatedAt));
+    }
+
+    // GET /api/admin/tenants/{id}/modules
+    [HttpGet("tenants/{id:guid}/modules")]
+    public async Task<ActionResult<TenantModuleConfigDto>> GetTenantModules(Guid id)
+    {
+        if (!await db.Tenants.AnyAsync(t => t.Id == id))
+            return NotFound(new { error = "Tenant no encontrado" });
+
+        var json = await db.Tenants.Where(t => t.Id == id).Select(t => t.HiddenModulesJson).FirstOrDefaultAsync();
+        return new TenantModuleConfigDto(ParseHiddenModules(json));
+    }
+
+    // PUT /api/admin/tenants/{id}/modules
+    [HttpPut("tenants/{id:guid}/modules")]
+    public async Task<ActionResult<TenantModuleConfigDto>> SetTenantModules(Guid id, [FromBody] UpdateTenantModuleConfigDto dto)
+    {
+        var tenant = await db.Tenants.FindAsync(id);
+        if (tenant is null) return NotFound(new { error = "Tenant no encontrado" });
+
+        var valid = dto.HiddenModules.Where(ModuleRegistry.HideableKeys.Contains).Distinct().ToList();
+        tenant.HiddenModulesJson = valid.Count == 0 ? null : JsonSerializer.Serialize(valid);
+        await db.SaveChangesAsync();
+
+        return new TenantModuleConfigDto(valid);
+    }
+
+    private static List<string> ParseHiddenModules(string? json)
+    {
+        if (string.IsNullOrWhiteSpace(json)) return [];
+        try { return JsonSerializer.Deserialize<List<string>>(json) ?? []; }
+        catch { return []; }
     }
 
     // DELETE /api/admin/users/{id}
