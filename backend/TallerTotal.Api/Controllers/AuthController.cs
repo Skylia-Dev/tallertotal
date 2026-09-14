@@ -13,21 +13,9 @@ namespace TallerTotal.Api.Controllers;
 [Route("api/auth")]
 public class AuthController(AppDbContext db, IConfiguration config) : ControllerBase
 {
-    private const string SuperAdminUsername = "superadmin";
-
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest req)
     {
-        if (string.Equals(req.Username, SuperAdminUsername, StringComparison.OrdinalIgnoreCase))
-        {
-            var adminPassword = config["ADMIN_PASSWORD"];
-            if (string.IsNullOrEmpty(adminPassword) || req.Password != adminPassword)
-                return Unauthorized(new { error = "Usuario o contraseña incorrectos" });
-
-            var adminToken = GenerateToken(Guid.Empty, Guid.Empty, SuperAdminUsername, "SuperAdmin");
-            return Ok(new LoginResponse(adminToken, SuperAdminUsername, "Admin", "SuperAdmin"));
-        }
-
         var user = await db.Users
             .Include(u => u.Tenant)
             .FirstOrDefaultAsync(u => u.Username == req.Username && u.Tenant.IsActive);
