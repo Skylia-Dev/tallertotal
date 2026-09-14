@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ventasApi, customersApi, articulosApi, presupuestosApi } from "@/lib/api";
 import type { Customer, Articulo, PaymentMethod } from "@/types";
@@ -28,6 +28,14 @@ const formasPago: { value: PaymentMethod; label: string }[] = [
 ];
 
 export default function NuevaVentaPage() {
+  return (
+    <Suspense fallback={null}>
+      <NuevaVentaForm />
+    </Suspense>
+  );
+}
+
+function NuevaVentaForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const fromPresupuestoId = searchParams.get("from");
