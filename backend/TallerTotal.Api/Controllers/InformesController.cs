@@ -69,13 +69,17 @@ public class InformesController(AppDbContext db) : ControllerBase
     {
         var (desdeUtc, hastaUtc) = Range(desde, hasta);
 
-        return await db.VentaItems
+        var items = await db.VentaItems
             .Where(vi => vi.Venta.TenantId == TenantId && vi.Venta.Fecha >= desdeUtc && vi.Venta.Fecha <= hastaUtc)
-            .GroupBy(vi => new { vi.ArticuloId, vi.Articulo.Marca, vi.Articulo.Modelo })
+            .Select(vi => new { vi.ArticuloId, vi.Articulo.Marca, vi.Articulo.Modelo, vi.Cantidad, vi.Subtotal })
+            .ToListAsync();
+
+        return items
+            .GroupBy(vi => new { vi.ArticuloId, vi.Marca, vi.Modelo })
             .Select(g => new TopArticuloDto(g.Key.Marca + " " + g.Key.Modelo, g.Sum(vi => vi.Cantidad), g.Sum(vi => vi.Subtotal)))
             .OrderByDescending(x => x.UnidadesVendidas)
             .Take(top)
-            .ToListAsync();
+            .ToList();
     }
 
     [HttpGet("stock-bajo")]
