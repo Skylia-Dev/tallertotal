@@ -244,6 +244,13 @@ export const usersApi = {
   delete: (id: string) => request<void>(`/users/${id}`, { method: "DELETE" }),
 };
 
+// Módulos visibles del tenant
+export const tenantModuleConfigApi = {
+  get: () => request<{ hiddenModules: string[] }>("/tenant/modules"),
+  update: (hiddenModules: string[]) =>
+    request<{ hiddenModules: string[] }>("/tenant/modules", { method: "PUT", body: JSON.stringify({ hiddenModules }) }),
+};
+
 // Dashboard
 export const dashboardApi = {
   getMetrics: () => request<DashboardMetrics>("/dashboard/metrics"),

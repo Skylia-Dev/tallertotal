@@ -3,35 +3,38 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { LayoutDashboard, Users, Car, ClipboardList, Wrench, Package, Truck, ShoppingBag, Receipt, Wallet, FileText, Banknote, BarChart3, History, UserRound, LogOut } from "lucide-react";
+import { LayoutDashboard, Users, Car, ClipboardList, Wrench, Package, Truck, ShoppingBag, Receipt, Wallet, FileText, Banknote, BarChart3, History, UserRound, Settings, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TallerTotalLogo } from "@/components/TallerTotalLogo";
 import { ThemePicker } from "@/components/ThemePicker";
+import { useModuleConfig } from "@/contexts/ModuleConfigContext";
 
 const navItems = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/ordenes", label: "Órdenes de Servicio", icon: ClipboardList },
-  { href: "/clientes", label: "Clientes", icon: Users },
-  { href: "/vehiculos", label: "Vehículos", icon: Car },
-  { href: "/mecanicos", label: "Mecánicos", icon: Wrench },
-  { href: "/articulos", label: "Artículos", icon: Package },
-  { href: "/proveedores", label: "Proveedores", icon: Truck },
-  { href: "/compras", label: "Compras", icon: ShoppingBag },
-  { href: "/ventas", label: "Ventas", icon: Receipt },
-  { href: "/presupuestos", label: "Presupuestos", icon: FileText },
-  { href: "/deudas", label: "Deudas", icon: Wallet },
-  { href: "/caja", label: "Caja", icon: Banknote },
-  { href: "/informes", label: "Informes", icon: BarChart3 },
-  { href: "/auditoria", label: "Auditoría", icon: History },
+  { href: "/", label: "Dashboard", icon: LayoutDashboard, moduleKey: null },
+  { href: "/ordenes", label: "Órdenes de Servicio", icon: ClipboardList, moduleKey: "ordenes" },
+  { href: "/clientes", label: "Clientes", icon: Users, moduleKey: "clientes" },
+  { href: "/vehiculos", label: "Vehículos", icon: Car, moduleKey: "vehiculos" },
+  { href: "/mecanicos", label: "Mecánicos", icon: Wrench, moduleKey: "mecanicos" },
+  { href: "/articulos", label: "Artículos", icon: Package, moduleKey: "articulos" },
+  { href: "/proveedores", label: "Proveedores", icon: Truck, moduleKey: "proveedores" },
+  { href: "/compras", label: "Compras", icon: ShoppingBag, moduleKey: "compras" },
+  { href: "/ventas", label: "Ventas", icon: Receipt, moduleKey: "ventas" },
+  { href: "/presupuestos", label: "Presupuestos", icon: FileText, moduleKey: "presupuestos" },
+  { href: "/deudas", label: "Deudas", icon: Wallet, moduleKey: "deudas" },
+  { href: "/caja", label: "Caja", icon: Banknote, moduleKey: "caja" },
+  { href: "/informes", label: "Informes", icon: BarChart3, moduleKey: "informes" },
+  { href: "/auditoria", label: "Auditoría", icon: History, moduleKey: "auditoria" },
 ];
 
 const ownerOnlyItems = [
   { href: "/empleados", label: "Empleados", icon: UserRound },
+  { href: "/configuracion", label: "Configuración", icon: Settings },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const { hiddenModules } = useModuleConfig();
   const [tenantName, setTenantName] = useState("");
   const [isOwner, setIsOwner] = useState(false);
 
@@ -58,7 +61,7 @@ export function Sidebar() {
         )}
       </div>
       <nav className="flex-1 p-3 space-y-1">
-        {navItems.map(({ href, label, icon: Icon }) => (
+        {navItems.filter(({ moduleKey }) => moduleKey === null || !hiddenModules.has(moduleKey)).map(({ href, label, icon: Icon }) => (
           <Link
             key={href}
             href={href}

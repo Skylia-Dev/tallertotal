@@ -7,6 +7,9 @@ public class Tenant
     public bool IsActive { get; set; } = true;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+    /// <summary>JSON array of module keys hidden from the nav for this tenant (see ModuleRegistry). Null/empty = nothing hidden.</summary>
+    public string? HiddenModulesJson { get; set; }
+
     public ICollection<User> Users { get; set; } = [];
     public ICollection<Customer> Customers { get; set; } = [];
     public ICollection<Mechanic> Mechanics { get; set; } = [];

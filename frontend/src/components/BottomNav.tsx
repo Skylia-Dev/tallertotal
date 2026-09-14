@@ -4,22 +4,24 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, ClipboardList, Users, Car, Wrench, Package } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useModuleConfig } from "@/contexts/ModuleConfigContext";
 
 const navItems = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/ordenes", label: "Órdenes", icon: ClipboardList },
-  { href: "/clientes", label: "Clientes", icon: Users },
-  { href: "/vehiculos", label: "Vehículos", icon: Car },
-  { href: "/mecanicos", label: "Mecánicos", icon: Wrench },
-  { href: "/articulos", label: "Artículos", icon: Package },
+  { href: "/", label: "Dashboard", icon: LayoutDashboard, moduleKey: null },
+  { href: "/ordenes", label: "Órdenes", icon: ClipboardList, moduleKey: "ordenes" },
+  { href: "/clientes", label: "Clientes", icon: Users, moduleKey: "clientes" },
+  { href: "/vehiculos", label: "Vehículos", icon: Car, moduleKey: "vehiculos" },
+  { href: "/mecanicos", label: "Mecánicos", icon: Wrench, moduleKey: "mecanicos" },
+  { href: "/articulos", label: "Artículos", icon: Package, moduleKey: "articulos" },
 ];
 
 export function BottomNav() {
   const pathname = usePathname();
+  const { hiddenModules } = useModuleConfig();
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 flex md:hidden">
-      {navItems.map(({ href, label, icon: Icon }) => (
+      {navItems.filter(({ moduleKey }) => moduleKey === null || !hiddenModules.has(moduleKey)).map(({ href, label, icon: Icon }) => (
         <Link
           key={href}
           href={href}
