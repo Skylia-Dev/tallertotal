@@ -1,3 +1,4 @@
+// redeploy check: Railway GitHub auto-deploy reconnected 2026-09-14
 using TallerTotal.Api.Data;
 using TallerTotal.Api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
