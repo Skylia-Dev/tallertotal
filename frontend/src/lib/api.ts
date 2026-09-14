@@ -27,6 +27,8 @@ import type {
   Presupuesto,
   PresupuestoListItem,
   CreatePresupuestoDto,
+  CajaResumen,
+  CreateCajaMovimientoDto,
 } from "@/types";
 
 // All calls go through the Next.js proxy which adds the JWT from httpOnly cookie
@@ -194,6 +196,13 @@ export const presupuestosApi = {
   create: (dto: CreatePresupuestoDto) =>
     request<Presupuesto>("/presupuestos", { method: "POST", body: JSON.stringify(dto) }),
   delete: (id: string) => request<void>(`/presupuestos/${id}`, { method: "DELETE" }),
+};
+
+// Caja
+export const cajaApi = {
+  getAll: () => request<CajaResumen>("/caja"),
+  create: (dto: CreateCajaMovimientoDto) =>
+    request<CajaResumen["movimientos"][number]>("/caja", { method: "POST", body: JSON.stringify(dto) }),
 };
 
 // Dashboard

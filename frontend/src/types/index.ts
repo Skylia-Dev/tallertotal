@@ -329,6 +329,28 @@ export interface CreatePresupuestoDto {
   items: PresupuestoItemRequest[];
 }
 
+export type CajaMovimientoTipo = "Apertura" | "Cierre" | "Arqueo" | "Retiro" | "Ingreso";
+
+export interface CajaMovimiento {
+  id: string;
+  fecha: string;
+  tipo: CajaMovimientoTipo;
+  monto: number;
+  observacion?: string;
+  createdByUsername: string;
+}
+
+export interface CajaResumen {
+  movimientos: CajaMovimiento[];
+  balance: number;
+}
+
+export interface CreateCajaMovimientoDto {
+  tipo: CajaMovimientoTipo;
+  monto: number;
+  observacion?: string;
+}
+
 export interface Deuda {
   id: string;
   customerId: string;

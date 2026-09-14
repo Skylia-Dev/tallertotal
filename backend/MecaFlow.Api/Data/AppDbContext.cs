@@ -25,6 +25,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<DeudaCliente> DeudasClientes => Set<DeudaCliente>();
     public DbSet<Presupuesto> Presupuestos => Set<Presupuesto>();
     public DbSet<PresupuestoItem> PresupuestoItems => Set<PresupuestoItem>();
+    public DbSet<CajaMovimiento> CajaMovimientos => Set<CajaMovimiento>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -298,6 +299,19 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 .WithMany()
                 .HasForeignKey(x => x.ArticuloId)
                 .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<CajaMovimiento>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Tipo).HasConversion<string>();
+            e.Property(x => x.Monto).HasPrecision(10, 2);
+            e.Property(x => x.Observacion).HasMaxLength(300);
+            e.Property(x => x.CreatedByUsername).HasMaxLength(60).IsRequired();
+            e.HasOne(x => x.Tenant)
+                .WithMany(x => x.CajaMovimientos)
+                .HasForeignKey(x => x.TenantId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

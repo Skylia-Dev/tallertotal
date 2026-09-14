@@ -35,3 +35,12 @@ public enum PaymentMethod
     Transferencia,
     Deuda
 }
+
+public enum CajaMovimientoTipo
+{
+    Apertura,
+    Cierre,
+    Arqueo,
+    Retiro,
+    Ingreso
+}

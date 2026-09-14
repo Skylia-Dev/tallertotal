@@ -16,4 +16,5 @@ public class Tenant
     public ICollection<Venta> Ventas { get; set; } = [];
     public ICollection<DeudaCliente> DeudasClientes { get; set; } = [];
     public ICollection<Presupuesto> Presupuestos { get; set; } = [];
+    public ICollection<CajaMovimiento> CajaMovimientos { get; set; } = [];
 }
