@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { LayoutDashboard, Users, Car, ClipboardList, Wrench, Package, Truck, LogOut } from "lucide-react";
+import { LayoutDashboard, Users, Car, ClipboardList, Wrench, Package, Truck, ShoppingBag, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TallerTotalLogo } from "@/components/TallerTotalLogo";
 
@@ -15,6 +15,7 @@ const navItems = [
   { href: "/mecanicos", label: "Mecánicos", icon: Wrench },
   { href: "/articulos", label: "Artículos", icon: Package },
   { href: "/proveedores", label: "Proveedores", icon: Truck },
+  { href: "/compras", label: "Compras", icon: ShoppingBag },
 ];
 
 export function Sidebar() {

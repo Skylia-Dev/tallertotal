@@ -18,6 +18,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<ServiceScheduleEntry> ServiceScheduleEntries => Set<ServiceScheduleEntry>();
     public DbSet<Articulo> Articulos => Set<Articulo>();
     public DbSet<Proveedor> Proveedores => Set<Proveedor>();
+    public DbSet<Compra> Compras => Set<Compra>();
+    public DbSet<CompraItem> CompraItems => Set<CompraItem>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -174,6 +176,38 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 .WithMany(x => x.Proveedores)
                 .HasForeignKey(x => x.TenantId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Compra>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.Property(x => x.CreatedByUsername).HasMaxLength(60).IsRequired();
+            e.Property(x => x.Total).HasPrecision(10, 2);
+            e.Property(x => x.MontoPagado).HasPrecision(10, 2);
+            e.Property(x => x.SaldoPendiente).HasPrecision(10, 2);
+            e.HasOne(x => x.Tenant)
+                .WithMany(x => x.Compras)
+                .HasForeignKey(x => x.TenantId)
+                .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(x => x.Proveedor)
+                .WithMany()
+                .HasForeignKey(x => x.ProveedorId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<CompraItem>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.Property(x => x.PrecioUnitario).HasPrecision(10, 2);
+            e.Property(x => x.Subtotal).HasPrecision(10, 2);
+            e.HasOne(x => x.Compra)
+                .WithMany(x => x.Items)
+                .HasForeignKey(x => x.CompraId)
+                .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(x => x.Articulo)
+                .WithMany()
+                .HasForeignKey(x => x.ArticuloId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

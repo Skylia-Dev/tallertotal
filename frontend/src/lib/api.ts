@@ -17,6 +17,9 @@ import type {
   CreateArticuloDto,
   Proveedor,
   CreateProveedorDto,
+  Compra,
+  CompraListItem,
+  CreateCompraDto,
 } from "@/types";
 
 // All calls go through the Next.js proxy which adds the JWT from httpOnly cookie
@@ -149,6 +152,16 @@ export const proveedoresApi = {
   toggle: (id: string) =>
     request<{ id: string; activo: boolean }>(`/proveedores/${id}/toggle`, { method: "PATCH" }),
   delete: (id: string) => request<void>(`/proveedores/${id}`, { method: "DELETE" }),
+};
+
+// Compras
+export const comprasApi = {
+  getAll: () => request<CompraListItem[]>("/compras"),
+  getById: (id: string) => request<Compra>(`/compras/${id}`),
+  create: (dto: CreateCompraDto) =>
+    request<Compra>("/compras", { method: "POST", body: JSON.stringify(dto) }),
+  registrarPago: (id: string, monto: number) =>
+    request<Compra>(`/compras/${id}/pagar`, { method: "POST", body: JSON.stringify(monto) }),
 };
 
 // Dashboard

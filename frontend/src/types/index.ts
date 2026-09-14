@@ -192,3 +192,47 @@ export interface CreateProveedorDto {
   telefono?: string;
   email?: string;
 }
+
+export interface CompraItem {
+  id: string;
+  articuloId: string;
+  articuloNombre: string;
+  cantidad: number;
+  precioUnitario: number;
+  subtotal: number;
+}
+
+export interface Compra {
+  id: string;
+  fecha: string;
+  proveedorId: string;
+  proveedorNombre: string;
+  createdByUsername: string;
+  total: number;
+  pagoInmediato: boolean;
+  montoPagado: number;
+  saldoPendiente: number;
+  items: CompraItem[];
+}
+
+export interface CompraListItem {
+  id: string;
+  fecha: string;
+  proveedorNombre: string;
+  itemsCount: number;
+  total: number;
+  pagoInmediato: boolean;
+  saldoPendiente: number;
+}
+
+export interface CompraItemRequest {
+  articuloId: string;
+  cantidad: number;
+  precioUnitario: number;
+}
+
+export interface CreateCompraDto {
+  proveedorId: string;
+  pagoInmediato: boolean;
+  items: CompraItemRequest[];
+}

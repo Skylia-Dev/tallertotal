@@ -12,4 +12,5 @@ public class Tenant
     public ICollection<Mechanic> Mechanics { get; set; } = [];
     public ICollection<Articulo> Articulos { get; set; } = [];
     public ICollection<Proveedor> Proveedores { get; set; } = [];
+    public ICollection<Compra> Compras { get; set; } = [];
 }
