@@ -1,6 +1,7 @@
 using TallerTotal.Api.Data;
 using TallerTotal.Api.DTOs;
 using TallerTotal.Api.Models;
+using TallerTotal.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +11,7 @@ namespace TallerTotal.Api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class ComprasController(AppDbContext db) : ControllerBase
+public class ComprasController(AppDbContext db, ActivityLogger logger) : ControllerBase
 {
     private Guid TenantId => Guid.Parse(User.FindFirst("tenantId")!.Value);
     private string Username => User.FindFirst("username")!.Value;
@@ -85,6 +86,7 @@ public class ComprasController(AppDbContext db) : ControllerBase
             Items = items
         };
         db.Compras.Add(compra);
+        logger.Log(TenantId, Username, "CompraCreate", $"Registró una compra a \"{proveedor.Nombre}\" por ${total:N2}");
         await db.SaveChangesAsync();
         await tx.CommitAsync();
 
@@ -107,6 +109,7 @@ public class ComprasController(AppDbContext db) : ControllerBase
         compra.MontoPagado += monto;
         compra.SaldoPendiente -= monto;
         if (compra.SaldoPendiente == 0) compra.PagoInmediato = true;
+        logger.Log(TenantId, Username, "CompraPago", $"Registró un pago de ${monto:N2} a \"{compra.Proveedor.Nombre}\"");
         await db.SaveChangesAsync();
 
         return new CompraDto(

@@ -33,6 +33,7 @@ import type {
   VentaPorDia,
   TopArticulo,
   StockBajo,
+  ActivityLogPage,
 } from "@/types";
 
 // All calls go through the Next.js proxy which adds the JWT from httpOnly cookie
@@ -218,6 +219,19 @@ export const informesApi = {
   getTopArticulos: (desde: string, hasta: string, top = 10) =>
     request<TopArticulo[]>(`/informes/top-articulos?desde=${desde}&hasta=${hasta}&top=${top}`),
   getStockBajo: () => request<StockBajo[]>("/informes/stock-bajo"),
+};
+
+// Auditoría
+export const activityLogsApi = {
+  getAll: (params?: { from?: string; to?: string; page?: number; pageSize?: number }) => {
+    const qs = new URLSearchParams();
+    if (params?.from) qs.set("from", params.from);
+    if (params?.to) qs.set("to", params.to);
+    if (params?.page) qs.set("page", String(params.page));
+    if (params?.pageSize) qs.set("pageSize", String(params.pageSize));
+    const q = qs.toString();
+    return request<ActivityLogPage>(`/activity-logs${q ? `?${q}` : ""}`);
+  },
 };
 
 // Dashboard

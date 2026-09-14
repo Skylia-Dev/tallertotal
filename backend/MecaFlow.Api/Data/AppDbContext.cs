@@ -26,6 +26,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Presupuesto> Presupuestos => Set<Presupuesto>();
     public DbSet<PresupuestoItem> PresupuestoItems => Set<PresupuestoItem>();
     public DbSet<CajaMovimiento> CajaMovimientos => Set<CajaMovimiento>();
+    public DbSet<ActivityLog> ActivityLogs => Set<ActivityLog>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -310,6 +311,18 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.Property(x => x.CreatedByUsername).HasMaxLength(60).IsRequired();
             e.HasOne(x => x.Tenant)
                 .WithMany(x => x.CajaMovimientos)
+                .HasForeignKey(x => x.TenantId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<ActivityLog>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Username).HasMaxLength(60).IsRequired();
+            e.Property(x => x.Action).HasMaxLength(60).IsRequired();
+            e.Property(x => x.Description).HasMaxLength(500).IsRequired();
+            e.HasOne(x => x.Tenant)
+                .WithMany(x => x.ActivityLogs)
                 .HasForeignKey(x => x.TenantId)
                 .OnDelete(DeleteBehavior.Cascade);
         });

@@ -1,6 +1,7 @@
 using TallerTotal.Api.Data;
 using TallerTotal.Api.DTOs;
 using TallerTotal.Api.Models;
+using TallerTotal.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +11,7 @@ namespace TallerTotal.Api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class VentasController(AppDbContext db) : ControllerBase
+public class VentasController(AppDbContext db, ActivityLogger logger) : ControllerBase
 {
     private Guid TenantId => Guid.Parse(User.FindFirst("tenantId")!.Value);
     private string Username => User.FindFirst("username")!.Value;
@@ -108,6 +109,7 @@ public class VentasController(AppDbContext db) : ControllerBase
             });
         }
 
+        logger.Log(TenantId, Username, "VentaCreate", $"Registró una venta por ${total:N2}{(customer is not null ? $" a \"{customer.Name}\"" : "")}");
         await db.SaveChangesAsync();
 
         venta.Customer = customer;

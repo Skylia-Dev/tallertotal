@@ -52,6 +52,7 @@ builder.Services.AddScoped<IMercadoPagoService, MercadoPagoService>();
 builder.Services.AddHttpClient("supabase");
 builder.Services.AddHttpClient("anthropic");
 builder.Services.AddScoped<IAgendaService, AgendaService>();
+builder.Services.AddScoped<TallerTotal.Api.Services.ActivityLogger>();
 
 // Web Push — Singleton so it survives beyond HTTP request scopes (needed for fire-and-forget sends)
 builder.Services.AddMemoryCache();

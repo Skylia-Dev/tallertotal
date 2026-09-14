@@ -385,6 +385,21 @@ export interface StockBajo {
   stock: number;
 }
 
+export interface ActivityLogItem {
+  id: string;
+  username: string;
+  action: string;
+  description: string;
+  createdAt: string;
+}
+
+export interface ActivityLogPage {
+  items: ActivityLogItem[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
 export interface Deuda {
   id: string;
   customerId: string;

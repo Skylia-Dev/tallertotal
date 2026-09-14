@@ -1,5 +1,6 @@
 using TallerTotal.Api.Data;
 using TallerTotal.Api.DTOs;
+using TallerTotal.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,9 +10,10 @@ namespace TallerTotal.Api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class DeudasController(AppDbContext db) : ControllerBase
+public class DeudasController(AppDbContext db, ActivityLogger logger) : ControllerBase
 {
     private Guid TenantId => Guid.Parse(User.FindFirst("tenantId")!.Value);
+    private string Username => User.FindFirst("username")!.Value;
 
     [HttpGet]
     public async Task<IEnumerable<DeudaDto>> GetAll([FromQuery] bool? onlyPending)
@@ -35,6 +37,7 @@ public class DeudasController(AppDbContext db) : ControllerBase
 
         deuda.MontoPagado += monto;
         deuda.SaldoPendiente -= monto;
+        logger.Log(TenantId, Username, "DeudaPago", $"Registró un cobro de ${monto:N2} a \"{deuda.Customer.Name}\"");
         await db.SaveChangesAsync();
 
         return new DeudaDto(deuda.Id, deuda.CustomerId, deuda.Customer.Name, deuda.VentaId, deuda.MontoOriginal, deuda.MontoPagado, deuda.SaldoPendiente, deuda.CreatedAt);

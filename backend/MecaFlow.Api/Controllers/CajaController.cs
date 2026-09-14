@@ -1,6 +1,7 @@
 using TallerTotal.Api.Data;
 using TallerTotal.Api.DTOs;
 using TallerTotal.Api.Models;
+using TallerTotal.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +11,7 @@ namespace TallerTotal.Api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class CajaController(AppDbContext db) : ControllerBase
+public class CajaController(AppDbContext db, ActivityLogger logger) : ControllerBase
 {
     private Guid TenantId => Guid.Parse(User.FindFirst("tenantId")!.Value);
     private string Username => User.FindFirst("username")!.Value;
@@ -52,6 +53,7 @@ public class CajaController(AppDbContext db) : ControllerBase
             CreatedByUsername = Username
         };
         db.CajaMovimientos.Add(movimiento);
+        logger.Log(TenantId, Username, "CajaMovimiento", $"Registró un movimiento de caja: {movimiento.Tipo} ${movimiento.Monto:N2}");
         await db.SaveChangesAsync();
 
         return new CajaMovimientoDto(movimiento.Id, movimiento.Fecha, movimiento.Tipo.ToString(), movimiento.Monto, movimiento.Observacion, movimiento.CreatedByUsername);
