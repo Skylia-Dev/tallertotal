@@ -60,7 +60,7 @@ export function Sidebar() {
           </p>
         )}
       </div>
-      <nav className="flex-1 p-3 space-y-1">
+      <nav className="flex-1 overflow-y-auto p-3 space-y-1">
         {navItems.filter(({ moduleKey }) => moduleKey === null || !hiddenModules.has(moduleKey)).map(({ href, label, icon: Icon }) => (
           <Link
             key={href}
