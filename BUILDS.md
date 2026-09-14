@@ -13,7 +13,8 @@ Changelog de cada deploy a producción. Se actualiza a mano en cada build nuevo 
 
 | # | Fecha | Commit | Versión | Qué se hizo |
 |---|-------|--------|---------|-------------|
-| 21 | 2026-09-14 | — | v1.52 | Se saca Configuración, Apariencia y Cerrar sesión del pie de la sidebar y se arma una topbar nueva (arriba de todo, separada del menú lateral) con esos 3 accesos. Se mueven los toasts de `top-right` a `bottom-right` para que no choquen con la topbar nueva |
+| 22 | 2026-09-14 | — | v1.53 | Login unificado: se saca el botón "Acceso administrador" del login — ahora es un único formulario usuario/contraseña, y el SuperAdmin entra con el usuario reservado `superadmin` (antes era un endpoint aparte solo con contraseña). El acceso a `/admin` seguía (y sigue) restringido a rol SuperAdmin vía middleware, invisible para el resto |
+| 21 | 2026-09-14 | `a464604` | v1.52 | Se saca Configuración, Apariencia y Cerrar sesión del pie de la sidebar y se arma una topbar nueva (arriba de todo, separada del menú lateral) con esos 3 accesos. Se mueven los toasts de `top-right` a `bottom-right` para que no choquen con la topbar nueva |
 | 20 | 2026-09-14 | `aa94f28` | v1.51 | Se agrega este changelog (`BUILDS.md`) y se arranca a bumpear versión en cada deploy |
 | 19 | 2026-09-14 13:58 | `3da30f4` | v1.50 | Fix: Informes tiraba 500 al cargar — `top-articulos` agrupaba y sumaba dentro de la misma consulta LINQ tras dos Joins, algo que EF Core no puede traducir a SQL |
 | 18 | 2026-09-14 13:48 | `a3c385c` | v1.50 | Fix: la sidebar dejaba ver el fondo blanco de la página por debajo de "Configuración" — al nav le faltaba `overflow-y-auto` y los últimos ítems se desbordaban fuera del panel oscuro |

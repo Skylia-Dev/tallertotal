@@ -15,21 +15,16 @@ export default function LoginPage() {
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const body = isAdmin
-        ? { password }
-        : { username, password };
-
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        body: JSON.stringify({ username, password }),
       });
 
       if (!res.ok) {
@@ -85,25 +80,21 @@ export default function LoginPage() {
 
           <div>
             <h2 className="text-2xl font-bold text-gray-900">Bienvenido</h2>
-            <p className="text-gray-500 mt-1 text-sm">
-              {isAdmin ? "Acceso de administrador" : "Iniciá sesión en tu taller"}
-            </p>
+            <p className="text-gray-500 mt-1 text-sm">Iniciá sesión en tu taller</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {!isAdmin && (
-              <div className="space-y-1.5">
-                <Label htmlFor="username" required>Usuario</Label>
-                <Input
-                  id="username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="usuario"
-                  required
-                  autoComplete="username"
-                />
-              </div>
-            )}
+            <div className="space-y-1.5">
+              <Label htmlFor="username" required>Usuario</Label>
+              <Input
+                id="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="usuario"
+                required
+                autoComplete="username"
+              />
+            </div>
             <div className="space-y-1.5">
               <Label htmlFor="password" required>Contraseña</Label>
               <PasswordInput
@@ -119,13 +110,6 @@ export default function LoginPage() {
               {loading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Ingresando...</> : "Ingresar"}
             </Button>
           </form>
-
-          <button
-            onClick={() => { setIsAdmin(!isAdmin); setUsername(""); setPassword(""); }}
-            className="w-full text-xs text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            {isAdmin ? "← Volver al login de taller" : "Acceso administrador"}
-          </button>
 
           <div className="flex items-center justify-center gap-2 text-xs text-gray-400">
             <span>TallerTotal © {new Date().getFullYear()}</span>

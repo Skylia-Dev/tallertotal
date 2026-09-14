@@ -5,12 +5,7 @@ const BACKEND = process.env.BACKEND_URL ?? "http://localhost:5123";
 export async function POST(request: Request) {
   const body = await request.json();
 
-  // Determine if this is an admin login or regular user login
-  const endpoint = body.password && !body.username
-    ? `${BACKEND}/api/auth/admin-login`
-    : `${BACKEND}/api/auth/login`;
-
-  const res = await fetch(endpoint, {
+  const res = await fetch(`${BACKEND}/api/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
