@@ -25,14 +25,14 @@ export function ThemePicker() {
       <button
         onClick={() => setOpen((v) => !v)}
         title="Apariencia"
-        className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
+        className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors"
       >
         <Palette className="h-4 w-4 shrink-0" />
-        Apariencia
+        <span className="hidden sm:inline">Apariencia</span>
       </button>
 
       {open && (
-        <div className="absolute bottom-full left-0 mb-1 w-56 rounded-lg border border-border bg-popover text-popover-foreground shadow-lg p-2 z-50">
+        <div className="absolute top-full right-0 mt-1 w-56 rounded-lg border border-border bg-popover text-popover-foreground shadow-lg p-2 z-50">
           <p className="px-1 pb-1 text-xs font-semibold text-muted-foreground">Modo</p>
           <div className="flex gap-1 pb-2">
             <button

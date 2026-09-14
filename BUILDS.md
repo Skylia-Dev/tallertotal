@@ -13,7 +13,8 @@ Changelog de cada deploy a producción. Se actualiza a mano en cada build nuevo 
 
 | # | Fecha | Commit | Versión | Qué se hizo |
 |---|-------|--------|---------|-------------|
-| 20 | 2026-09-14 | — | v1.51 | Se agrega este changelog (`BUILDS.md`) y se arranca a bumpear versión en cada deploy |
+| 21 | 2026-09-14 | — | v1.52 | Se saca Configuración, Apariencia y Cerrar sesión del pie de la sidebar y se arma una topbar nueva (arriba de todo, separada del menú lateral) con esos 3 accesos. Se mueven los toasts de `top-right` a `bottom-right` para que no choquen con la topbar nueva |
+| 20 | 2026-09-14 | `aa94f28` | v1.51 | Se agrega este changelog (`BUILDS.md`) y se arranca a bumpear versión en cada deploy |
 | 19 | 2026-09-14 13:58 | `3da30f4` | v1.50 | Fix: Informes tiraba 500 al cargar — `top-articulos` agrupaba y sumaba dentro de la misma consulta LINQ tras dos Joins, algo que EF Core no puede traducir a SQL |
 | 18 | 2026-09-14 13:48 | `a3c385c` | v1.50 | Fix: la sidebar dejaba ver el fondo blanco de la página por debajo de "Configuración" — al nav le faltaba `overflow-y-auto` y los últimos ítems se desbordaban fuera del panel oscuro |
 | 17 | 2026-09-14 13:41 | `47f793f` | v1.50 | Fix: layout angosto en `/configuracion` (usaba `max-w-2xl` en vez de `max-w-5xl` como el resto de la app) |
