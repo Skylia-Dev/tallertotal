@@ -33,6 +33,9 @@ public class AuthController(AppDbContext db, IConfiguration config) : Controller
             return Ok(new LoginTwoFactorRequiredResponse(true, ticket.Id));
         }
 
+        user.LastSeenAt = DateTime.UtcNow;
+        await db.SaveChangesAsync();
+
         var token = GenerateToken(user.Id, user.TenantId, user.Username, user.Role.ToString());
         return Ok(new LoginResponse(token, user.Username, user.Tenant.Name, user.Role.ToString()));
     }
@@ -52,6 +55,7 @@ public class AuthController(AppDbContext db, IConfiguration config) : Controller
             return Unauthorized(new { error = "Código incorrecto." });
 
         ticket.Used = true;
+        user.LastSeenAt = DateTime.UtcNow;
         await db.SaveChangesAsync();
 
         var token = GenerateToken(user.Id, user.TenantId, user.Username, user.Role.ToString());

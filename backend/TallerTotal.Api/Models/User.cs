@@ -13,5 +13,8 @@ public class User
     public string? TotpSecret { get; set; }
     public bool TotpEnabled { get; set; }
 
+    /// <summary>Última actividad conocida (heartbeat del frontend). Usado para el cierre de sesión por inactividad.</summary>
+    public DateTime? LastSeenAt { get; set; }
+
     public Tenant Tenant { get; set; } = null!;
 }

@@ -1,5 +1,6 @@
 // redeploy check #2: confirming automatic (non-manual) trigger works 2026-09-14
 using TallerTotal.Api.Data;
+using TallerTotal.Api.Middleware;
 using TallerTotal.Api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -93,6 +94,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors();
 app.UseAuthentication();
+app.UseMiddleware<InactivitySessionMiddleware>();
 app.UseAuthorization();
 app.UseHttpsRedirection();
 

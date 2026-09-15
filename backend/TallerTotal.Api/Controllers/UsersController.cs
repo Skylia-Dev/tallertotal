@@ -116,6 +116,15 @@ public class UsersController(AppDbContext db) : ControllerBase
         return NoContent();
     }
 
+    // Heartbeat de actividad — lo llama el tracker del frontend mientras hay uso real
+    // de la página. Alimenta el cierre de sesión por inactividad (ver InactivitySessionMiddleware).
+    [HttpPut("me/activity")]
+    public async Task<IActionResult> PingActivity()
+    {
+        await db.Users.Where(u => u.Id == CurrentUserId).ExecuteUpdateAsync(s => s.SetProperty(u => u.LastSeenAt, DateTime.UtcNow));
+        return NoContent();
+    }
+
     // ── Autenticación de dos factores (TOTP) ────────────────────────────────
     // Cada usuario gestiona la suya propia — no requiere CanManage.
 

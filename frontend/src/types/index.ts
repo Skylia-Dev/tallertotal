@@ -446,6 +446,10 @@ export interface UserListItem {
   isActive?: boolean;
 }
 
+export interface SessionConfig {
+  sessionTimeoutMinutes: number;
+}
+
 export interface TotpStatus {
   enabled: boolean;
 }

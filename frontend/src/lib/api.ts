@@ -41,6 +41,7 @@ import type {
   ServiceOrderType,
   ChecklistItem,
   UpcomingLubricentro,
+  SessionConfig,
 } from "@/types";
 
 // All calls go through the Next.js proxy which adds the JWT from httpOnly cookie
@@ -52,6 +53,13 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     ...init,
   });
   if (!res.ok) {
+    // Sesión inválida o expirada (por inactividad, o el JWT venció) — no tiene sentido
+    // seguir mostrando errores sueltos por cada llamada, mandamos directo al login.
+    if (res.status === 401 && typeof window !== "undefined") {
+      fetch("/api/auth/logout", { method: "POST" }).finally(() => {
+        window.location.href = "/login";
+      });
+    }
     const text = await res.text();
     throw new Error(text || `HTTP ${res.status}`);
   }
@@ -261,6 +269,13 @@ export const twoFactorApi = {
     request<void>("/users/me/2fa/enable", { method: "POST", body: JSON.stringify({ code }) }),
   disable: (password: string) =>
     request<void>("/users/me/2fa/disable", { method: "POST", body: JSON.stringify({ password }) }),
+};
+
+export const sessionConfigApi = {
+  get: () => request<SessionConfig>("/tenant/session-config"),
+  update: (sessionTimeoutMinutes: number) =>
+    request<SessionConfig>("/tenant/session-config", { method: "PUT", body: JSON.stringify({ sessionTimeoutMinutes }) }),
+  pingActivity: () => request<void>("/users/me/activity", { method: "PUT" }),
 };
 
 // Módulos visibles — cualquiera lee, solo SuperAdmin puede editar (el backend lo valida)

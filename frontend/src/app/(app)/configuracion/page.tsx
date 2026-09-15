@@ -9,11 +9,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import {
   Plus, Loader2, Send, QrCode, RefreshCw, Plug, Settings,
-  Wifi, WifiOff,
+  Wifi, WifiOff, Timer,
 } from "lucide-react";
 import {
   adminApi,
   tenantModuleConfigApi,
+  sessionConfigApi,
   type WhatsAppStatusResponse,
   type WhatsAppQrResponse,
   type WhatsAppChannelsResponse,
@@ -548,6 +549,72 @@ function PushCard() {
   );
 }
 
+// ── Sesión ────────────────────────────────────────────────────────────────────
+
+function SessionTimeoutCard() {
+  const [minutes, setMinutes] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    sessionConfigApi.get()
+      .then((c) => setMinutes(c.sessionTimeoutMinutes))
+      .catch(() => toast.error("No se pudo cargar la configuración de sesión"))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleSave = async () => {
+    if (minutes === null || minutes < 1 || minutes > 1440) {
+      toast.error("Ingresá un valor entre 1 y 1440 minutos");
+      return;
+    }
+    setSaving(true);
+    try {
+      await sessionConfigApi.update(minutes);
+      toast.success("Guardado ✓");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Error al guardar");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-sm font-semibold flex items-center gap-2">
+          <Timer className="h-4 w-4" /> Cierre de sesión por inactividad
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3 text-sm">
+        {loading ? (
+          <p className="text-xs text-gray-400">Cargando…</p>
+        ) : (
+          <>
+            <p className="text-xs text-gray-500">
+              Si nadie usa el sistema durante este tiempo, la sesión se cierra automáticamente.
+            </p>
+            <div className="flex items-center gap-2">
+              <Input
+                type="number"
+                min={1}
+                max={1440}
+                value={minutes ?? ""}
+                onChange={(e) => setMinutes(e.target.value ? Number(e.target.value) : null)}
+                className="w-24 text-sm"
+              />
+              <span className="text-xs text-gray-500">minutos</span>
+              <Button size="sm" onClick={handleSave} disabled={saving} className="ml-auto h-8 text-xs">
+                {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : "Guardar"}
+              </Button>
+            </div>
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 // ── Integraciones tab ─────────────────────────────────────────────────────────
 
 function IntegracionesTab() {
@@ -556,6 +623,7 @@ function IntegracionesTab() {
       <WhatsAppCard />
       <EmailCard />
       <PushCard />
+      <SessionTimeoutCard />
     </div>
   );
 }

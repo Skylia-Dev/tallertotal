@@ -37,6 +37,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.HasKey(x => x.Id);
             e.Property(x => x.Name).HasMaxLength(150).IsRequired();
             e.Property(x => x.HiddenModulesJson).HasMaxLength(2000);
+            e.Property(x => x.SessionTimeoutMinutes).HasDefaultValue(30);
         });
 
         modelBuilder.Entity<User>(e =>

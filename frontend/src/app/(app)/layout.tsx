@@ -2,10 +2,12 @@ import { Sidebar } from "@/components/Sidebar";
 import { Topbar } from "@/components/Topbar";
 import { BottomNav } from "@/components/BottomNav";
 import { ModuleConfigProvider } from "@/contexts/ModuleConfigContext";
+import { SessionActivityTracker } from "@/components/SessionActivityTracker";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <ModuleConfigProvider>
+      <SessionActivityTracker />
       <div className="h-full flex bg-gradient-to-br from-slate-50 via-blue-50/25 to-slate-50">
         <div className="hidden md:flex">
           <Sidebar />
