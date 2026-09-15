@@ -1,9 +1,9 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { LayoutDashboard, Users, Car, ClipboardList, Wrench, Package, Truck, ShoppingBag, Receipt, Wallet, FileText, Banknote, BarChart3, History, UserRound } from "lucide-react";
+import { LayoutDashboard, Users, Car, ClipboardList, Package, Truck, ShoppingBag, Receipt, Wallet, FileText, Banknote, BarChart3, History, UserRound, ClipboardCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TallerTotalLogo } from "@/components/TallerTotalLogo";
 import { useModuleConfig } from "@/contexts/ModuleConfigContext";
@@ -13,7 +13,6 @@ const navItems = [
   { href: "/ordenes", label: "Órdenes de Servicio", icon: ClipboardList, moduleKey: "ordenes" },
   { href: "/clientes", label: "Clientes", icon: Users, moduleKey: "clientes" },
   { href: "/vehiculos", label: "Vehículos", icon: Car, moduleKey: "vehiculos" },
-  { href: "/mecanicos", label: "Mecánicos", icon: Wrench, moduleKey: "mecanicos" },
   { href: "/articulos", label: "Artículos", icon: Package, moduleKey: "articulos" },
   { href: "/proveedores", label: "Proveedores", icon: Truck, moduleKey: "proveedores" },
   { href: "/compras", label: "Compras", icon: ShoppingBag, moduleKey: "compras" },
@@ -29,6 +28,30 @@ const navItems = [
 const restrictedItems = [
   { href: "/usuarios", label: "Usuarios", icon: UserRound, roles: ["Owner", "Admin", "SuperAdmin"] },
 ];
+
+// El rol Mecánico tiene un menú completamente aparte: nada del resto del taller,
+// solo su dashboard restringido y sus propias órdenes.
+const mechanicItems = [
+  { href: "/", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/mis-ordenes", label: "Mis Órdenes", icon: ClipboardCheck },
+];
+
+function NavLink({ href, label, icon: Icon, active }: { href: string; label: string; icon: React.ElementType; active: boolean }) {
+  return (
+    <Link
+      href={href}
+      className={cn(
+        "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+        active
+          ? "bg-blue-600 text-white shadow-sm"
+          : "text-slate-400 hover:bg-slate-800 hover:text-white"
+      )}
+    >
+      <Icon className="h-4 w-4 shrink-0" />
+      {label}
+    </Link>
+  );
+}
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -54,36 +77,18 @@ export function Sidebar() {
         )}
       </div>
       <nav className="flex-1 overflow-y-auto p-3 space-y-1">
-        {navItems.filter(({ moduleKey }) => moduleKey === null || !hiddenModules.has(moduleKey)).map(({ href, label, icon: Icon }) => (
-          <Link
-            key={href}
-            href={href}
-            className={cn(
-              "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-              pathname === href
-                ? "bg-blue-600 text-white shadow-sm"
-                : "text-slate-400 hover:bg-slate-800 hover:text-white"
-            )}
-          >
-            <Icon className="h-4 w-4 shrink-0" />
-            {label}
-          </Link>
-        ))}
-        {restrictedItems.filter((item) => role !== null && item.roles.includes(role)).map(({ href, label, icon: Icon }) => (
-          <Link
-            key={href}
-            href={href}
-            className={cn(
-              "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-              pathname === href
-                ? "bg-blue-600 text-white shadow-sm"
-                : "text-slate-400 hover:bg-slate-800 hover:text-white"
-            )}
-          >
-            <Icon className="h-4 w-4 shrink-0" />
-            {label}
-          </Link>
-        ))}
+        {role === "Mechanic" ? (
+          mechanicItems.map((item) => <NavLink key={item.href} {...item} active={pathname === item.href} />)
+        ) : (
+          <>
+            {navItems
+              .filter(({ moduleKey }) => moduleKey === null || !hiddenModules.has(moduleKey))
+              .map((item) => <NavLink key={item.href} {...item} active={pathname === item.href} />)}
+            {restrictedItems
+              .filter((item) => role !== null && item.roles.includes(role))
+              .map((item) => <NavLink key={item.href} {...item} active={pathname === item.href} />)}
+          </>
+        )}
       </nav>
     </aside>
   );

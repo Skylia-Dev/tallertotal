@@ -8,7 +8,7 @@ public static class ModuleRegistry
 {
     public static readonly HashSet<string> HideableKeys =
     [
-        "ordenes", "clientes", "vehiculos", "mecanicos", "articulos", "proveedores",
+        "ordenes", "clientes", "vehiculos", "articulos", "proveedores",
         "compras", "ventas", "presupuestos", "deudas", "caja", "informes", "auditoria"
     ];
 }

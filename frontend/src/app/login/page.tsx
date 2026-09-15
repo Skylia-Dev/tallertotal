@@ -33,7 +33,7 @@ export default function LoginPage() {
       }
 
       const data = await res.json();
-      router.push(data.role === "Mechanic" ? "/mis-ordenes" : "/");
+      router.push("/");
     } catch {
       toast.error("Error de conexión");
     } finally {

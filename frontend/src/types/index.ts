@@ -390,6 +390,12 @@ export interface UserListItem {
   username: string;
   role: string;
   createdAt: string;
+  // Solo presentes cuando role = "Mechanic"
+  mechanicId?: string;
+  name?: string;
+  phone?: string;
+  specialty?: string;
+  isActive?: boolean;
 }
 
 export interface CreateUserDto {

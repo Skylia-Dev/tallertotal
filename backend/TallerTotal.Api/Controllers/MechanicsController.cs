@@ -38,21 +38,8 @@ public class MechanicsController(AppDbContext db) : ControllerBase
         return new MechanicDto(m.Id, m.Name, m.Phone, m.Specialty, m.IsActive);
     }
 
-    [HttpPost]
-    public async Task<ActionResult<MechanicDto>> Create(CreateMechanicDto dto)
-    {
-        var mechanic = new Mechanic
-        {
-            TenantId = TenantId,
-            Name = dto.Name,
-            Phone = dto.Phone,
-            Specialty = dto.Specialty,
-        };
-        db.Mechanics.Add(mechanic);
-        await db.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetById), new { id = mechanic.Id },
-            new MechanicDto(mechanic.Id, mechanic.Name, mechanic.Phone, mechanic.Specialty, mechanic.IsActive));
-    }
+    // No hay POST acá: un Mechanic siempre se crea junto con su login desde
+    // UsersController.Create (Role=Mechanic), para que nunca quede sin usuario.
 
     [HttpPut("{id:guid}")]
     public async Task<ActionResult<MechanicDto>> Update(Guid id, CreateMechanicDto dto)
@@ -80,24 +67,8 @@ public class MechanicsController(AppDbContext db) : ControllerBase
         return new MechanicDto(mechanic.Id, mechanic.Name, mechanic.Phone, mechanic.Specialty, mechanic.IsActive);
     }
 
-    [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> Delete(Guid id)
-    {
-        var mechanic = await db.Mechanics.FirstOrDefaultAsync(m => m.Id == id && m.TenantId == TenantId);
-        if (mechanic is null) return NotFound();
-
-        // Si el mecánico tiene login (rol Mechanic), lo borramos también —
-        // no tendría sentido dejarlo con acceso al sistema sin su perfil.
-        if (mechanic.UserId is { } userId)
-        {
-            var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
-            if (user is not null) db.Users.Remove(user);
-        }
-
-        db.Mechanics.Remove(mechanic);
-        await db.SaveChangesAsync();
-        return NoContent();
-    }
+    // No hay DELETE acá tampoco: borrar un mecánico es borrar su usuario
+    // (UsersController.Delete), que en cascada borra este perfil.
 
     /// <summary>
     /// Stores a Web Push subscription for a mechanic.

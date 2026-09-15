@@ -41,7 +41,7 @@ const STATUS_COLORS: Record<string, string> = {
 const fmt = (n: number) =>
   "$" + n.toLocaleString("es-AR", { minimumFractionDigits: 0 });
 
-export default function DashboardPage() {
+function OfficeDashboard() {
   const [orders, setOrders] = useState<ServiceOrder[]>([]);
   const [allOrders, setAllOrders] = useState<ServiceOrder[]>([]);
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
@@ -570,5 +570,74 @@ function statusLabel(status: string): string {
     Cancelled: "Canceladas",
   };
   return map[status] ?? status;
+}
+
+// ── Dashboard restringido para el rol Mecánico ──────────────────────────────────
+// Nada de ingresos ni métricas del taller — solo un resumen de SUS órdenes.
+
+function MechanicDashboard() {
+  const [orders, setOrders] = useState<ServiceOrder[] | null>(null);
+
+  useEffect(() => {
+    serviceOrdersApi.getMine().then(setOrders).catch(() => setOrders([]));
+  }, []);
+
+  const activas = orders?.filter((o) => o.status === "Open" || o.status === "InProgress").length ?? 0;
+  const completadasEsteMes = orders?.filter((o) => {
+    if (o.status !== "Completed" || !o.completedAt) return false;
+    const d = new Date(o.completedAt);
+    const now = new Date();
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+  }).length ?? 0;
+  const vencidas = orders?.filter((o) => {
+    if (o.status === "Completed" || o.status === "Cancelled" || !o.estimatedDeliveryAt) return false;
+    return new Date(o.estimatedDeliveryAt) < new Date();
+  }).length ?? 0;
+
+  return (
+    <div className="space-y-6 max-w-3xl mx-auto">
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+        <p className="text-sm text-gray-500 mt-1">Resumen de tu trabajo</p>
+      </div>
+
+      <div className="grid grid-cols-3 gap-4">
+        <Card className="border-l-4 border-l-blue-500">
+          <CardContent className="pt-5 pb-4">
+            <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Activas</p>
+            <p className="text-2xl font-bold text-gray-900 mt-1">{orders === null ? "—" : activas}</p>
+          </CardContent>
+        </Card>
+        <Card className="border-l-4 border-l-emerald-500">
+          <CardContent className="pt-5 pb-4">
+            <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Completadas este mes</p>
+            <p className="text-2xl font-bold text-gray-900 mt-1">{orders === null ? "—" : completadasEsteMes}</p>
+          </CardContent>
+        </Card>
+        <Card className="border-l-4 border-l-red-500">
+          <CardContent className="pt-5 pb-4">
+            <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Vencidas</p>
+            <p className="text-2xl font-bold text-gray-900 mt-1">{orders === null ? "—" : vencidas}</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <p className="text-sm text-gray-400">
+        Para el detalle de cada orden, andá a <span className="font-medium text-gray-500">Mis Órdenes</span> en el menú.
+      </p>
+    </div>
+  );
+}
+
+export default function DashboardPage() {
+  const [role, setRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    const match = document.cookie.match(/(?:^|;\s*)tallertotal_role=([^;]*)/);
+    setRole(match ? decodeURIComponent(match[1]) : null);
+  }, []);
+
+  if (role === null) return null;
+  return role === "Mechanic" ? <MechanicDashboard /> : <OfficeDashboard />;
 }
 

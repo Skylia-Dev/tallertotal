@@ -1,8 +1,9 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, ClipboardList, Users, Car, Wrench, Package } from "lucide-react";
+import { useEffect, useState } from "react";
+import { LayoutDashboard, ClipboardList, Users, Car, Receipt, Package, ClipboardCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useModuleConfig } from "@/contexts/ModuleConfigContext";
 
@@ -11,17 +12,32 @@ const navItems = [
   { href: "/ordenes", label: "Órdenes", icon: ClipboardList, moduleKey: "ordenes" },
   { href: "/clientes", label: "Clientes", icon: Users, moduleKey: "clientes" },
   { href: "/vehiculos", label: "Vehículos", icon: Car, moduleKey: "vehiculos" },
-  { href: "/mecanicos", label: "Mecánicos", icon: Wrench, moduleKey: "mecanicos" },
+  { href: "/ventas", label: "Ventas", icon: Receipt, moduleKey: "ventas" },
   { href: "/articulos", label: "Artículos", icon: Package, moduleKey: "articulos" },
+];
+
+const mechanicItems = [
+  { href: "/", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/mis-ordenes", label: "Mis Órdenes", icon: ClipboardCheck },
 ];
 
 export function BottomNav() {
   const pathname = usePathname();
   const { hiddenModules } = useModuleConfig();
+  const [role, setRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    const roleMatch = document.cookie.match(/(?:^|;\s*)tallertotal_role=([^;]*)/);
+    setRole(roleMatch ? decodeURIComponent(roleMatch[1]) : null);
+  }, []);
+
+  const items = role === "Mechanic"
+    ? mechanicItems
+    : navItems.filter(({ moduleKey }) => moduleKey === null || !hiddenModules.has(moduleKey));
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 flex md:hidden">
-      {navItems.filter(({ moduleKey }) => moduleKey === null || !hiddenModules.has(moduleKey)).map(({ href, label, icon: Icon }) => (
+      {items.map(({ href, label, icon: Icon }) => (
         <Link
           key={href}
           href={href}

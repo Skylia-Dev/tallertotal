@@ -1,18 +1,19 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { usersApi } from "@/lib/api";
+import { usersApi, mechanicsApi } from "@/lib/api";
 import type { UserListItem, CreateUserDto } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogClose,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, UserRound, Trash2, ShieldAlert } from "lucide-react";
+import { Plus, UserRound, Trash2, ShieldAlert, Pencil, ToggleLeft, ToggleRight } from "lucide-react";
 import { toast } from "sonner";
 
 const emptyForm = (): CreateUserDto => ({ username: "", password: "", role: "Employee" });
@@ -43,6 +44,10 @@ export default function UsuariosPage() {
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<UserListItem | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [editTarget, setEditTarget] = useState<UserListItem | null>(null);
+  const [editForm, setEditForm] = useState({ name: "", phone: "", specialty: "" });
+  const [savingEdit, setSavingEdit] = useState(false);
+  const [togglingId, setTogglingId] = useState<string | null>(null);
 
   useEffect(() => {
     const match = document.cookie.match(/(?:^|;\s*)tallertotal_role=([^;]*)/);
@@ -80,6 +85,44 @@ export default function UsuariosPage() {
       toast.error(e instanceof Error ? e.message : "Error al crear el usuario");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const openEdit = (u: UserListItem) => {
+    setEditTarget(u);
+    setEditForm({ name: u.name ?? "", phone: u.phone ?? "", specialty: u.specialty ?? "" });
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editTarget?.mechanicId || !editForm.name.trim()) return;
+    setSavingEdit(true);
+    try {
+      await mechanicsApi.update(editTarget.mechanicId, {
+        name: editForm.name.trim(),
+        phone: editForm.phone.trim() || undefined,
+        specialty: editForm.specialty.trim() || undefined,
+      });
+      toast.success("Mecánico actualizado");
+      setEditTarget(null);
+      load();
+    } catch {
+      toast.error("Error al guardar");
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
+  const handleToggle = async (u: UserListItem) => {
+    if (!u.mechanicId) return;
+    setTogglingId(u.id);
+    try {
+      await mechanicsApi.toggle(u.mechanicId);
+      toast.success(u.isActive ? "Mecánico desactivado" : "Mecánico activado");
+      load();
+    } catch {
+      toast.error("Error al cambiar estado");
+    } finally {
+      setTogglingId(null);
     }
   };
 
@@ -191,27 +234,58 @@ export default function UsuariosPage() {
                 <TableHeader>
                   <TableRow className="bg-gray-50">
                     <TableHead>Usuario</TableHead>
+                    <TableHead>Nombre</TableHead>
                     <TableHead>Rol</TableHead>
+                    <TableHead>Estado</TableHead>
                     <TableHead>Creado</TableHead>
                     <TableHead className="text-right">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {users.map((u) => (
-                    <TableRow key={u.id} className="hover:bg-gray-50">
+                    <TableRow key={u.id} className={`hover:bg-gray-50 ${u.isActive === false ? "opacity-50" : ""}`}>
                       <TableCell className="font-medium">{u.username}</TableCell>
+                      <TableCell className="text-sm text-gray-600">
+                        {u.name ?? "—"}
+                        {u.specialty && <span className="text-gray-400"> · {u.specialty}</span>}
+                      </TableCell>
                       <TableCell className="text-sm text-gray-600">{roleLabel[u.role] ?? u.role}</TableCell>
+                      <TableCell>
+                        {u.role === "Mechanic" && (
+                          <Badge variant="outline" className={u.isActive ? "border-green-300 text-green-700 bg-green-50" : "border-gray-300 text-gray-500 bg-gray-50"}>
+                            {u.isActive ? "Activo" : "Inactivo"}
+                          </Badge>
+                        )}
+                      </TableCell>
                       <TableCell className="text-sm text-gray-500">{new Date(u.createdAt).toLocaleDateString("es-AR")}</TableCell>
                       <TableCell className="text-right">
-                        {!undeletableRoles.has(u.role) && (
-                          <Button
-                            variant="ghost" size="icon-sm"
-                            onClick={() => setDeleteTarget(u)}
-                            className="text-red-400 hover:text-red-600 hover:bg-red-50"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
-                        )}
+                        <div className="flex justify-end gap-1">
+                          {u.role === "Mechanic" && (
+                            <>
+                              <Button
+                                variant="ghost" size="icon-sm"
+                                onClick={() => handleToggle(u)}
+                                disabled={togglingId === u.id}
+                                title={u.isActive ? "Desactivar" : "Activar"}
+                                className="text-gray-400 hover:text-blue-600"
+                              >
+                                {u.isActive ? <ToggleRight className="h-3.5 w-3.5" /> : <ToggleLeft className="h-3.5 w-3.5" />}
+                              </Button>
+                              <Button variant="ghost" size="icon-sm" onClick={() => openEdit(u)}>
+                                <Pencil className="h-3.5 w-3.5" />
+                              </Button>
+                            </>
+                          )}
+                          {!undeletableRoles.has(u.role) && (
+                            <Button
+                              variant="ghost" size="icon-sm"
+                              onClick={() => setDeleteTarget(u)}
+                              className="text-red-400 hover:text-red-600 hover:bg-red-50"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          )}
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -234,6 +308,34 @@ export default function UsuariosPage() {
             <DialogClose render={<Button variant="outline" />}>Cancelar</DialogClose>
             <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
               {deleting ? "Eliminando..." : "Sí, eliminar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!editTarget} onOpenChange={(o) => !o && setEditTarget(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Editar mecánico</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-3 py-2">
+            <div className="space-y-1">
+              <Label required>Nombre</Label>
+              <Input value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} placeholder="Juan Pérez" autoFocus />
+            </div>
+            <div className="space-y-1">
+              <Label>Teléfono</Label>
+              <Input value={editForm.phone} onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })} placeholder="+54 9 291 555-0000" />
+            </div>
+            <div className="space-y-1">
+              <Label>Especialidad</Label>
+              <Input value={editForm.specialty} onChange={(e) => setEditForm({ ...editForm, specialty: e.target.value })} placeholder="Motor, frenos, electricidad..." />
+            </div>
+          </div>
+          <DialogFooter>
+            <DialogClose render={<Button variant="outline" />}>Cancelar</DialogClose>
+            <Button onClick={handleSaveEdit} disabled={savingEdit || !editForm.name.trim()}>
+              {savingEdit ? "Guardando..." : "Guardar"}
             </Button>
           </DialogFooter>
         </DialogContent>

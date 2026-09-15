@@ -87,13 +87,10 @@ export const vehiclesApi = {
 export const mechanicsApi = {
   getAll: (activeOnly?: boolean) =>
     request<Mechanic[]>(`/mechanics${activeOnly ? "?activeOnly=true" : ""}`),
-  create: (dto: CreateMechanicDto) =>
-    request<Mechanic>("/mechanics", { method: "POST", body: JSON.stringify(dto) }),
   update: (id: string, dto: CreateMechanicDto) =>
     request<Mechanic>(`/mechanics/${id}`, { method: "PUT", body: JSON.stringify(dto) }),
   toggle: (id: string) =>
     request<Mechanic>(`/mechanics/${id}/toggle`, { method: "PATCH" }),
-  delete: (id: string) => request<void>(`/mechanics/${id}`, { method: "DELETE" }),
 };
 
 // Service Orders

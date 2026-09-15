@@ -12,4 +12,8 @@ public record CreateUserDto(
     [MaxLength(100)] string? Specialty = null
 );
 
-public record UserListItemDto(Guid Id, string Username, string Role, DateTime CreatedAt);
+public record UserListItemDto(
+    Guid Id, string Username, string Role, DateTime CreatedAt,
+    // Solo presentes cuando Role = Mechanic: datos del perfil de mecánico enlazado.
+    Guid? MechanicId = null, string? Name = null, string? Phone = null, string? Specialty = null, bool? IsActive = null
+);

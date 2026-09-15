@@ -31,9 +31,11 @@ export async function proxy(request: NextRequest) {
       return NextResponse.redirect(new URL("/", request.url));
     }
 
-    // Mechanic role: solo puede ver /mis-ordenes (y llamadas a la API, que no son navegación de página)
-    if (role === "Mechanic" && !pathname.startsWith("/mis-ordenes") && !pathname.startsWith("/api/")) {
-      return NextResponse.redirect(new URL("/mis-ordenes", request.url));
+    // Mechanic role: solo puede ver su dashboard restringido ("/") y sus órdenes
+    // (llamadas a /api/* siguen abiertas, no son navegación de página)
+    const mechanicAllowed = pathname === "/" || pathname.startsWith("/mis-ordenes") || pathname.startsWith("/api/");
+    if (role === "Mechanic" && !mechanicAllowed) {
+      return NextResponse.redirect(new URL("/", request.url));
     }
 
     return NextResponse.next();

@@ -1,5 +1,5 @@
 import * as XLSX from "xlsx";
-import type { Customer, Vehicle, Mechanic } from "@/types";
+import type { Customer, Vehicle } from "@/types";
 
 function fmtDate(s?: string) {
   if (!s) return "—";
@@ -53,26 +53,5 @@ export function exportVehiclesToExcel(vehicles: Vehicle[], filename = "vehiculos
 
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Vehículos");
-  XLSX.writeFile(wb, filename);
-}
-
-export function exportMechanicsToExcel(mechanics: Mechanic[], filename = "mecanicos.xlsx") {
-  const rows = mechanics.map((m) => ({
-    Nombre: m.name,
-    Teléfono: m.phone ?? "—",
-    Especialidad: m.specialty ?? "—",
-    Estado: m.isActive ? "Activo" : "Inactivo",
-  }));
-
-  const ws = XLSX.utils.json_to_sheet(rows);
-  ws["!cols"] = [
-    { wch: 28 }, // Nombre
-    { wch: 18 }, // Teléfono
-    { wch: 22 }, // Especialidad
-    { wch: 10 }, // Estado
-  ];
-
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Mecánicos");
   XLSX.writeFile(wb, filename);
 }

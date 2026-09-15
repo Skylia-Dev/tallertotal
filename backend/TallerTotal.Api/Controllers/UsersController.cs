@@ -26,11 +26,22 @@ public class UsersController(AppDbContext db) : ControllerBase
     {
         if (!CanManage) return Forbid();
 
-        return Ok(await db.Users
+        var users = await db.Users
             .Where(u => u.TenantId == TenantId)
             .OrderBy(u => u.CreatedAt)
-            .Select(u => new UserListItemDto(u.Id, u.Username, u.Role.ToString(), u.CreatedAt))
-            .ToListAsync());
+            .ToListAsync();
+
+        var mechanicsByUserId = await db.Mechanics
+            .Where(m => m.TenantId == TenantId && m.UserId != null)
+            .ToDictionaryAsync(m => m.UserId!.Value);
+
+        return Ok(users.Select(u =>
+        {
+            mechanicsByUserId.TryGetValue(u.Id, out var mechanic);
+            return new UserListItemDto(
+                u.Id, u.Username, u.Role.ToString(), u.CreatedAt,
+                mechanic?.Id, mechanic?.Name, mechanic?.Phone, mechanic?.Specialty, mechanic?.IsActive);
+        }));
     }
 
     [HttpPost]
@@ -60,21 +71,25 @@ public class UsersController(AppDbContext db) : ControllerBase
 
         // Un usuario Mechanic siempre trae su perfil de mecánico enlazado —
         // es lo que permite asignarlo a órdenes y filtrar "sus" órdenes en /mis-ordenes.
+        Mechanic? mechanic = null;
         if (role == UserRole.Mechanic)
         {
-            db.Mechanics.Add(new Mechanic
+            mechanic = new Mechanic
             {
                 TenantId = TenantId,
                 Name = dto.Name!.Trim(),
                 Phone = dto.Phone,
                 Specialty = dto.Specialty,
                 UserId = user.Id,
-            });
+            };
+            db.Mechanics.Add(mechanic);
         }
 
         await db.SaveChangesAsync();
 
-        return new UserListItemDto(user.Id, user.Username, user.Role.ToString(), user.CreatedAt);
+        return new UserListItemDto(
+            user.Id, user.Username, user.Role.ToString(), user.CreatedAt,
+            mechanic?.Id, mechanic?.Name, mechanic?.Phone, mechanic?.Specialty, mechanic?.IsActive);
     }
 
     [HttpDelete("{id:guid}")]

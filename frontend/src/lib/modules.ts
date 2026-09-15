@@ -9,7 +9,6 @@ export const HIDEABLE_MODULES: ModuleDef[] = [
   { key: "ordenes", href: "/ordenes", label: "Órdenes de Servicio" },
   { key: "clientes", href: "/clientes", label: "Clientes" },
   { key: "vehiculos", href: "/vehiculos", label: "Vehículos" },
-  { key: "mecanicos", href: "/mecanicos", label: "Mecánicos" },
   { key: "articulos", href: "/articulos", label: "Artículos" },
   { key: "proveedores", href: "/proveedores", label: "Proveedores" },
   { key: "compras", href: "/compras", label: "Compras" },
