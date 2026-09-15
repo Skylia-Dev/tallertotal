@@ -65,8 +65,11 @@ export default function UsuariosPage() {
 
   const openCreate = () => { setForm(emptyForm()); setOpen(true); };
 
+  const isMechanic = form.role === "Mechanic";
+  const canSave = form.username && form.password.length >= 6 && (!isMechanic || !!form.name?.trim());
+
   const handleSave = async () => {
-    if (!form.username || form.password.length < 6) return;
+    if (!canSave) return;
     setSaving(true);
     try {
       await usersApi.create(form);
@@ -143,10 +146,26 @@ export default function UsuariosPage() {
                   </SelectContent>
                 </Select>
               </div>
+              {isMechanic && (
+                <>
+                  <div className="space-y-1">
+                    <Label required>Nombre</Label>
+                    <Input value={form.name ?? ""} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Juan Pérez" />
+                  </div>
+                  <div className="space-y-1">
+                    <Label>Teléfono</Label>
+                    <Input value={form.phone ?? ""} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="+54 9 291 ..." />
+                  </div>
+                  <div className="space-y-1">
+                    <Label>Especialidad</Label>
+                    <Input value={form.specialty ?? ""} onChange={(e) => setForm({ ...form, specialty: e.target.value })} placeholder="Motor, frenos, electricidad..." />
+                  </div>
+                </>
+              )}
             </div>
             <DialogFooter>
               <DialogClose render={<Button variant="outline" />}>Cancelar</DialogClose>
-              <Button onClick={handleSave} disabled={saving || !form.username || form.password.length < 6}>
+              <Button onClick={handleSave} disabled={saving || !canSave}>
                 {saving ? "Guardando..." : "Crear"}
               </Button>
             </DialogFooter>

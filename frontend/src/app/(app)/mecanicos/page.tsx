@@ -9,9 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogClose,
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose,
 } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, Wrench, ToggleLeft, ToggleRight, FileSpreadsheet, Bell } from "lucide-react";
+import { Pencil, Trash2, Wrench, ToggleLeft, ToggleRight, FileSpreadsheet, Bell } from "lucide-react";
 import { Pagination } from "@/components/Pagination";
 import { toast } from "sonner";
 import { exportMechanicsToExcel } from "@/lib/export-data";
@@ -56,12 +56,6 @@ export default function MecanicosPage() {
   useEffect(() => { load(); }, [load]);
   useEffect(() => { setPage(1); }, [pageSize]);
 
-  const openCreate = () => {
-    setEditing(null);
-    setForm(emptyForm());
-    setOpen(true);
-  };
-
   const openEdit = (m: Mechanic) => {
     setEditing(m);
     setForm({ name: m.name, phone: m.phone ?? "", specialty: m.specialty ?? "" });
@@ -69,7 +63,7 @@ export default function MecanicosPage() {
   };
 
   const handleSave = async () => {
-    if (!form.name.trim()) return;
+    if (!form.name.trim() || !editing) return;
     const dto: CreateMechanicDto = {
       name: form.name.trim(),
       phone: form.phone.trim() || undefined,
@@ -77,13 +71,8 @@ export default function MecanicosPage() {
     };
     setSaving(true);
     try {
-      if (editing) {
-        await mechanicsApi.update(editing.id, dto);
-        toast.success("Mecánico actualizado");
-      } else {
-        await mechanicsApi.create(dto);
-        toast.success("Mecánico creado");
-      }
+      await mechanicsApi.update(editing.id, dto);
+      toast.success("Mecánico actualizado");
       setOpen(false);
       load();
     } catch {
@@ -160,52 +149,51 @@ export default function MecanicosPage() {
             {activeCount} activo{activeCount !== 1 ? "s" : ""} de {mechanics.length}
           </p>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger render={
-            <Button onClick={openCreate}>
-              <Plus className="h-4 w-4 mr-1" /> Nuevo Mecánico
-            </Button>
-          } />
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>{editing ? "Editar mecánico" : "Nuevo mecánico"}</DialogTitle>
-            </DialogHeader>
-            <div className="grid gap-3 py-2">
-              <div className="space-y-1">
-                <Label required>Nombre</Label>
-                <Input
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  placeholder="Juan Pérez"
-                  autoFocus
-                />
-              </div>
-              <div className="space-y-1">
-                <Label>Teléfono</Label>
-                <Input
-                  value={form.phone}
-                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                  placeholder="+54 9 291 555-0000"
-                />
-              </div>
-              <div className="space-y-1">
-                <Label>Especialidad</Label>
-                <Input
-                  value={form.specialty}
-                  onChange={(e) => setForm({ ...form, specialty: e.target.value })}
-                  placeholder="Motor, frenos, electricidad..."
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <DialogClose render={<Button variant="outline" />}>Cancelar</DialogClose>
-              <Button onClick={handleSave} disabled={saving || !form.name.trim()}>
-                {saving ? "Guardando..." : "Guardar"}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <p className="text-xs text-gray-400 max-w-[220px] text-right">
+          Los mecánicos se crean desde <span className="font-medium text-gray-500">Usuarios</span>, con rol Mecánico.
+        </p>
       </div>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Editar mecánico</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-3 py-2">
+            <div className="space-y-1">
+              <Label required>Nombre</Label>
+              <Input
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                placeholder="Juan Pérez"
+                autoFocus
+              />
+            </div>
+            <div className="space-y-1">
+              <Label>Teléfono</Label>
+              <Input
+                value={form.phone}
+                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                placeholder="+54 9 291 555-0000"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label>Especialidad</Label>
+              <Input
+                value={form.specialty}
+                onChange={(e) => setForm({ ...form, specialty: e.target.value })}
+                placeholder="Motor, frenos, electricidad..."
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <DialogClose render={<Button variant="outline" />}>Cancelar</DialogClose>
+            <Button onClick={handleSave} disabled={saving || !form.name.trim()}>
+              {saving ? "Guardando..." : "Guardar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Card>
         <CardHeader className="pb-3">

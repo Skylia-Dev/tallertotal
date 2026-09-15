@@ -45,14 +45,33 @@ public class UsersController(AppDbContext db) : ControllerBase
         if (await db.Users.AnyAsync(u => u.TenantId == TenantId && u.Username == username))
             return BadRequest("Ya existe un usuario con ese nombre.");
 
+        var role = Enum.Parse<UserRole>(dto.Role);
+        if (role == UserRole.Mechanic && string.IsNullOrWhiteSpace(dto.Name))
+            return BadRequest("El nombre es requerido para mecánicos.");
+
         var user = new User
         {
             TenantId = TenantId,
             Username = username,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
-            Role = Enum.Parse<UserRole>(dto.Role),
+            Role = role,
         };
         db.Users.Add(user);
+
+        // Un usuario Mechanic siempre trae su perfil de mecánico enlazado —
+        // es lo que permite asignarlo a órdenes y filtrar "sus" órdenes en /mis-ordenes.
+        if (role == UserRole.Mechanic)
+        {
+            db.Mechanics.Add(new Mechanic
+            {
+                TenantId = TenantId,
+                Name = dto.Name!.Trim(),
+                Phone = dto.Phone,
+                Specialty = dto.Specialty,
+                UserId = user.Id,
+            });
+        }
+
         await db.SaveChangesAsync();
 
         return new UserListItemDto(user.Id, user.Username, user.Role.ToString(), user.CreatedAt);
@@ -67,6 +86,12 @@ public class UsersController(AppDbContext db) : ControllerBase
         if (user is null) return NotFound();
         if (user.Role is UserRole.Owner or UserRole.SuperAdmin)
             return BadRequest("No se puede eliminar a este usuario.");
+
+        if (user.Role == UserRole.Mechanic)
+        {
+            var mechanic = await db.Mechanics.FirstOrDefaultAsync(m => m.UserId == id);
+            if (mechanic is not null) db.Mechanics.Remove(mechanic);
+        }
 
         db.Users.Remove(user);
         await db.SaveChangesAsync();

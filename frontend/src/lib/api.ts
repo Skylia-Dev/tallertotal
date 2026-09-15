@@ -119,6 +119,7 @@ export const serviceOrdersApi = {
     return request<ServiceOrder[]>(`/serviceorders${q ? `?${q}` : ""}`);
   },
   getById: (id: string) => request<ServiceOrder>(`/serviceorders/${id}`),
+  getMine: () => request<ServiceOrder[]>("/serviceorders/mine"),
   create: (dto: CreateServiceOrderDto) =>
     request<ServiceOrder>("/serviceorders", { method: "POST", body: JSON.stringify(dto) }),
   update: (id: string, dto: UpdateServiceOrderDto) =>

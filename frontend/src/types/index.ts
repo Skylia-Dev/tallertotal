@@ -396,6 +396,10 @@ export interface CreateUserDto {
   username: string;
   password: string;
   role: string;
+  // Solo se usan (y son requeridos) cuando role = "Mechanic"
+  name?: string;
+  phone?: string;
+  specialty?: string;
 }
 
 export interface ActivityLogItem {

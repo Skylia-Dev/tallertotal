@@ -4,6 +4,7 @@ using TallerTotal.Api.Models;
 using TallerTotal.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 
 namespace TallerTotal.Api.Controllers;
@@ -16,10 +17,26 @@ public class ServiceOrdersController(
     IWhatsAppService whatsApp,
     IEmailService email,
     IPushService push,
-    IMercadoPagoService mercadoPago) : ControllerBase
+    IMercadoPagoService mercadoPago) : ControllerBase, IActionFilter
 {
     private Guid TenantId => Guid.Parse(User.FindFirst("tenantId")!.Value);
     private string CurrentUser => User.Identity?.Name ?? "unknown";
+    private Guid CurrentUserId => Guid.Parse(User.FindFirst("sub")!.Value);
+    private string Role => User.FindFirst("role")!.Value;
+
+    /// <summary>
+    /// Un Mechanic solo puede ver sus propias órdenes vía GetMine — el resto del panel
+    /// (listado completo, edición, cambios de estado, etc.) es exclusivo del personal de oficina.
+    /// </summary>
+    public void OnActionExecuting(ActionExecutingContext context)
+    {
+        if (Role == nameof(UserRole.Mechanic) && context.ActionDescriptor.RouteValues["action"] != nameof(GetMine))
+        {
+            context.Result = Forbid();
+        }
+    }
+
+    public void OnActionExecuted(ActionExecutedContext context) { }
 
     private static ServiceOrderDto MapToDto(ServiceOrder o) => new(
         o.Id, o.VehicleId, o.Vehicle.LicensePlate,
@@ -69,6 +86,23 @@ public class ServiceOrdersController(
         // returning empty Items collections and breaking the totalEstimate in the edit dialog.
         var entities = await query.OrderByDescending(o => o.CreatedAt).ToListAsync();
         return entities.Select(MapToDto);
+    }
+
+    // Todas las órdenes (activas, completadas, canceladas) asignadas al mecánico logueado.
+    [HttpGet("mine")]
+    public async Task<ActionResult<IEnumerable<ServiceOrderDto>>> GetMine()
+    {
+        if (Role != nameof(UserRole.Mechanic)) return Forbid();
+
+        var mechanic = await db.Mechanics.FirstOrDefaultAsync(m => m.UserId == CurrentUserId);
+        if (mechanic is null) return Ok(Array.Empty<ServiceOrderDto>());
+
+        var entities = await BaseQuery()
+            .Where(o => o.AssignedMechanic == mechanic.Name)
+            .OrderByDescending(o => o.CreatedAt)
+            .ToListAsync();
+
+        return Ok(entities.Select(MapToDto));
     }
 
     [HttpGet("{id:guid}")]

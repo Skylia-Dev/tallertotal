@@ -85,6 +85,15 @@ public class MechanicsController(AppDbContext db) : ControllerBase
     {
         var mechanic = await db.Mechanics.FirstOrDefaultAsync(m => m.Id == id && m.TenantId == TenantId);
         if (mechanic is null) return NotFound();
+
+        // Si el mecánico tiene login (rol Mechanic), lo borramos también —
+        // no tendría sentido dejarlo con acceso al sistema sin su perfil.
+        if (mechanic.UserId is { } userId)
+        {
+            var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user is not null) db.Users.Remove(user);
+        }
+
         db.Mechanics.Remove(mechanic);
         await db.SaveChangesAsync();
         return NoContent();
