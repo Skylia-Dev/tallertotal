@@ -38,6 +38,9 @@ import type {
   CreateUserDto,
   TotpStatus,
   TotpSetupResponse,
+  ServiceOrderType,
+  ChecklistItem,
+  UpcomingLubricentro,
 } from "@/types";
 
 // All calls go through the Next.js proxy which adds the JWT from httpOnly cookie
@@ -99,6 +102,7 @@ export const mechanicsApi = {
 export const serviceOrdersApi = {
   getAll: (params?: {
     status?: ServiceOrderStatus;
+    type?: ServiceOrderType;
     plate?: string;
     customer?: string;
     mechanic?: string;
@@ -108,6 +112,7 @@ export const serviceOrdersApi = {
   }) => {
     const qs = new URLSearchParams();
     if (params?.status) qs.set("status", params.status);
+    if (params?.type) qs.set("type", params.type);
     if (params?.plate) qs.set("plate", params.plate);
     if (params?.customer) qs.set("customer", params.customer);
     if (params?.mechanic) qs.set("mechanic", params.mechanic);
@@ -137,6 +142,10 @@ export const serviceOrdersApi = {
     request<ServiceOrderLog[]>(`/serviceorders/${id}/logs`),
   generatePaymentLink: (id: string) =>
     request<{ url: string }>(`/serviceorders/${id}/payment-link`, { method: "POST" }),
+  updateChecklist: (id: string, items: { id: string; checked: boolean | null }[]) =>
+    request<ChecklistItem[]>(`/serviceorders/${id}/checklist`, { method: "PATCH", body: JSON.stringify({ items }) }),
+  getUpcomingLubricentro: () =>
+    request<UpcomingLubricentro[]>("/serviceorders/lubricentro/upcoming"),
 };
 
 // Articulos (stock)

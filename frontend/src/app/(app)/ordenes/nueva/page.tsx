@@ -3,35 +3,53 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { serviceOrdersApi, mechanicsApi } from "@/lib/api";
-import type { Customer, Vehicle, CreateServiceItemDto, Mechanic } from "@/types";
+import type { Customer, Vehicle, CreateServiceItemDto, Mechanic, ServiceOrderType, LubricentroDetails } from "@/types";
 import { CustomerSearch } from "@/components/CustomerSearch";
 import { VehicleSelect } from "@/components/VehicleSelect";
 import { ServiceItemsForm } from "@/components/ServiceItemsForm";
+import { LubricentroFields } from "@/components/LubricentroFields";
+import { ChecklistEditor } from "@/components/ChecklistEditor";
+import { CHECKLIST_TEMPLATES } from "@/lib/checklist-templates";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, CheckCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle, Wrench, Droplets } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 const STEPS = ["Cliente", "Vehículo", "Orden"];
 
+const EMPTY_LUBRICENTRO: LubricentroDetails = {
+  changedOilFilter: false, changedAirFilter: false, changedCabinFilter: false, changedFuelFilter: false,
+};
+
+const ORDER_TYPES: { value: ServiceOrderType; label: string; icon: typeof Wrench }[] = [
+  { value: "General", label: "Reparación general", icon: Wrench },
+  { value: "Lubricentro", label: "Cambio de aceite", icon: Droplets },
+];
+
 export default function NuevaOrdenPage() {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
+  const [orderType, setOrderType] = useState<ServiceOrderType>("General");
   const [diagnosisNotes, setDiagnosisNotes] = useState("");
   const [mileageIn, setMileageIn] = useState("");
   const [assignedMechanic, setAssignedMechanic] = useState("");
   const [internalNotes, setInternalNotes] = useState("");
   const [estimatedDeliveryAt, setEstimatedDeliveryAt] = useState("");
   const [items, setItems] = useState<CreateServiceItemDto[]>([]);
+  const [lubricentro, setLubricentro] = useState<LubricentroDetails>(EMPTY_LUBRICENTRO);
+  const [checklistAnswers, setChecklistAnswers] = useState<Record<string, boolean | null>>({});
   const [submitting, setSubmitting] = useState(false);
   const [mechanics, setMechanics] = useState<Mechanic[]>([]);
+
+  const setChecklistAnswer = (description: string, checked: boolean | null) =>
+    setChecklistAnswers((prev) => ({ ...prev, [description]: checked }));
 
   useEffect(() => {
     mechanicsApi.getAll(true).then(setMechanics).catch(() => {});
@@ -54,12 +72,15 @@ export default function NuevaOrdenPage() {
     try {
       await serviceOrdersApi.create({
         vehicleId: vehicle.id,
+        type: orderType,
         diagnosisNotes: diagnosisNotes || undefined,
         mileageIn: mileageIn ? Number(mileageIn) : undefined,
         assignedMechanic: assignedMechanic || undefined,
         internalNotes: internalNotes || undefined,
         estimatedDeliveryAt: estimatedDeliveryAt || undefined,
         items,
+        lubricentro: orderType === "Lubricentro" ? lubricentro : undefined,
+        checklistAnswers: Object.entries(checklistAnswers).map(([description, checked]) => ({ description, checked })),
       });
       toast.success("Orden creada correctamente");
       router.push("/ordenes");
@@ -169,6 +190,26 @@ export default function NuevaOrdenPage() {
               <p><span className="text-gray-500">Vehículo:</span> <span className="font-medium font-mono">{vehicle.licensePlate}</span> — {vehicle.brand} {vehicle.model} {vehicle.year}</p>
             </div>
 
+            <div className="space-y-1.5">
+              <Label>Tipo de orden</Label>
+              <div className="flex flex-wrap gap-1 bg-gray-100 p-1 rounded-lg w-fit">
+                {ORDER_TYPES.map((t) => (
+                  <button
+                    key={t.value}
+                    type="button"
+                    onClick={() => setOrderType(t.value)}
+                    className={cn(
+                      "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors",
+                      orderType === t.value ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
+                    )}
+                  >
+                    <t.icon className="h-3.5 w-3.5" />
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
                 <Label>Fecha estimada de entrega</Label>
@@ -230,6 +271,21 @@ export default function NuevaOrdenPage() {
                 rows={2}
               />
             </div>
+
+            {orderType === "Lubricentro" && (
+              <>
+                <LubricentroFields value={lubricentro} onChange={setLubricentro} />
+                <div className="space-y-2">
+                  <Label>Checklist de inspección</Label>
+                  <ChecklistEditor
+                    items={CHECKLIST_TEMPLATES.Lubricentro.map((description) => ({
+                      key: description, description, checked: checklistAnswers[description] ?? null,
+                    }))}
+                    onChange={setChecklistAnswer}
+                  />
+                </div>
+              </>
+            )}
 
             <div className="space-y-2">
               <Label>Items de servicio</Label>

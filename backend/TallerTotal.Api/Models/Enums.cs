@@ -14,6 +14,13 @@ public enum ServiceItemType
     Part
 }
 
+/// <summary>Extensible: cada tipo nuevo de servicio que ofrezca un taller (gomería, chapa y pintura, etc.) se agrega acá.</summary>
+public enum ServiceOrderType
+{
+    General,
+    Lubricentro
+}
+
 public enum UserRole
 {
     Owner,

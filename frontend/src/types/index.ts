@@ -1,6 +1,7 @@
 export type ServiceOrderStatus = "Open" | "InProgress" | "Completed" | "Cancelled";
 export type ServiceItemType = "Labor" | "Part";
 export type QuoteStatus = "None" | "Pending" | "Approved" | "Rejected";
+export type ServiceOrderType = "General" | "Lubricentro";
 
 export interface Customer {
   id: string;
@@ -32,6 +33,30 @@ export interface ServiceItem {
   total: number;
 }
 
+export interface LubricentroDetails {
+  oilBrand?: string;
+  oilType?: string;
+  oilLiters?: number;
+  changedOilFilter: boolean;
+  changedAirFilter: boolean;
+  changedCabinFilter: boolean;
+  changedFuelFilter: boolean;
+  nextServiceKm?: number;
+  nextServiceDate?: string;
+}
+
+export interface ChecklistItem {
+  id: string;
+  description: string;
+  checked: boolean | null;
+  position: number;
+}
+
+export interface ChecklistAnswer {
+  description: string;
+  checked: boolean | null;
+}
+
 export interface ServiceOrder {
   id: string;
   vehicleId: string;
@@ -39,6 +64,7 @@ export interface ServiceOrder {
   vehicleDescription: string;
   customerName: string;
   customerPhone: string;
+  type: ServiceOrderType;
   status: ServiceOrderStatus;
   diagnosisNotes?: string;
   mileageIn?: number;
@@ -54,6 +80,24 @@ export interface ServiceOrder {
   items: ServiceItem[];
   portalToken: string;
   mpPaymentLinkUrl?: string;
+  lubricentro?: LubricentroDetails;
+  checklist: ChecklistItem[];
+}
+
+export interface UpcomingLubricentro {
+  vehicleId: string;
+  licensePlate: string;
+  vehicleDescription: string;
+  customerName: string;
+  customerPhone: string;
+  lastServiceOrderId: string;
+  lastServiceDate: string;
+  nextServiceDate?: string;
+  nextServiceKm?: number;
+  lastKnownMileage?: number;
+  kmRemaining?: number;
+  daysRemaining?: number;
+  dueStatus: "Vencido" | "Proximo" | "AlDia";
 }
 
 // Lean read-only view exposed to the customer via /portal/[token]
@@ -129,16 +173,20 @@ export interface UpdateServiceOrderDto {
   totalEstimate: number;
   totalFinal: number;
   items: CreateServiceItemDto[];
+  lubricentro?: LubricentroDetails;
 }
 
 export interface CreateServiceOrderDto {
   vehicleId: string;
+  type: ServiceOrderType;
   diagnosisNotes?: string;
   mileageIn?: number;
   assignedMechanic?: string;
   internalNotes?: string;
   estimatedDeliveryAt?: string;
   items: CreateServiceItemDto[];
+  lubricentro?: LubricentroDetails;
+  checklistAnswers?: ChecklistAnswer[];
 }
 
 export interface Mechanic {

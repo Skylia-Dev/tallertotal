@@ -12,6 +12,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<ServiceOrder> ServiceOrders => Set<ServiceOrder>();
     public DbSet<ServiceItem> ServiceItems => Set<ServiceItem>();
     public DbSet<ServiceOrderLog> ServiceOrderLogs => Set<ServiceOrderLog>();
+    public DbSet<ServiceOrderChecklistItem> ServiceOrderChecklistItems => Set<ServiceOrderChecklistItem>();
     public DbSet<Mechanic> Mechanics => Set<Mechanic>();
     public DbSet<AppSetting> AppSettings => Set<AppSetting>();
     public DbSet<ServiceDocument> ServiceDocuments => Set<ServiceDocument>();
@@ -90,15 +91,29 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<ServiceOrder>(e =>
         {
             e.HasKey(x => x.Id);
+            e.Property(x => x.Type).HasConversion<string>().HasDefaultValue(ServiceOrderType.General);
             e.Property(x => x.Status).HasConversion<string>();
             e.Property(x => x.QuoteStatus).HasConversion<string>().HasDefaultValue(QuoteStatus.None);
             e.Property(x => x.TotalEstimate).HasPrecision(10, 2);
             e.Property(x => x.TotalFinal).HasPrecision(10, 2);
             e.Property(x => x.AssignedMechanic).HasMaxLength(100);
             e.Property(x => x.InternalNotes).HasMaxLength(1000);
+            e.Property(x => x.OilBrand).HasMaxLength(60);
+            e.Property(x => x.OilType).HasMaxLength(40);
+            e.Property(x => x.OilLiters).HasPrecision(5, 2);
             e.HasOne(x => x.Vehicle)
                 .WithMany(x => x.ServiceOrders)
                 .HasForeignKey(x => x.VehicleId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<ServiceOrderChecklistItem>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Description).HasMaxLength(200).IsRequired();
+            e.HasOne(x => x.ServiceOrder)
+                .WithMany(x => x.ChecklistItems)
+                .HasForeignKey(x => x.ServiceOrderId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
 

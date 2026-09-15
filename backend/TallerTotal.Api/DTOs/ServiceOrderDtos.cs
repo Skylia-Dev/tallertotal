@@ -19,14 +19,36 @@ public record ServiceItemDto(
     decimal Total
 );
 
+// Solo se usan cuando Type == Lubricentro — el resto de los campos quedan en null/false.
+public record LubricentroDetailsDto(
+    string? OilBrand,
+    string? OilType,
+    decimal? OilLiters,
+    bool ChangedOilFilter,
+    bool ChangedAirFilter,
+    bool ChangedCabinFilter,
+    bool ChangedFuelFilter,
+    int? NextServiceKm,
+    DateOnly? NextServiceDate
+);
+
+public record ChecklistItemDto(Guid Id, string Description, bool? Checked, int Position);
+public record ChecklistAnswerDto(string Description, bool? Checked);
+public record UpdateChecklistItemDto(Guid Id, bool? Checked);
+public record UpdateChecklistDto(List<UpdateChecklistItemDto> Items);
+
 public record CreateServiceOrderDto(
     [Required] Guid VehicleId,
+    ServiceOrderType Type,
     string? DiagnosisNotes,
     int? MileageIn,
     [MaxLength(100)] string? AssignedMechanic,
     [MaxLength(1000)] string? InternalNotes,
     DateOnly? EstimatedDeliveryAt,
-    List<CreateServiceItemDto> Items
+    List<CreateServiceItemDto> Items,
+    LubricentroDetailsDto? Lubricentro = null,
+    // Respuestas del checklist completadas ya en el alta; lo no incluido queda "sin revisar".
+    List<ChecklistAnswerDto>? ChecklistAnswers = null
 );
 
 public record UpdateServiceOrderDto(
@@ -38,7 +60,8 @@ public record UpdateServiceOrderDto(
     DateOnly? EstimatedDeliveryAt,
     decimal TotalEstimate,
     decimal TotalFinal,
-    List<CreateServiceItemDto> Items
+    List<CreateServiceItemDto> Items,
+    LubricentroDetailsDto? Lubricentro = null
 );
 
 public record ServiceOrderDto(
@@ -48,6 +71,7 @@ public record ServiceOrderDto(
     string VehicleDescription,
     string CustomerName,
     string CustomerPhone,
+    ServiceOrderType Type,
     ServiceOrderStatus Status,
     string? DiagnosisNotes,
     int? MileageIn,
@@ -62,7 +86,25 @@ public record ServiceOrderDto(
     QuoteStatus QuoteStatus,
     DateTime LastActivityAt,
     Guid PortalToken,
-    string? MpPaymentLinkUrl
+    string? MpPaymentLinkUrl,
+    LubricentroDetailsDto? Lubricentro,
+    List<ChecklistItemDto> Checklist
+);
+
+public record UpcomingLubricentroDto(
+    Guid VehicleId,
+    string LicensePlate,
+    string VehicleDescription,
+    string CustomerName,
+    string CustomerPhone,
+    Guid LastServiceOrderId,
+    DateTime LastServiceDate,
+    DateOnly? NextServiceDate,
+    int? NextServiceKm,
+    int? LastKnownMileage,
+    int? KmRemaining,
+    int? DaysRemaining,
+    string DueStatus
 );
 
 // Public portal DTO — no sensitive internal data

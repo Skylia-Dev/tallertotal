@@ -4,8 +4,10 @@ import { useEffect, useState, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { serviceOrdersApi, mechanicsApi } from "@/lib/api";
 import { exportOrdersToExcel } from "@/lib/export-orders";
-import type { ServiceOrder, ServiceOrderStatus, ServiceOrderLog, QuoteStatus, Mechanic, UpdateServiceOrderDto, CreateServiceItemDto } from "@/types";
+import type { ServiceOrder, ServiceOrderStatus, ServiceOrderType, ServiceOrderLog, QuoteStatus, Mechanic, UpdateServiceOrderDto, CreateServiceItemDto, LubricentroDetails } from "@/types";
 import { StatusBadge } from "@/components/StatusBadge";
+import { LubricentroFields } from "@/components/LubricentroFields";
+import { ChecklistEditor } from "@/components/ChecklistEditor";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
@@ -15,7 +17,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogC
 import {
   Plus, FileSpreadsheet, Download, ChevronUp, ChevronDown, ChevronsUpDown,
   Printer, FileText, CheckCircle, XCircle, History, Link2, Pencil, Trash2,
-  CreditCard, Copy,
+  CreditCard, Copy, Droplets, CalendarClock,
 } from "lucide-react";
 import { Pagination } from "@/components/Pagination";
 import { toast } from "sonner";
@@ -36,6 +38,20 @@ const STATUS_LABELS: Record<ServiceOrderStatus, string> = {
   Completed: "Completada",
   Cancelled: "Cancelada",
 };
+
+const TYPE_LABELS: Record<ServiceOrderType, string> = {
+  General: "General",
+  Lubricentro: "Lubricentro",
+};
+
+function TypeBadge({ type }: { type: ServiceOrderType }) {
+  if (type === "General") return <span className="text-xs text-gray-500">General</span>;
+  return (
+    <span className="inline-flex items-center gap-1 text-xs font-medium px-1.5 py-0.5 rounded border text-amber-700 bg-amber-50 border-amber-200">
+      <Droplets className="h-3 w-3" /> Lubricentro
+    </span>
+  );
+}
 
 const DEFAULT_PAGE_SIZE = 10;
 
@@ -124,6 +140,10 @@ function EditOrderDialog({ order, mechanics, onSaved, onClose }: {
       ? order.items.map((i) => ({ description: i.description, type: i.type, quantity: i.quantity, unitPrice: i.unitPrice }))
       : [{ description: "", type: "Labor", quantity: 1, unitPrice: 0 }]
   );
+  const [lubricentro, setLubricentro] = useState<LubricentroDetails>(
+    order.lubricentro ?? { changedOilFilter: false, changedAirFilter: false, changedCabinFilter: false, changedFuelFilter: false }
+  );
+  const [checklist, setChecklist] = useState(order.checklist.map((c) => ({ key: c.id, description: c.description, checked: c.checked })));
   const [saving, setSaving] = useState(false);
 
   const totalEstimate = items.reduce((sum, i) => sum + i.quantity * i.unitPrice, 0);
@@ -155,8 +175,12 @@ function EditOrderDialog({ order, mechanics, onSaved, onClose }: {
         totalEstimate,
         totalFinal: parseFloat(totalFinal) || 0,
         items: validItems,
+        lubricentro: order.type === "Lubricentro" ? lubricentro : undefined,
       };
       await serviceOrdersApi.update(order.id, dto);
+      if (order.type === "Lubricentro" && checklist.length > 0) {
+        await serviceOrdersApi.updateChecklist(order.id, checklist.map((c) => ({ id: c.key, checked: c.checked })));
+      }
       toast.success("Orden actualizada");
       onSaved();
       onClose();
@@ -172,7 +196,10 @@ function EditOrderDialog({ order, mechanics, onSaved, onClose }: {
     <Dialog open onOpenChange={(o) => { if (!o) onClose(); }}>
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Editar orden — {order.licensePlate}</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            Editar orden — {order.licensePlate}
+            <TypeBadge type={order.type} />
+          </DialogTitle>
         </DialogHeader>
 
         <div className="grid grid-cols-2 gap-4 py-2">
@@ -250,6 +277,24 @@ function EditOrderDialog({ order, mechanics, onSaved, onClose }: {
             />
           </div>
         </div>
+
+        {/* Lubricentro */}
+        {order.type === "Lubricentro" && (
+          <div className="space-y-2 border-t pt-4">
+            <LubricentroFields value={lubricentro} onChange={setLubricentro} />
+            {checklist.length > 0 && (
+              <div className="space-y-1.5 pt-2">
+                <Label>Checklist de inspección</Label>
+                <ChecklistEditor
+                  items={checklist}
+                  onChange={(key, checked) =>
+                    setChecklist((prev) => prev.map((c) => (c.key === key ? { ...c, checked } : c)))
+                  }
+                />
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Items */}
         <div className="space-y-2 border-t pt-4">
@@ -342,6 +387,7 @@ export default function OrdenesPage() {
   const [mechanics, setMechanics] = useState<Mechanic[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<ServiceOrderStatus | "all">("all");
+  const [typeFilter, setTypeFilter] = useState<ServiceOrderType | "all">("all");
   const [search, setSearch] = useState("");
   const [mechanicFilter, setMechanicFilter] = useState("");
   const [dateFrom, setDateFrom] = useState("");
@@ -382,7 +428,7 @@ export default function OrdenesPage() {
 
   useEffect(() => { load(); }, [load]);
   useEffect(() => { mechanicsApi.getAll().then(setMechanics).catch(() => {}); }, []);
-  useEffect(() => { setPage(1); }, [activeTab, search, mechanicFilter, dateFrom, dateTo, sortCol, sortDir, pageSize]);
+  useEffect(() => { setPage(1); }, [activeTab, typeFilter, search, mechanicFilter, dateFrom, dateTo, sortCol, sortDir, pageSize]);
 
   // ── Handlers ──────────────────────────────────────────────────────────────
 
@@ -467,8 +513,9 @@ export default function OrdenesPage() {
       );
     }
     if (mechanicFilter) result = result.filter((o) => o.assignedMechanic === mechanicFilter);
+    if (typeFilter !== "all") result = result.filter((o) => o.type === typeFilter);
     return result;
-  }, [orders, search, mechanicFilter]);
+  }, [orders, search, mechanicFilter, typeFilter]);
 
   const sorted = useMemo(
     () => (sortCol ? sortOrders(filtered, sortCol, sortDir) : filtered),
@@ -520,9 +567,14 @@ export default function OrdenesPage() {
           <h1 className="text-2xl font-bold text-gray-900">Órdenes de Servicio</h1>
           <p className="text-sm text-gray-500 mt-1">{orders.length} órdenes en total</p>
         </div>
-        <Link href="/ordenes/nueva" className={buttonVariants()}>
-          <Plus className="h-4 w-4 mr-2" /> Nueva Orden
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link href="/ordenes/vencimientos" className={buttonVariants({ variant: "outline" })}>
+            <CalendarClock className="h-4 w-4 mr-2" /> Vencimientos
+          </Link>
+          <Link href="/ordenes/nueva" className={buttonVariants()}>
+            <Plus className="h-4 w-4 mr-2" /> Nueva Orden
+          </Link>
+        </div>
       </div>
 
       <Card>
@@ -555,6 +607,18 @@ export default function OrdenesPage() {
                 </button>
               ))}
             </div>
+
+            {/* Type filter */}
+            <select
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value as ServiceOrderType | "all")}
+              className="h-9 rounded-lg border border-input bg-transparent px-3 text-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring/50"
+            >
+              <option value="all">Todos los tipos</option>
+              {(Object.keys(TYPE_LABELS) as ServiceOrderType[]).map((t) => (
+                <option key={t} value={t}>{TYPE_LABELS[t]}</option>
+              ))}
+            </select>
 
             {/* Search */}
             <Input
@@ -625,6 +689,7 @@ export default function OrdenesPage() {
                         />
                       </TableHead>
                       <SortHead col="licensePlate" label="Placa" current={sortCol} dir={sortDir} onSort={handleSort} />
+                      <TableHead>Tipo</TableHead>
                       <TableHead>Vehículo</TableHead>
                       <SortHead col="customerName" label="Cliente" current={sortCol} dir={sortDir} onSort={handleSort} />
                       <SortHead col="assignedMechanic" label="Mecánico" current={sortCol} dir={sortDir} onSort={handleSort} />
@@ -651,6 +716,7 @@ export default function OrdenesPage() {
                           />
                         </TableCell>
                         <TableCell className="font-mono font-semibold text-sm">{order.licensePlate}</TableCell>
+                        <TableCell><TypeBadge type={order.type} /></TableCell>
                         <TableCell className="text-sm">{order.vehicleDescription}</TableCell>
                         <TableCell>
                           <div className="text-sm font-medium">{order.customerName}</div>

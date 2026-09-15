@@ -48,6 +48,7 @@ builder.Services.AddSingleton<IWhatsAppService>(sp => sp.GetRequiredService<What
 builder.Services.AddSingleton<IWhatsAppChannelInspector>(sp => sp.GetRequiredService<WhatsAppServiceRouter>());
 builder.Services.AddHostedService<WhatsAppHealthService>();
 builder.Services.AddHostedService<WhatsAppReminderService>();
+builder.Services.AddHostedService<LubricentroReminderService>();
 
 // Email (Resend REST API via HttpClient) — no-op if Resend:ApiKey is not configured
 builder.Services.AddHttpClient("resend");

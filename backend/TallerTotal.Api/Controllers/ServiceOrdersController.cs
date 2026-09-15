@@ -42,22 +42,31 @@ public class ServiceOrdersController(
         o.Id, o.VehicleId, o.Vehicle.LicensePlate,
         $"{o.Vehicle.Brand} {o.Vehicle.Model} {o.Vehicle.Year}",
         o.Vehicle.Customer.Name, o.Vehicle.Customer.Phone,
-        o.Status, o.DiagnosisNotes, o.MileageIn, o.AssignedMechanic,
+        o.Type, o.Status, o.DiagnosisNotes, o.MileageIn, o.AssignedMechanic,
         o.InternalNotes, o.EstimatedDeliveryAt,
         o.TotalEstimate, o.TotalFinal, o.CreatedAt, o.CompletedAt,
         o.Items.Select(i => new ServiceItemDto(i.Id, i.Description, i.Type, i.Quantity, i.UnitPrice, i.Total)).ToList(),
-        o.QuoteStatus, o.LastActivityAt, o.PortalToken, o.MpPaymentLinkUrl
+        o.QuoteStatus, o.LastActivityAt, o.PortalToken, o.MpPaymentLinkUrl,
+        o.Type == ServiceOrderType.Lubricentro
+            ? new LubricentroDetailsDto(o.OilBrand, o.OilType, o.OilLiters,
+                o.ChangedOilFilter, o.ChangedAirFilter, o.ChangedCabinFilter, o.ChangedFuelFilter,
+                o.NextServiceKm, o.NextServiceDate)
+            : null,
+        o.ChecklistItems.OrderBy(c => c.Position)
+            .Select(c => new ChecklistItemDto(c.Id, c.Description, c.Checked, c.Position)).ToList()
     );
 
     private IQueryable<ServiceOrder> BaseQuery() =>
         db.ServiceOrders
             .Include(o => o.Vehicle).ThenInclude(v => v.Customer)
             .Include(o => o.Items)
+            .Include(o => o.ChecklistItems)
             .Where(o => o.Vehicle.Customer.TenantId == TenantId);
 
     [HttpGet]
     public async Task<IEnumerable<ServiceOrderDto>> GetAll(
         [FromQuery] ServiceOrderStatus? status,
+        [FromQuery] ServiceOrderType? type,
         [FromQuery] string? plate,
         [FromQuery] string? customer,
         [FromQuery] string? mechanic,
@@ -67,6 +76,7 @@ public class ServiceOrdersController(
     {
         var query = BaseQuery().AsQueryable();
         if (status.HasValue) query = query.Where(o => o.Status == status);
+        if (type.HasValue) query = query.Where(o => o.Type == type);
         if (!string.IsNullOrWhiteSpace(plate)) query = query.Where(o => o.Vehicle.LicensePlate.Contains(plate));
         if (!string.IsNullOrWhiteSpace(customer)) query = query.Where(o => o.Vehicle.Customer.Name.Contains(customer));
         if (!string.IsNullOrWhiteSpace(mechanic)) query = query.Where(o => o.AssignedMechanic != null && o.AssignedMechanic.Contains(mechanic));
@@ -137,6 +147,7 @@ public class ServiceOrdersController(
         var order = new ServiceOrder
         {
             VehicleId = dto.VehicleId,
+            Type = dto.Type,
             DiagnosisNotes = dto.DiagnosisNotes,
             MileageIn = dto.MileageIn,
             AssignedMechanic = dto.AssignedMechanic,
@@ -148,6 +159,31 @@ public class ServiceOrdersController(
             }).ToList()
         };
         order.TotalEstimate = order.Items.Sum(i => i.Quantity * i.UnitPrice);
+
+        if (dto.Type == ServiceOrderType.Lubricentro)
+        {
+            var lb = dto.Lubricentro;
+            order.OilBrand = lb?.OilBrand;
+            order.OilType = lb?.OilType;
+            order.OilLiters = lb?.OilLiters;
+            order.ChangedOilFilter = lb?.ChangedOilFilter ?? false;
+            order.ChangedAirFilter = lb?.ChangedAirFilter ?? false;
+            order.ChangedCabinFilter = lb?.ChangedCabinFilter ?? false;
+            order.ChangedFuelFilter = lb?.ChangedFuelFilter ?? false;
+            // Sugerencia por defecto (editable): cada 10.000 km o 6 meses, lo que ocurra antes.
+            order.NextServiceKm = lb?.NextServiceKm ?? (dto.MileageIn.HasValue ? dto.MileageIn.Value + 10_000 : null);
+            order.NextServiceDate = lb?.NextServiceDate ?? DateOnly.FromDateTime(DateTime.UtcNow.AddMonths(6));
+        }
+
+        var checklist = ChecklistTemplates.BuildFor(dto.Type);
+        if (dto.ChecklistAnswers is { Count: > 0 })
+        {
+            var answers = dto.ChecklistAnswers.ToDictionary(a => a.Description, a => a.Checked);
+            foreach (var item in checklist)
+                if (answers.TryGetValue(item.Description, out var checkedValue))
+                    item.Checked = checkedValue;
+        }
+        order.ChecklistItems = checklist;
 
         db.ServiceOrders.Add(order);
         db.ServiceOrderLogs.Add(new ServiceOrderLog
@@ -190,6 +226,22 @@ public class ServiceOrdersController(
         order.TotalFinal = dto.TotalFinal;
         order.LastActivityAt = DateTime.UtcNow;
         order.ReminderSentAt = null;
+
+        if (order.Type == ServiceOrderType.Lubricentro && dto.Lubricentro is { } lb)
+        {
+            order.OilBrand = lb.OilBrand;
+            order.OilType = lb.OilType;
+            order.OilLiters = lb.OilLiters;
+            order.ChangedOilFilter = lb.ChangedOilFilter;
+            order.ChangedAirFilter = lb.ChangedAirFilter;
+            order.ChangedCabinFilter = lb.ChangedCabinFilter;
+            order.ChangedFuelFilter = lb.ChangedFuelFilter;
+            // Si cambia el próximo vencimiento, hay que poder avisar de nuevo.
+            if (lb.NextServiceKm != order.NextServiceKm || lb.NextServiceDate != order.NextServiceDate)
+                order.NextServiceReminderSentAt = null;
+            order.NextServiceKm = lb.NextServiceKm;
+            order.NextServiceDate = lb.NextServiceDate;
+        }
 
         if (dto.Status == ServiceOrderStatus.Completed && order.CompletedAt is null)
             order.CompletedAt = DateTime.UtcNow;
@@ -289,6 +341,79 @@ public class ServiceOrdersController(
         }
 
         return MapToDto(order);
+    }
+
+    [HttpPatch("{id:guid}/checklist")]
+    public async Task<ActionResult<IEnumerable<ChecklistItemDto>>> UpdateChecklist(Guid id, UpdateChecklistDto dto)
+    {
+        var order = await BaseQuery().FirstOrDefaultAsync(o => o.Id == id);
+        if (order is null) return NotFound();
+
+        var byId = order.ChecklistItems.ToDictionary(c => c.Id);
+        foreach (var answer in dto.Items)
+            if (byId.TryGetValue(answer.Id, out var item))
+                item.Checked = answer.Checked;
+
+        order.LastActivityAt = DateTime.UtcNow;
+        await db.SaveChangesAsync();
+
+        return Ok(order.ChecklistItems.OrderBy(c => c.Position)
+            .Select(c => new ChecklistItemDto(c.Id, c.Description, c.Checked, c.Position)));
+    }
+
+    // Vehículos con un cambio de aceite (Lubricentro) próximo a vencer o ya vencido, por km y/o fecha.
+    [HttpGet("lubricentro/upcoming")]
+    public async Task<ActionResult<IEnumerable<UpcomingLubricentroDto>>> GetUpcomingLubricentro()
+    {
+        var lastLubricentroPerVehicle = await BaseQuery()
+            .Where(o => o.Type == ServiceOrderType.Lubricentro
+                     && o.Status == ServiceOrderStatus.Completed
+                     && (o.NextServiceKm != null || o.NextServiceDate != null))
+            .Select(o => new
+            {
+                o.Id,
+                o.VehicleId,
+                o.Vehicle.LicensePlate,
+                VehicleDescription = o.Vehicle.Brand + " " + o.Vehicle.Model + " " + o.Vehicle.Year,
+                CustomerName = o.Vehicle.Customer.Name,
+                CustomerPhone = o.Vehicle.Customer.Phone,
+                ServiceDate = o.CompletedAt ?? o.CreatedAt,
+                o.NextServiceKm,
+                o.NextServiceDate,
+            })
+            .ToListAsync();
+
+        var latestMileageByVehicle = await BaseQuery()
+            .Where(o => o.MileageIn != null)
+            .Select(o => new { o.VehicleId, o.MileageIn, o.CreatedAt })
+            .ToListAsync();
+        var lastMileage = latestMileageByVehicle
+            .GroupBy(o => o.VehicleId)
+            .ToDictionary(g => g.Key, g => g.OrderByDescending(o => o.CreatedAt).First().MileageIn);
+
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var result = lastLubricentroPerVehicle
+            .GroupBy(o => o.VehicleId)
+            .Select(g => g.OrderByDescending(o => o.ServiceDate).First())
+            .Select(o =>
+            {
+                lastMileage.TryGetValue(o.VehicleId, out var km);
+                int? kmRemaining = o.NextServiceKm.HasValue && km.HasValue ? o.NextServiceKm - km : null;
+                int? daysRemaining = o.NextServiceDate.HasValue ? o.NextServiceDate.Value.DayNumber - today.DayNumber : null;
+
+                var overdue = (daysRemaining.HasValue && daysRemaining <= 0) || (kmRemaining.HasValue && kmRemaining <= 0);
+                var soon = (daysRemaining.HasValue && daysRemaining <= 30) || (kmRemaining.HasValue && kmRemaining <= 1000);
+                var dueStatus = overdue ? "Vencido" : soon ? "Proximo" : "AlDia";
+
+                return new UpcomingLubricentroDto(
+                    o.VehicleId, o.LicensePlate, o.VehicleDescription, o.CustomerName, o.CustomerPhone,
+                    o.Id, o.ServiceDate, o.NextServiceDate, o.NextServiceKm, km, kmRemaining, daysRemaining, dueStatus);
+            })
+            .OrderBy(o => o.DueStatus == "Vencido" ? 0 : o.DueStatus == "Proximo" ? 1 : 2)
+            .ThenBy(o => o.DaysRemaining)
+            .ToList();
+
+        return Ok(result);
     }
 
     // POST /api/serviceorders/{id}/payment-link
