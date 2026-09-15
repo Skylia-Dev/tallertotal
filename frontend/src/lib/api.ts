@@ -36,6 +36,8 @@ import type {
   ActivityLogPage,
   UserListItem,
   CreateUserDto,
+  TotpStatus,
+  TotpSetupResponse,
 } from "@/types";
 
 // All calls go through the Next.js proxy which adds the JWT from httpOnly cookie
@@ -240,6 +242,16 @@ export const usersApi = {
   create: (dto: CreateUserDto) =>
     request<UserListItem>("/users", { method: "POST", body: JSON.stringify(dto) }),
   delete: (id: string) => request<void>(`/users/${id}`, { method: "DELETE" }),
+};
+
+// Autenticación de dos factores (TOTP) — cada usuario gestiona la suya propia
+export const twoFactorApi = {
+  getStatus: () => request<TotpStatus>("/users/me/2fa"),
+  setup: () => request<TotpSetupResponse>("/users/me/2fa/setup", { method: "POST" }),
+  enable: (code: string) =>
+    request<void>("/users/me/2fa/enable", { method: "POST", body: JSON.stringify({ code }) }),
+  disable: (password: string) =>
+    request<void>("/users/me/2fa/disable", { method: "POST", body: JSON.stringify({ password }) }),
 };
 
 // Módulos visibles — cualquiera lee, solo SuperAdmin puede editar (el backend lo valida)

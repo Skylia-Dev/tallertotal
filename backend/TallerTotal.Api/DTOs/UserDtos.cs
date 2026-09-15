@@ -17,3 +17,11 @@ public record UserListItemDto(
     // Solo presentes cuando Role = Mechanic: datos del perfil de mecánico enlazado.
     Guid? MechanicId = null, string? Name = null, string? Phone = null, string? Specialty = null, bool? IsActive = null
 );
+
+public record TotpStatusDto(bool Enabled);
+
+public record TotpSetupResponseDto(string Secret, string OtpAuthUri);
+
+public record TotpEnableDto([Required, StringLength(6, MinimumLength = 6)] string Code);
+
+public record TotpDisableDto([Required] string Password);

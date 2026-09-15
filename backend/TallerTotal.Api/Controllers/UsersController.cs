@@ -1,6 +1,7 @@
 using TallerTotal.Api.Data;
 using TallerTotal.Api.DTOs;
 using TallerTotal.Api.Models;
+using TallerTotal.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +19,8 @@ public class UsersController(AppDbContext db) : ControllerBase
         [nameof(UserRole.Admin), nameof(UserRole.Employee), nameof(UserRole.Mechanic)];
 
     private Guid TenantId => Guid.Parse(User.FindFirst("tenantId")!.Value);
+    private Guid CurrentUserId => Guid.Parse(User.FindFirst("sub")!.Value);
+    private string Username => User.FindFirst("username")!.Value;
     private string Role => User.FindFirst("role")!.Value;
     private bool CanManage => Role is nameof(UserRole.Owner) or nameof(UserRole.SuperAdmin) or nameof(UserRole.Admin);
 
@@ -109,6 +112,53 @@ public class UsersController(AppDbContext db) : ControllerBase
         }
 
         db.Users.Remove(user);
+        await db.SaveChangesAsync();
+        return NoContent();
+    }
+
+    // ── Autenticación de dos factores (TOTP) ────────────────────────────────
+    // Cada usuario gestiona la suya propia — no requiere CanManage.
+
+    [HttpGet("me/2fa")]
+    public async Task<ActionResult<TotpStatusDto>> GetTwoFactorStatus()
+    {
+        var enabled = await db.Users.Where(u => u.Id == CurrentUserId).Select(u => u.TotpEnabled).FirstAsync();
+        return new TotpStatusDto(enabled);
+    }
+
+    [HttpPost("me/2fa/setup")]
+    public async Task<ActionResult<TotpSetupResponseDto>> SetupTwoFactor()
+    {
+        var user = await db.Users.FirstAsync(u => u.Id == CurrentUserId);
+        if (user.TotpEnabled) return BadRequest("El 2FA ya está habilitado. Desactivalo antes de generar un nuevo código.");
+
+        var secret = TotpService.GenerateSecret();
+        user.TotpSecret = secret;
+        await db.SaveChangesAsync();
+
+        return new TotpSetupResponseDto(secret, TotpService.BuildOtpAuthUri(secret, Username));
+    }
+
+    [HttpPost("me/2fa/enable")]
+    public async Task<IActionResult> EnableTwoFactor(TotpEnableDto dto)
+    {
+        var user = await db.Users.FirstAsync(u => u.Id == CurrentUserId);
+        if (user.TotpSecret is null) return BadRequest("Primero generá el código QR.");
+        if (!TotpService.VerifyCode(user.TotpSecret, dto.Code)) return BadRequest("Código incorrecto.");
+
+        user.TotpEnabled = true;
+        await db.SaveChangesAsync();
+        return NoContent();
+    }
+
+    [HttpPost("me/2fa/disable")]
+    public async Task<IActionResult> DisableTwoFactor(TotpDisableDto dto)
+    {
+        var user = await db.Users.FirstAsync(u => u.Id == CurrentUserId);
+        if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash)) return BadRequest("Contraseña incorrecta.");
+
+        user.TotpEnabled = false;
+        user.TotpSecret = null;
         await db.SaveChangesAsync();
         return NoContent();
     }

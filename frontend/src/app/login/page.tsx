@@ -16,6 +16,8 @@ export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [ticket, setTicket] = useState<string | null>(null);
+  const [code, setCode] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,6 +35,33 @@ export default function LoginPage() {
       }
 
       const data = await res.json();
+      if (data.requiresTwoFactor) {
+        setTicket(data.ticket);
+        return;
+      }
+      router.push("/");
+    } catch {
+      toast.error("Error de conexión");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/login/2fa", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ticket, code }),
+      });
+
+      if (!res.ok) {
+        toast.error("Código incorrecto");
+        return;
+      }
+
       router.push("/");
     } catch {
       toast.error("Error de conexión");
@@ -78,38 +107,78 @@ export default function LoginPage() {
             <TallerTotalLogo />
           </div>
 
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">Bienvenido</h2>
-            <p className="text-gray-500 mt-1 text-sm">Iniciá sesión en tu taller</p>
-          </div>
+          {ticket ? (
+            <>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Verificación en dos pasos</h2>
+                <p className="text-gray-500 mt-1 text-sm">
+                  Ingresá el código de 6 dígitos de tu app de autenticación.
+                </p>
+              </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="username" required>Usuario</Label>
-              <Input
-                id="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="usuario"
-                required
-                autoComplete="username"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="password" required>Contraseña</Label>
-              <PasswordInput
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                required
-                autoComplete="current-password"
-              />
-            </div>
-            <Button type="submit" className="w-full mt-2" disabled={loading}>
-              {loading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Ingresando...</> : "Ingresar"}
-            </Button>
-          </form>
+              <form onSubmit={handleVerifyCode} className="space-y-4">
+                <div className="space-y-1.5">
+                  <Label htmlFor="code" required>Código</Label>
+                  <Input
+                    id="code"
+                    value={code}
+                    onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                    placeholder="000000"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    className="tracking-[0.5em] text-center text-lg font-mono"
+                    maxLength={6}
+                    required
+                    autoFocus
+                  />
+                </div>
+                <Button type="submit" className="w-full mt-2" disabled={loading || code.length !== 6}>
+                  {loading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Verificando...</> : "Verificar"}
+                </Button>
+              </form>
+
+              {/* Enlace nativo, no un botón con onClick: en pantallas de verificación un click
+                  handler que no responde es un problema recurrente en otros proyectos Skylia. */}
+              <a href="/login" className="block text-center text-sm text-gray-500 hover:text-gray-700">
+                Volver
+              </a>
+            </>
+          ) : (
+            <>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Bienvenido</h2>
+                <p className="text-gray-500 mt-1 text-sm">Iniciá sesión en tu taller</p>
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-1.5">
+                  <Label htmlFor="username" required>Usuario</Label>
+                  <Input
+                    id="username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="usuario"
+                    required
+                    autoComplete="username"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="password" required>Contraseña</Label>
+                  <PasswordInput
+                    id="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    required
+                    autoComplete="current-password"
+                  />
+                </div>
+                <Button type="submit" className="w-full mt-2" disabled={loading}>
+                  {loading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Ingresando...</> : "Ingresar"}
+                </Button>
+              </form>
+            </>
+          )}
 
           <div className="flex items-center justify-center gap-2 text-xs text-gray-400">
             <span>TallerTotal © {new Date().getFullYear()}</span>

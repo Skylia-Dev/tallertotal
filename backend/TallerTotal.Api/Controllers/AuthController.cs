@@ -1,5 +1,7 @@
 using TallerTotal.Api.Data;
 using TallerTotal.Api.DTOs;
+using TallerTotal.Api.Models;
+using TallerTotal.Api.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -22,6 +24,35 @@ public class AuthController(AppDbContext db, IConfiguration config) : Controller
 
         if (user is null || !BCrypt.Net.BCrypt.Verify(req.Password, user.PasswordHash))
             return Unauthorized(new { error = "Usuario o contraseña incorrectos" });
+
+        if (user.TotpEnabled)
+        {
+            var ticket = new LoginTicket { UserId = user.Id, ExpiresAt = DateTime.UtcNow.AddMinutes(5) };
+            db.LoginTickets.Add(ticket);
+            await db.SaveChangesAsync();
+            return Ok(new LoginTwoFactorRequiredResponse(true, ticket.Id));
+        }
+
+        var token = GenerateToken(user.Id, user.TenantId, user.Username, user.Role.ToString());
+        return Ok(new LoginResponse(token, user.Username, user.Tenant.Name, user.Role.ToString()));
+    }
+
+    [HttpPost("login/2fa")]
+    public async Task<IActionResult> LoginTwoFactor([FromBody] LoginTwoFactorRequest req)
+    {
+        var ticket = await db.LoginTickets
+            .Include(t => t.User).ThenInclude(u => u.Tenant)
+            .FirstOrDefaultAsync(t => t.Id == req.Ticket);
+
+        if (ticket is null || ticket.Used || ticket.ExpiresAt < DateTime.UtcNow)
+            return Unauthorized(new { error = "El código expiró, iniciá sesión de nuevo." });
+
+        var user = ticket.User;
+        if (!user.TotpEnabled || user.TotpSecret is null || !TotpService.VerifyCode(user.TotpSecret, req.Code))
+            return Unauthorized(new { error = "Código incorrecto." });
+
+        ticket.Used = true;
+        await db.SaveChangesAsync();
 
         var token = GenerateToken(user.Id, user.TenantId, user.Username, user.Role.ToString());
         return Ok(new LoginResponse(token, user.Username, user.Tenant.Name, user.Role.ToString()));

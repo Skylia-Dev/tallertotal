@@ -16,7 +16,11 @@ async function forward(req: Request, params: { path: string[] }, method: string)
   const res = await fetch(url, { method, headers, body });
   const text = await res.text();
 
-  return new NextResponse(text, {
+  // A Response with a 204/205/304 status must have a null body (fetch spec) —
+  // passing even an empty string throws "Invalid response status code".
+  const isEmptyStatus = res.status === 204 || res.status === 205 || res.status === 304;
+
+  return new NextResponse(isEmptyStatus ? null : text, {
     status: res.status,
     headers: { "Content-Type": res.headers.get("Content-Type") ?? "application/json" },
   });

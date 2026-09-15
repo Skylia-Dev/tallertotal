@@ -398,6 +398,15 @@ export interface UserListItem {
   isActive?: boolean;
 }
 
+export interface TotpStatus {
+  enabled: boolean;
+}
+
+export interface TotpSetupResponse {
+  secret: string;
+  otpAuthUri: string;
+}
+
 export interface CreateUserDto {
   username: string;
   password: string;

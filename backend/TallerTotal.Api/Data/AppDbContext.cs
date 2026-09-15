@@ -27,6 +27,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<PresupuestoItem> PresupuestoItems => Set<PresupuestoItem>();
     public DbSet<CajaMovimiento> CajaMovimientos => Set<CajaMovimiento>();
     public DbSet<ActivityLog> ActivityLogs => Set<ActivityLog>();
+    public DbSet<LoginTicket> LoginTickets => Set<LoginTicket>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -43,10 +44,20 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.Property(x => x.Username).HasMaxLength(60).IsRequired();
             e.Property(x => x.PasswordHash).IsRequired();
             e.Property(x => x.Role).HasConversion<string>();
+            e.Property(x => x.TotpSecret).HasMaxLength(160);
             e.HasIndex(x => new { x.TenantId, x.Username }).IsUnique();
             e.HasOne(x => x.Tenant)
                 .WithMany(x => x.Users)
                 .HasForeignKey(x => x.TenantId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<LoginTicket>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.HasOne(x => x.User)
+                .WithMany()
+                .HasForeignKey(x => x.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
 
