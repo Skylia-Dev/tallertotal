@@ -16,5 +16,9 @@ public class User
     /// <summary>Última actividad conocida (heartbeat del frontend). Usado para el cierre de sesión por inactividad.</summary>
     public DateTime? LastSeenAt { get; set; }
 
+    /// <summary>Foto de perfil, guardada directa en la base (no en storage externo) — igual que en CEMDI.</summary>
+    public byte[]? AvatarPhoto { get; set; }
+    public string? AvatarContentType { get; set; }
+
     public Tenant Tenant { get; set; } = null!;
 }

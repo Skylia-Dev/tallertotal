@@ -29,9 +29,11 @@ public class UsersController(AppDbContext db) : ControllerBase
     {
         if (!CanManage) return Forbid();
 
+        // Proyección explícita: nunca traer PasswordHash/TotpSecret/AvatarPhoto a memoria para un listado.
         var users = await db.Users
             .Where(u => u.TenantId == TenantId)
             .OrderBy(u => u.CreatedAt)
+            .Select(u => new { u.Id, u.Username, u.Role, u.CreatedAt })
             .ToListAsync();
 
         var mechanicsByUserId = await db.Mechanics
@@ -123,6 +125,61 @@ public class UsersController(AppDbContext db) : ControllerBase
     {
         await db.Users.Where(u => u.Id == CurrentUserId).ExecuteUpdateAsync(s => s.SetProperty(u => u.LastSeenAt, DateTime.UtcNow));
         return NoContent();
+    }
+
+    // ── Contraseña propia ────────────────────────────────────────────────────
+
+    [HttpPut("me/password")]
+    public async Task<IActionResult> ChangePassword(ChangePasswordDto dto)
+    {
+        var user = await db.Users.FirstAsync(u => u.Id == CurrentUserId);
+        if (!BCrypt.Net.BCrypt.Verify(dto.CurrentPassword, user.PasswordHash))
+            return BadRequest("La contraseña actual no es correcta.");
+
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+        await db.SaveChangesAsync();
+        return NoContent();
+    }
+
+    // ── Foto de perfil ───────────────────────────────────────────────────────
+    // Se guarda directo en la base (bytea), igual que en CEMDI — sin depender
+    // de que el taller tenga Supabase Storage configurado (eso es opcional, para Agenda).
+
+    private const long MaxAvatarBytes = 5 * 1024 * 1024;
+
+    [HttpPost("me/avatar")]
+    [Consumes("multipart/form-data")]
+    public async Task<IActionResult> UploadAvatar(IFormFile foto)
+    {
+        if (foto.Length == 0) return BadRequest("Archivo vacío.");
+        if (foto.Length > MaxAvatarBytes) return BadRequest("La imagen no puede superar 5MB.");
+        if (!foto.ContentType.StartsWith("image/")) return BadRequest("El archivo debe ser una imagen.");
+
+        var user = await db.Users.FirstAsync(u => u.Id == CurrentUserId);
+        using var ms = new MemoryStream();
+        await foto.CopyToAsync(ms);
+        user.AvatarPhoto = ms.ToArray();
+        user.AvatarContentType = foto.ContentType;
+        await db.SaveChangesAsync();
+        return NoContent();
+    }
+
+    [HttpGet("me/avatar")]
+    public async Task<IActionResult> GetMyAvatar()
+    {
+        var user = await db.Users.Where(u => u.Id == CurrentUserId)
+            .Select(u => new { u.AvatarPhoto, u.AvatarContentType }).FirstAsync();
+        if (user.AvatarPhoto is null) return NotFound();
+        return File(user.AvatarPhoto, user.AvatarContentType ?? "image/jpeg");
+    }
+
+    [HttpGet("{id:guid}/avatar")]
+    public async Task<IActionResult> GetAvatar(Guid id)
+    {
+        var user = await db.Users.Where(u => u.Id == id && u.TenantId == TenantId)
+            .Select(u => new { u.AvatarPhoto, u.AvatarContentType }).FirstOrDefaultAsync();
+        if (user?.AvatarPhoto is null) return NotFound();
+        return File(user.AvatarPhoto, user.AvatarContentType ?? "image/jpeg");
     }
 
     // ── Autenticación de dos factores (TOTP) ────────────────────────────────

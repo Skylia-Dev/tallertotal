@@ -47,6 +47,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.Property(x => x.PasswordHash).IsRequired();
             e.Property(x => x.Role).HasConversion<string>();
             e.Property(x => x.TotpSecret).HasMaxLength(160);
+            e.Property(x => x.AvatarContentType).HasMaxLength(100);
             e.HasIndex(x => new { x.TenantId, x.Username }).IsUnique();
             e.HasOne(x => x.Tenant)
                 .WithMany(x => x.Users)

@@ -25,3 +25,8 @@ public record TotpSetupResponseDto(string Secret, string OtpAuthUri);
 public record TotpEnableDto([Required, StringLength(6, MinimumLength = 6)] string Code);
 
 public record TotpDisableDto([Required] string Password);
+
+public record ChangePasswordDto(
+    [Required] string CurrentPassword,
+    [Required, MinLength(6)] string NewPassword
+);

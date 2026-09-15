@@ -259,6 +259,17 @@ export const usersApi = {
   create: (dto: CreateUserDto) =>
     request<UserListItem>("/users", { method: "POST", body: JSON.stringify(dto) }),
   delete: (id: string) => request<void>(`/users/${id}`, { method: "DELETE" }),
+  changePassword: (currentPassword: string, newPassword: string) =>
+    request<void>("/users/me/password", {
+      method: "PUT",
+      body: JSON.stringify({ currentPassword, newPassword }),
+    }),
+  uploadAvatar: async (file: File): Promise<void> => {
+    const formData = new FormData();
+    formData.append("foto", file);
+    const res = await fetch(`${BASE_URL}/users/me/avatar`, { method: "POST", body: formData });
+    if (!res.ok) { const t = await res.text(); throw new Error(t || `HTTP ${res.status}`); }
+  },
 };
 
 // Autenticación de dos factores (TOTP) — cada usuario gestiona la suya propia

@@ -9,18 +9,24 @@ async function forward(req: Request, params: { path: string[] }, method: string)
   const search = new URL(req.url).search;
   const url = `${BACKEND}/api/${path}${search}`;
 
-  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  // Preservar el Content-Type entrante (incluye el boundary de multipart/form-data —
+  // pisarlo con "application/json" rompe cualquier upload de archivo).
+  const headers: Record<string, string> = {
+    "Content-Type": req.headers.get("content-type") ?? "application/json",
+  };
   if (token) headers["Authorization"] = `Bearer ${token}`;
 
-  const body = method !== "GET" && method !== "DELETE" ? await req.text() : undefined;
+  // arrayBuffer (no .text()) en ambas direcciones: .text() decodifica como UTF-8 y
+  // corrompe cualquier body binario (imágenes, PDFs, multipart) de forma irreversible.
+  const body = method !== "GET" && method !== "DELETE" ? await req.arrayBuffer() : undefined;
   const res = await fetch(url, { method, headers, body });
-  const text = await res.text();
+  const bytes = await res.arrayBuffer();
 
   // A Response with a 204/205/304 status must have a null body (fetch spec) —
-  // passing even an empty string throws "Invalid response status code".
+  // passing even an empty buffer throws "Invalid response status code".
   const isEmptyStatus = res.status === 204 || res.status === 205 || res.status === 304;
 
-  return new NextResponse(isEmptyStatus ? null : text, {
+  return new NextResponse(isEmptyStatus ? null : bytes, {
     status: res.status,
     headers: { "Content-Type": res.headers.get("Content-Type") ?? "application/json" },
   });
