@@ -56,24 +56,21 @@ function NavLink({ href, label, icon: Icon, active }: { href: string; label: str
 export function Sidebar() {
   const pathname = usePathname();
   const { hiddenModules } = useModuleConfig();
-  const [tenantName, setTenantName] = useState("");
   const [role, setRole] = useState<string | null>(null);
 
   useEffect(() => {
-    const tenantMatch = document.cookie.match(/(?:^|;\s*)tallertotal_tenant=([^;]*)/);
-    if (tenantMatch) setTenantName(decodeURIComponent(tenantMatch[1]));
     const roleMatch = document.cookie.match(/(?:^|;\s*)tallertotal_role=([^;]*)/);
     setRole(roleMatch ? decodeURIComponent(roleMatch[1]) : null);
   }, []);
 
   return (
     <aside className="w-60 bg-slate-900 border-r border-slate-800 flex flex-col shrink-0">
-      <div className="p-5 border-b border-slate-800">
+      <div className="p-5 border-b border-slate-800 flex items-start justify-between gap-2">
         <TallerTotalLogo dark />
-        {tenantName && (
-          <p className="mt-1.5 text-xs text-slate-500 truncate">
-            <span className="text-slate-400 font-medium">Taller:</span> {tenantName}
-          </p>
+        {process.env.NEXT_PUBLIC_APP_VERSION && (
+          <span className="mt-1 shrink-0 text-[11px] font-mono font-semibold text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded">
+            {process.env.NEXT_PUBLIC_APP_VERSION}
+          </span>
         )}
       </div>
       <nav className="flex-1 overflow-y-auto p-3 space-y-1">
@@ -90,13 +87,6 @@ export function Sidebar() {
           </>
         )}
       </nav>
-      {process.env.NEXT_PUBLIC_APP_VERSION && (
-        <div className="px-3 py-3 border-t border-slate-800 shrink-0">
-          <p className="text-sm text-slate-300 font-mono font-semibold text-center">
-            {process.env.NEXT_PUBLIC_APP_VERSION}
-          </p>
-        </div>
-      )}
     </aside>
   );
 }
