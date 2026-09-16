@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { serviceOrdersApi, mechanicsApi } from "@/lib/api";
 import { exportOrdersToExcel } from "@/lib/export-orders";
+import { mechanicsForOrderType } from "@/lib/mechanic-specialties";
 import type { ServiceOrder, ServiceOrderStatus, ServiceOrderType, ServiceOrderLog, QuoteStatus, Mechanic, UpdateServiceOrderDto, CreateServiceItemDto, LubricentroDetails } from "@/types";
 import { StatusBadge } from "@/components/StatusBadge";
 import { LubricentroFields } from "@/components/LubricentroFields";
@@ -146,6 +147,13 @@ function EditOrderDialog({ order, mechanics, onSaved, onClose }: {
   const [checklist, setChecklist] = useState(order.checklist.map((c) => ({ key: c.id, description: c.description, checked: c.checked })));
   const [saving, setSaving] = useState(false);
 
+  // Solo mecánicos habilitados para este tipo de orden (más el ya asignado, si lo hubiera,
+  // para no ocultarlo de la lista aunque su especialidad haya cambiado después).
+  const eligibleMechanics = mechanicsForOrderType(mechanics, order.type).filter((m) => m.isActive);
+  const mechanicOptions = mechanic && !eligibleMechanics.some((m) => m.name === mechanic)
+    ? [...eligibleMechanics, ...mechanics.filter((m) => m.name === mechanic)]
+    : eligibleMechanics;
+
   const totalEstimate = items.reduce((sum, i) => sum + i.quantity * i.unitPrice, 0);
 
   const addItem = () => setItems((prev) => [...prev, { description: "", type: "Labor", quantity: 1, unitPrice: 0 }]);
@@ -226,7 +234,7 @@ function EditOrderDialog({ order, mechanics, onSaved, onClose }: {
               className="w-full h-9 rounded-lg border border-input bg-transparent px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring/50"
             >
               <option value="">Sin asignar</option>
-              {mechanics.filter((m) => m.isActive).map((m) => (
+              {mechanicOptions.map((m) => (
                 <option key={m.id} value={m.name}>{m.name}</option>
               ))}
             </select>

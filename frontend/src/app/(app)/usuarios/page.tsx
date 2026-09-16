@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { usersApi, mechanicsApi } from "@/lib/api";
 import type { UserListItem, CreateUserDto } from "@/types";
+import { SPECIALTY_OPTIONS } from "@/lib/mechanic-specialties";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -32,22 +33,9 @@ const assignableRoles = [
   { value: "Mechanic", label: "Mecánico" },
 ];
 
-// Especialidades típicas de un taller mecánico. "Otro" queda siempre al final
+// SPECIALTY_OPTIONS vive en @/lib/mechanic-specialties (compartido con el filtro
+// de mecánicos disponibles por tipo de orden). "Otro" queda siempre al final acá
 // y habilita un campo de texto libre para lo que no está en la lista.
-const SPECIALTY_OPTIONS = [
-  "Motor y transmision",
-  "Motor diesel",
-  "Electricidad",
-  "Inyeccion electronica",
-  "Frenos y suspension",
-  "Aire acondicionado",
-  "Chapa y pintura",
-  "Alineacion y balanceo",
-  "Sistemas de escape",
-  "Neumaticos y gomeria",
-  "Lubricentro",
-  "Gral. multimarca",
-];
 const SPECIALTY_NONE = "__none__";
 const SPECIALTY_OTHER = "__other__";
 

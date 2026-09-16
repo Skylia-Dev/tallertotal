@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { serviceOrdersApi, mechanicsApi } from "@/lib/api";
 import type { Customer, Vehicle, CreateServiceItemDto, Mechanic, ServiceOrderType, LubricentroDetails } from "@/types";
+import { mechanicsForOrderType } from "@/lib/mechanic-specialties";
 import { CustomerSearch } from "@/components/CustomerSearch";
 import { VehicleSelect } from "@/components/VehicleSelect";
 import { ServiceItemsForm } from "@/components/ServiceItemsForm";
@@ -54,6 +55,18 @@ export default function NuevaOrdenPage() {
   useEffect(() => {
     mechanicsApi.getAll(true).then(setMechanics).catch(() => {});
   }, []);
+
+  const availableMechanics = mechanicsForOrderType(mechanics, orderType);
+
+  // Si cambiamos de tipo de orden y el mecánico seleccionado ya no está habilitado
+  // para ese tipo (p. ej. un mecánico de Lubricentro puro al pasar a Reparación general
+  // o viceversa), se deselecciona en vez de dejar asignado a alguien que no corresponde.
+  useEffect(() => {
+    if (assignedMechanic && !availableMechanics.some((m) => m.name === assignedMechanic)) {
+      setAssignedMechanic("");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orderType]);
 
   const handleSelectCustomer = (c: Customer) => {
     setCustomer(c);
@@ -228,7 +241,7 @@ export default function NuevaOrdenPage() {
                     className="h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring/50"
                   >
                     <option value="">Sin asignar</option>
-                    {mechanics.map((m) => (
+                    {availableMechanics.map((m) => (
                       <option key={m.id} value={m.name}>{m.name}{m.specialty ? ` — ${m.specialty}` : ""}</option>
                     ))}
                   </select>
