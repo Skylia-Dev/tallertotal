@@ -177,6 +177,10 @@
 .dark.accent-verde { --primary: #52c98a; --ring: #52c98a; --sidebar-primary: #52c98a; --sidebar-ring: #52c98a; }
 .tenue.accent-verde { --primary: #35a16b; --ring: #35a16b; --sidebar-primary: #35a16b; --sidebar-ring: #35a16b; }
 
+.accent-verde-claro { --primary: #65a30d; --ring: #65a30d; --sidebar-primary: #65a30d; --sidebar-ring: #65a30d; }
+.dark.accent-verde-claro { --primary: #a3e635; --ring: #a3e635; --sidebar-primary: #a3e635; --sidebar-ring: #a3e635; }
+.tenue.accent-verde-claro { --primary: #8db32a; --ring: #8db32a; --sidebar-primary: #8db32a; --sidebar-ring: #8db32a; }
+
 .accent-violeta { --primary: #6d28d9; --ring: #6d28d9; --sidebar-primary: #6d28d9; --sidebar-ring: #6d28d9; }
 .dark.accent-violeta { --primary: #b298f0; --ring: #b298f0; --sidebar-primary: #b298f0; --sidebar-ring: #b298f0; }
 .tenue.accent-violeta { --primary: #8f5fe0; --ring: #8f5fe0; --sidebar-primary: #8f5fe0; --sidebar-ring: #8f5fe0; }
@@ -196,3 +200,7 @@
 .accent-rojo { --primary: #dc2626; --ring: #dc2626; --sidebar-primary: #dc2626; --sidebar-ring: #dc2626; }
 .dark.accent-rojo { --primary: #f87171; --ring: #f87171; --sidebar-primary: #f87171; --sidebar-ring: #f87171; }
 .tenue.accent-rojo { --primary: #e8514f; --ring: #e8514f; --sidebar-primary: #e8514f; --sidebar-ring: #e8514f; }
+
+.accent-indigo { --primary: #4338ca; --ring: #4338ca; --sidebar-primary: #4338ca; --sidebar-ring: #4338ca; }
+.dark.accent-indigo { --primary: #818cf8; --ring: #818cf8; --sidebar-primary: #818cf8; --sidebar-ring: #818cf8; }
+.tenue.accent-indigo { --primary: #6462e0; --ring: #6462e0; --sidebar-primary: #6462e0; --sidebar-ring: #6462e0; }

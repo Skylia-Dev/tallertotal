@@ -43,8 +43,8 @@ function NavLink({ href, label, icon: Icon, active }: { href: string; label: str
       className={cn(
         "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
         active
-          ? "bg-blue-600 text-white shadow-sm"
-          : "text-slate-400 hover:bg-slate-800 hover:text-white"
+          ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
+          : "text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground"
       )}
     >
       <Icon className="h-4 w-4 shrink-0" />
@@ -64,11 +64,11 @@ export function Sidebar() {
   }, []);
 
   return (
-    <aside className="w-60 bg-slate-900 border-r border-slate-800 flex flex-col shrink-0">
-      <div className="p-5 border-b border-slate-800">
-        <TallerTotalLogo dark />
+    <aside className="w-60 bg-sidebar border-r border-sidebar-border flex flex-col shrink-0">
+      <div className="p-5 border-b border-sidebar-border">
+        <TallerTotalLogo themed />
         {process.env.NEXT_PUBLIC_APP_VERSION && (
-          <span className="mt-1.5 inline-block text-[11px] font-mono font-semibold text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded">
+          <span className="mt-1.5 inline-block text-[11px] font-mono font-semibold text-sidebar-foreground/70 bg-sidebar-accent px-1.5 py-0.5 rounded">
             {process.env.NEXT_PUBLIC_APP_VERSION}
           </span>
         )}

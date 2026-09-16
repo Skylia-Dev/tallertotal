@@ -66,7 +66,7 @@ export function ThemePicker() {
 
           <div className="border-t border-border pt-2">
             <p className="px-1 pb-1.5 text-xs font-semibold text-muted-foreground">Color</p>
-            <div className="grid grid-cols-4 gap-2 px-1">
+            <div className="grid grid-cols-5 gap-2 px-1">
               {ACCENTS.map((accent) => {
                 const active = accent.id === accentId;
                 return (
