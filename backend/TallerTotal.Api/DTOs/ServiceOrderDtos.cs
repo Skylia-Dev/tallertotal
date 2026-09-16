@@ -144,7 +144,15 @@ public record DashboardMetricsDto(
     IEnumerable<MechanicStatDto> MechanicStats,
     decimal AvgTicket,
     int OverdueCount,
-    decimal CompletionRate
+    decimal CompletionRate,
+    // Widgets opcionales del dashboard personalizable (ver DashboardWidgetCatalog en el frontend)
+    decimal VentasThisMonth,
+    decimal DeudasPendientesTotal,
+    int PresupuestosVigentes,
+    decimal CajaBalance,
+    int ArticulosStockBajo,
+    int LubricentroVencimientos,
+    int ClientesNuevosEsteMes
 );
 
 public record StatusCountDto(string Status, int Count, decimal Revenue);

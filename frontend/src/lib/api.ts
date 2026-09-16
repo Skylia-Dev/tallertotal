@@ -42,6 +42,7 @@ import type {
   ChecklistItem,
   UpcomingLubricentro,
   SessionConfig,
+  DashboardLayout,
 } from "@/types";
 
 // All calls go through the Next.js proxy which adds the JWT from httpOnly cookie
@@ -299,6 +300,9 @@ export const tenantModuleConfigApi = {
 // Dashboard
 export const dashboardApi = {
   getMetrics: () => request<DashboardMetrics>("/dashboard/metrics"),
+  getLayout: () => request<DashboardLayout>("/users/me/dashboard-layout"),
+  setLayout: (layout: string[]) =>
+    request<DashboardLayout>("/users/me/dashboard-layout", { method: "PUT", body: JSON.stringify({ layout }) }),
 };
 
 // Agenda de Servicios

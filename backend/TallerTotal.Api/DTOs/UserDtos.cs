@@ -30,3 +30,7 @@ public record ChangePasswordDto(
     [Required] string CurrentPassword,
     [Required, MinLength(6)] string NewPassword
 );
+
+public record DashboardLayoutDto(List<string>? Layout);
+
+public record UpdateDashboardLayoutDto([Required] List<string> Layout);

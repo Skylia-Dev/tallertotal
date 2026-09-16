@@ -141,6 +141,27 @@ public class UsersController(AppDbContext db) : ControllerBase
         return NoContent();
     }
 
+    // ── Dashboard personalizable ─────────────────────────────────────────────
+    // Layout guardado por usuario (no por taller) — igual que en CEMDI.
+
+    [HttpGet("me/dashboard-layout")]
+    public async Task<ActionResult<DashboardLayoutDto>> GetDashboardLayout()
+    {
+        var json = await db.Users.Where(u => u.Id == CurrentUserId).Select(u => u.DashboardLayout).FirstAsync();
+        var layout = json is null ? null : System.Text.Json.JsonSerializer.Deserialize<List<string>>(json);
+        return new DashboardLayoutDto(layout);
+    }
+
+    [HttpPut("me/dashboard-layout")]
+    public async Task<ActionResult<DashboardLayoutDto>> SetDashboardLayout(UpdateDashboardLayoutDto dto)
+    {
+        var layout = dto.Layout.Where(DashboardWidgetCatalog.ValidKeys.Contains).Distinct().ToList();
+        var json = System.Text.Json.JsonSerializer.Serialize(layout);
+        await db.Users.Where(u => u.Id == CurrentUserId)
+            .ExecuteUpdateAsync(s => s.SetProperty(u => u.DashboardLayout, json));
+        return new DashboardLayoutDto(layout);
+    }
+
     // ── Foto de perfil ───────────────────────────────────────────────────────
     // Se guarda directo en la base (bytea), igual que en CEMDI — sin depender
     // de que el taller tenga Supabase Storage configurado (eso es opcional, para Agenda).

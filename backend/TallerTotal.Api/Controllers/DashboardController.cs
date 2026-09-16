@@ -136,11 +136,70 @@ public class DashboardController(AppDbContext db) : ControllerBase
                 .CountAsync() / ordersThisMonth * 100m
             : 0m;
 
+        // ── Widgets opcionales (catálogo del dashboard personalizable) ──────────
+
+        var ventasThisMonth = await db.Ventas
+            .Where(v => v.TenantId == TenantId && v.Fecha >= startThisMonth)
+            .SumAsync(v => v.Total);
+
+        var deudasPendientesTotal = await db.DeudasClientes
+            .Where(d => d.TenantId == TenantId)
+            .SumAsync(d => d.SaldoPendiente);
+
+        var todayOnly = DateOnly.FromDateTime(now);
+        var presupuestosVigentes = await db.Presupuestos
+            .Where(p => p.TenantId == TenantId && p.Vencimiento >= now)
+            .CountAsync();
+
+        var cajaMovimientos = await db.CajaMovimientos
+            .Where(c => c.TenantId == TenantId)
+            .Select(c => new { c.Tipo, c.Monto })
+            .ToListAsync();
+        var cajaBalance = cajaMovimientos.Sum(c =>
+            c.Tipo is CajaMovimientoTipo.Ingreso or CajaMovimientoTipo.Apertura ? c.Monto :
+            c.Tipo == CajaMovimientoTipo.Retiro ? -c.Monto : 0m);
+
+        var articulosStockBajo = await db.Articulos
+            .Where(a => a.TenantId == TenantId && a.Activo && a.Stock <= a.StockMinimo)
+            .CountAsync();
+
+        var clientesNuevosEsteMes = await db.Customers
+            .Where(c => c.TenantId == TenantId && c.CreatedAt >= startThisMonth)
+            .CountAsync();
+
+        // Vencimientos de Lubricentro: mismo criterio que GET /serviceorders/lubricentro/upcoming
+        // (Vencido si ya pasó la fecha o el km sugerido, Próximo si falta poco de cualquiera de los dos).
+        var lubricentroCandidates = await query
+            .Where(o => o.Type == ServiceOrderType.Lubricentro
+                     && o.Status == ServiceOrderStatus.Completed
+                     && (o.NextServiceKm != null || o.NextServiceDate != null))
+            .Select(o => new { o.VehicleId, o.CompletedAt, o.CreatedAt, o.NextServiceKm, o.NextServiceDate })
+            .ToListAsync();
+        var lastMileageByVehicle = await query
+            .Where(o => o.MileageIn != null)
+            .Select(o => new { o.VehicleId, o.MileageIn, o.CreatedAt })
+            .ToListAsync();
+        var lastMileage = lastMileageByVehicle
+            .GroupBy(o => o.VehicleId)
+            .ToDictionary(g => g.Key, g => g.OrderByDescending(o => o.CreatedAt).First().MileageIn);
+        var lubricentroVencimientos = lubricentroCandidates
+            .GroupBy(o => o.VehicleId)
+            .Select(g => g.OrderByDescending(o => o.CompletedAt ?? o.CreatedAt).First())
+            .Count(o =>
+            {
+                lastMileage.TryGetValue(o.VehicleId, out var km);
+                int? kmRemaining = o.NextServiceKm.HasValue && km.HasValue ? o.NextServiceKm - km : null;
+                int? daysRemaining = o.NextServiceDate.HasValue ? o.NextServiceDate.Value.DayNumber - todayOnly.DayNumber : null;
+                return (daysRemaining.HasValue && daysRemaining <= 30) || (kmRemaining.HasValue && kmRemaining <= 1000);
+            });
+
         return new DashboardMetricsDto(
             revenueThisMonth, revenueLastMonth,
             ordersThisMonth, ordersLastMonth,
             byStatus, topMechanic,
             monthlyStats, mechanicStats,
-            avgTicket, overdueCount, completionRate);
+            avgTicket, overdueCount, completionRate,
+            ventasThisMonth, deudasPendientesTotal, presupuestosVigentes, cajaBalance,
+            articulosStockBajo, lubricentroVencimientos, clientesNuevosEsteMes);
     }
 }

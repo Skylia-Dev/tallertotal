@@ -138,6 +138,17 @@ export interface DashboardMetrics {
   avgTicket: number;
   overdueCount: number;
   completionRate: number;
+  ventasThisMonth: number;
+  deudasPendientesTotal: number;
+  presupuestosVigentes: number;
+  cajaBalance: number;
+  articulosStockBajo: number;
+  lubricentroVencimientos: number;
+  clientesNuevosEsteMes: number;
+}
+
+export interface DashboardLayout {
+  layout: string[] | null;
 }
 
 export interface CreateCustomerDto {

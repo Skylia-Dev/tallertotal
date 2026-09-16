@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useMemo } from "react";
 import { serviceOrdersApi, dashboardApi } from "@/lib/api";
 import type { ServiceOrder, ServiceOrderStatus, DashboardMetrics } from "@/types";
 import { StatusBadge } from "@/components/StatusBadge";
+import { SortableWidget } from "@/components/SortableWidget";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
@@ -12,10 +13,12 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   ClipboardList, CheckCircle,
   TrendingUp, TrendingDown, Minus, DollarSign,
-  TicketPercent, AlertTriangle,
+  TicketPercent, AlertTriangle, ShoppingCart, Wallet, FileText,
+  PackageX, Droplets, UserPlus, Settings2, Plus, type LucideIcon,
 } from "lucide-react";
 import { Pagination } from "@/components/Pagination";
 import { toast } from "sonner";
@@ -23,6 +26,18 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend,
 } from "recharts";
+import {
+  DndContext, closestCenter, PointerSensor, KeyboardSensor, useSensor, useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext, arrayMove, sortableKeyboardCoordinates,
+  rectSortingStrategy, verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import {
+  DASHBOARD_WIDGET_CATALOG, DASHBOARD_WIDGET_MAP, DEFAULT_DASHBOARD_WIDGETS,
+  resolveDashboardWidgets, type DashboardWidgetKey,
+} from "@/lib/dashboard-widgets";
 
 const STATUS_TABS: { value: ServiceOrderStatus | "all"; label: string }[] = [
   { value: "all", label: "Todas" },
@@ -41,6 +56,91 @@ const STATUS_COLORS: Record<string, string> = {
 const fmt = (n: number) =>
   "$" + n.toLocaleString("es-AR", { minimumFractionDigits: 0 });
 
+// ── Widgets del dashboard personalizable ────────────────────────────────────────
+
+const COLOR_CLASSES: Record<string, { border: string; iconBg: string; iconColor: string }> = {
+  emerald: { border: "border-l-emerald-500", iconBg: "bg-emerald-50", iconColor: "text-emerald-600" },
+  blue:    { border: "border-l-blue-500",    iconBg: "bg-blue-50",    iconColor: "text-blue-600" },
+  violet:  { border: "border-l-violet-500",  iconBg: "bg-violet-50",  iconColor: "text-violet-600" },
+  teal:    { border: "border-l-teal-500",    iconBg: "bg-teal-50",    iconColor: "text-teal-600" },
+  red:     { border: "border-l-red-500",     iconBg: "bg-red-50",     iconColor: "text-red-500" },
+  gray:    { border: "border-l-gray-300",    iconBg: "bg-gray-50",    iconColor: "text-gray-400" },
+  cyan:    { border: "border-l-cyan-500",    iconBg: "bg-cyan-50",    iconColor: "text-cyan-600" },
+  amber:   { border: "border-l-amber-500",   iconBg: "bg-amber-50",   iconColor: "text-amber-600" },
+  indigo:  { border: "border-l-indigo-500",  iconBg: "bg-indigo-50",  iconColor: "text-indigo-600" },
+  green:   { border: "border-l-green-500",   iconBg: "bg-green-50",   iconColor: "text-green-600" },
+  pink:    { border: "border-l-pink-500",    iconBg: "bg-pink-50",    iconColor: "text-pink-600" },
+};
+
+function KpiCardContent({ label, value, icon: Icon, color, sub }: {
+  label: string; value: string; icon: LucideIcon; color: string; sub?: React.ReactNode;
+}) {
+  const c = COLOR_CLASSES[color] ?? COLOR_CLASSES.gray;
+  return (
+    <Card className={`border-l-4 ${c.border} h-full`}>
+      <CardContent className="pt-5 pb-4">
+        <div className="flex items-center justify-between gap-2">
+          <div className="min-w-0">
+            <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">{label}</p>
+            <p className="text-xl font-bold text-gray-900 mt-1 truncate">{value}</p>
+            {sub}
+          </div>
+          <div className={`p-2.5 rounded-xl shrink-0 ${c.iconBg}`}>
+            <Icon className={`h-5 w-5 ${c.iconColor}`} />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function ChartCard({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <Card className="h-full">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm font-semibold text-gray-700">{title}</CardTitle>
+      </CardHeader>
+      <CardContent>{children}</CardContent>
+    </Card>
+  );
+}
+
+function renderKpiWidget(
+  key: DashboardWidgetKey,
+  metrics: DashboardMetrics | null,
+  revDelta: number | null,
+  ordDelta: number | null
+) {
+  switch (key) {
+    case "revenueThisMonth":
+      return <KpiCardContent label="Ingresos del mes" value={fmt(metrics?.revenueThisMonth ?? 0)} icon={DollarSign} color="emerald" sub={<DeltaBadge delta={revDelta} />} />;
+    case "ordersThisMonth":
+      return <KpiCardContent label="Órdenes del mes" value={String(metrics?.ordersThisMonth ?? 0)} icon={ClipboardList} color="blue" sub={<DeltaBadge delta={ordDelta} />} />;
+    case "avgTicket":
+      return <KpiCardContent label="Ticket promedio" value={fmt(metrics?.avgTicket ?? 0)} icon={TicketPercent} color="violet" sub={<p className="text-xs text-gray-400 mt-1">órdenes completadas</p>} />;
+    case "completionRate":
+      return <KpiCardContent label="Tasa completado" value={`${(metrics?.completionRate ?? 0).toFixed(1)}%`} icon={CheckCircle} color="teal" sub={<p className="text-xs text-gray-400 mt-1">del mes actual</p>} />;
+    case "overdueCount":
+      return <KpiCardContent label="Órdenes vencidas" value={String(metrics?.overdueCount ?? 0)} icon={AlertTriangle} color={(metrics?.overdueCount ?? 0) > 0 ? "red" : "gray"} sub={<p className="text-xs text-gray-400 mt-1">plazo superado</p>} />;
+    case "ventasThisMonth":
+      return <KpiCardContent label="Ventas del mes" value={fmt(metrics?.ventasThisMonth ?? 0)} icon={ShoppingCart} color="cyan" sub={<p className="text-xs text-gray-400 mt-1">mostrador + POS</p>} />;
+    case "deudasPendientes":
+      return <KpiCardContent label="Deudas pendientes" value={fmt(metrics?.deudasPendientesTotal ?? 0)} icon={Wallet} color="amber" sub={<p className="text-xs text-gray-400 mt-1">saldo por cobrar</p>} />;
+    case "presupuestosVigentes":
+      return <KpiCardContent label="Presupuestos vigentes" value={String(metrics?.presupuestosVigentes ?? 0)} icon={FileText} color="indigo" sub={<p className="text-xs text-gray-400 mt-1">no vencidos</p>} />;
+    case "cajaBalance":
+      return <KpiCardContent label="Balance de caja" value={fmt(metrics?.cajaBalance ?? 0)} icon={Wallet} color="green" />;
+    case "articulosStockBajo":
+      return <KpiCardContent label="Stock bajo" value={String(metrics?.articulosStockBajo ?? 0)} icon={PackageX} color={(metrics?.articulosStockBajo ?? 0) > 0 ? "red" : "gray"} sub={<p className="text-xs text-gray-400 mt-1">artículos activos</p>} />;
+    case "lubricentroVencimientos":
+      return <KpiCardContent label="Vencimientos lubricentro" value={String(metrics?.lubricentroVencimientos ?? 0)} icon={Droplets} color="amber" sub={<p className="text-xs text-gray-400 mt-1">próx. 30 días</p>} />;
+    case "clientesNuevos":
+      return <KpiCardContent label="Clientes nuevos" value={String(metrics?.clientesNuevosEsteMes ?? 0)} icon={UserPlus} color="pink" sub={<p className="text-xs text-gray-400 mt-1">este mes</p>} />;
+    default:
+      return null;
+  }
+}
+
 function OfficeDashboard() {
   const [orders, setOrders] = useState<ServiceOrder[]>([]);
   const [allOrders, setAllOrders] = useState<ServiceOrder[]>([]);
@@ -50,6 +150,71 @@ function OfficeDashboard() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+
+  // Dashboard personalizable
+  const [editMode, setEditMode] = useState(false);
+  const [smOrder, setSmOrder] = useState<DashboardWidgetKey[]>(
+    DEFAULT_DASHBOARD_WIDGETS.filter((k) => DASHBOARD_WIDGET_MAP[k].size === "sm")
+  );
+  const [lgOrder, setLgOrder] = useState<DashboardWidgetKey[]>(
+    DEFAULT_DASHBOARD_WIDGETS.filter((k) => DASHBOARD_WIDGET_MAP[k].size === "lg")
+  );
+  const [addMenuOpen, setAddMenuOpen] = useState(false);
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  useEffect(() => {
+    dashboardApi.getLayout()
+      .then((res) => {
+        const resolved = resolveDashboardWidgets(res.layout);
+        setSmOrder(resolved.filter((k) => DASHBOARD_WIDGET_MAP[k].size === "sm"));
+        setLgOrder(resolved.filter((k) => DASHBOARD_WIDGET_MAP[k].size === "lg"));
+      })
+      .catch(() => {});
+  }, []);
+
+  const persistLayout = useCallback(async (nextSm: DashboardWidgetKey[], nextLg: DashboardWidgetKey[]) => {
+    setSmOrder(nextSm);
+    setLgOrder(nextLg);
+    try {
+      await dashboardApi.setLayout([...nextSm, ...nextLg]);
+    } catch {
+      toast.error("No se pudo guardar el dashboard");
+    }
+  }, []);
+
+  const handleHideWidget = (key: DashboardWidgetKey) => {
+    if (DASHBOARD_WIDGET_MAP[key].size === "sm") persistLayout(smOrder.filter((k) => k !== key), lgOrder);
+    else persistLayout(smOrder, lgOrder.filter((k) => k !== key));
+  };
+
+  const handleAddWidget = (key: DashboardWidgetKey) => {
+    setAddMenuOpen(false);
+    if (DASHBOARD_WIDGET_MAP[key].size === "sm") persistLayout([...smOrder, key], lgOrder);
+    else persistLayout(smOrder, [...lgOrder, key]);
+  };
+
+  const handleSmDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = smOrder.indexOf(active.id as DashboardWidgetKey);
+    const newIndex = smOrder.indexOf(over.id as DashboardWidgetKey);
+    persistLayout(arrayMove(smOrder, oldIndex, newIndex), lgOrder);
+  };
+
+  const handleLgDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = lgOrder.indexOf(active.id as DashboardWidgetKey);
+    const newIndex = lgOrder.indexOf(over.id as DashboardWidgetKey);
+    persistLayout(smOrder, arrayMove(lgOrder, oldIndex, newIndex));
+  };
+
+  const hiddenWidgets = DASHBOARD_WIDGET_CATALOG.filter(
+    (w) => !smOrder.includes(w.key) && !lgOrder.includes(w.key)
+  );
 
   const loadAll = useCallback(async () => {
     try {
@@ -128,266 +293,207 @@ function OfficeDashboard() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-sm text-gray-500 mt-1 capitalize">
-          Resumen del taller · {monthName} {new Date().getFullYear()}
-        </p>
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+          <p className="text-sm text-gray-500 mt-1 capitalize">
+            Resumen del taller · {monthName} {new Date().getFullYear()}
+          </p>
+        </div>
+        <Button variant="outline" size="sm" onClick={() => setEditMode((v) => !v)} className="gap-1.5">
+          <Settings2 className="h-4 w-4" />
+          {editMode ? "Listo" : "Personalizar"}
+        </Button>
       </div>
 
-      {/* Top KPI row — 5 cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-        {/* Ingresos del mes */}
-        <Card className="border-l-4 border-l-emerald-500">
-          <CardContent className="pt-5 pb-4">
-            <div className="flex items-center justify-between gap-2">
-              <div className="min-w-0">
-                <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Ingresos del mes</p>
-                <p className="text-xl font-bold text-gray-900 mt-1 truncate">
-                  {fmt(metrics?.revenueThisMonth ?? 0)}
-                </p>
-                <DeltaBadge delta={revDelta} />
-              </div>
-              <div className="p-2.5 rounded-xl bg-emerald-50 shrink-0">
-                <DollarSign className="h-5 w-5 text-emerald-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      {/* KPI cards — personalizables */}
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleSmDragEnd}>
+        <SortableContext items={smOrder} strategy={rectSortingStrategy}>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+            {smOrder.map((key) => (
+              <SortableWidget key={key} id={key} editMode={editMode} onHide={() => handleHideWidget(key)}>
+                {renderKpiWidget(key, metrics, revDelta, ordDelta)}
+              </SortableWidget>
+            ))}
+          </div>
+        </SortableContext>
+      </DndContext>
 
-        {/* Órdenes del mes */}
-        <Card className="border-l-4 border-l-blue-500">
-          <CardContent className="pt-5 pb-4">
-            <div className="flex items-center justify-between gap-2">
-              <div className="min-w-0">
-                <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Órdenes del mes</p>
-                <p className="text-xl font-bold text-gray-900 mt-1">{metrics?.ordersThisMonth ?? 0}</p>
-                <DeltaBadge delta={ordDelta} />
-              </div>
-              <div className="p-2.5 rounded-xl bg-blue-50 shrink-0">
-                <ClipboardList className="h-5 w-5 text-blue-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Ticket promedio */}
-        <Card className="border-l-4 border-l-violet-500">
-          <CardContent className="pt-5 pb-4">
-            <div className="flex items-center justify-between gap-2">
-              <div className="min-w-0">
-                <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Ticket promedio</p>
-                <p className="text-xl font-bold text-gray-900 mt-1 truncate">
-                  {fmt(metrics?.avgTicket ?? 0)}
-                </p>
-                <p className="text-xs text-gray-400 mt-1">órdenes completadas</p>
-              </div>
-              <div className="p-2.5 rounded-xl bg-violet-50 shrink-0">
-                <TicketPercent className="h-5 w-5 text-violet-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Tasa de completado */}
-        <Card className="border-l-4 border-l-teal-500">
-          <CardContent className="pt-5 pb-4">
-            <div className="flex items-center justify-between gap-2">
-              <div className="min-w-0">
-                <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Tasa completado</p>
-                <p className="text-xl font-bold text-gray-900 mt-1">
-                  {(metrics?.completionRate ?? 0).toFixed(1)}%
-                </p>
-                <p className="text-xs text-gray-400 mt-1">del mes actual</p>
-              </div>
-              <div className="p-2.5 rounded-xl bg-teal-50 shrink-0">
-                <CheckCircle className="h-5 w-5 text-teal-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Órdenes vencidas */}
-        <Card className={`border-l-4 ${(metrics?.overdueCount ?? 0) > 0 ? "border-l-red-500" : "border-l-gray-300"}`}>
-          <CardContent className="pt-5 pb-4">
-            <div className="flex items-center justify-between gap-2">
-              <div className="min-w-0">
-                <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Órdenes vencidas</p>
-                <p className={`text-xl font-bold mt-1 ${(metrics?.overdueCount ?? 0) > 0 ? "text-red-600" : "text-gray-900"}`}>
-                  {metrics?.overdueCount ?? 0}
-                </p>
-                <p className="text-xs text-gray-400 mt-1">plazo superado</p>
-              </div>
-              <div className={`p-2.5 rounded-xl shrink-0 ${(metrics?.overdueCount ?? 0) > 0 ? "bg-red-50" : "bg-gray-50"}`}>
-                <AlertTriangle className={`h-5 w-5 ${(metrics?.overdueCount ?? 0) > 0 ? "text-red-500" : "text-gray-400"}`} />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Charts row 1: Revenue + Orders bar charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Revenue bar chart */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-semibold text-gray-700">Ingresos últimos 6 meses</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {(metrics?.monthlyStats?.length ?? 0) === 0 ? (
-              <EmptyChart />
-            ) : (
-              <ResponsiveContainer width="100%" height={240}>
-                <BarChart data={metrics!.monthlyStats} margin={{ top: 4, right: 8, left: 8, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis dataKey="month" tick={{ fontSize: 12, fill: "#6b7280" }} axisLine={false} tickLine={false} />
-                  <YAxis
-                    tick={{ fontSize: 11, fill: "#9ca3af" }}
-                    axisLine={false}
-                    tickLine={false}
-                    tickFormatter={(v) => "$" + (v as number).toLocaleString("es-AR")}
-                    width={70}
-                  />
-                  <Tooltip
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    formatter={(value: any) => [fmt(Number(value) || 0), "Ingresos"]}
-                    contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #e5e7eb" }}
-                  />
-                  <Bar dataKey="revenue" fill="#10b981" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Orders bar chart */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-semibold text-gray-700">Órdenes últimos 6 meses</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {(metrics?.monthlyStats?.length ?? 0) === 0 ? (
-              <EmptyChart />
-            ) : (
-              <ResponsiveContainer width="100%" height={240}>
-                <BarChart data={metrics!.monthlyStats} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis dataKey="month" tick={{ fontSize: 12, fill: "#6b7280" }} axisLine={false} tickLine={false} />
-                  <YAxis
-                    tick={{ fontSize: 11, fill: "#9ca3af" }}
-                    axisLine={false}
-                    tickLine={false}
-                    allowDecimals={false}
-                    width={32}
-                  />
-                  <Tooltip
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    formatter={(value: any) => [Number(value) || 0, "Órdenes"]}
-                    contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #e5e7eb" }}
-                  />
-                  <Bar dataKey="orders" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Charts row 2: Pie by status + Mechanic horizontal bar */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Pie chart: orders by status */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-semibold text-gray-700">Órdenes por estado</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {pieData.length === 0 ? (
-              <EmptyChart />
-            ) : (
-              <ResponsiveContainer width="100%" height={240}>
-                <PieChart>
-                  <Pie
-                    data={pieData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={55}
-                    outerRadius={90}
-                    paddingAngle={3}
-                    dataKey="value"
-                  >
-                    {pieData.map((entry) => (
-                      <Cell key={entry.key} fill={STATUS_COLORS[entry.key] ?? "#94a3b8"} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    formatter={(value: any, _: any, props: any) => {
-                      const v = Number(value) || 0;
-                      return [`${v} orden${v !== 1 ? "es" : ""}`, props?.payload?.name ?? ""];
-                    }}
-                    contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #e5e7eb" }}
-                  />
-                  <Legend
-                    iconType="circle"
-                    iconSize={8}
-                    formatter={(value) => (
-                      <span style={{ fontSize: 12, color: "#374151" }}>{value}</span>
+      {/* Gráficos — personalizables */}
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleLgDragEnd}>
+        <SortableContext items={lgOrder} strategy={verticalListSortingStrategy}>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {lgOrder.map((key) => (
+              <SortableWidget key={key} id={key} editMode={editMode} onHide={() => handleHideWidget(key)}>
+                {key === "ingresosChart" && (
+                  <ChartCard title="Ingresos últimos 6 meses">
+                    {(metrics?.monthlyStats?.length ?? 0) === 0 ? (
+                      <EmptyChart />
+                    ) : (
+                      <ResponsiveContainer width="100%" height={240}>
+                        <BarChart data={metrics!.monthlyStats} margin={{ top: 4, right: 8, left: 8, bottom: 0 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                          <XAxis dataKey="month" tick={{ fontSize: 12, fill: "#6b7280" }} axisLine={false} tickLine={false} />
+                          <YAxis
+                            tick={{ fontSize: 11, fill: "#9ca3af" }}
+                            axisLine={false}
+                            tickLine={false}
+                            tickFormatter={(v) => "$" + (v as number).toLocaleString("es-AR")}
+                            width={70}
+                          />
+                          <Tooltip
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            formatter={(value: any) => [fmt(Number(value) || 0), "Ingresos"]}
+                            contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #e5e7eb" }}
+                          />
+                          <Bar dataKey="revenue" fill="#10b981" radius={[4, 4, 0, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
                     )}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            )}
-          </CardContent>
-        </Card>
+                  </ChartCard>
+                )}
 
-        {/* Horizontal bar: mechanic performance */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-semibold text-gray-700">Rendimiento por mecánico este mes</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {(metrics?.mechanicStats?.length ?? 0) === 0 ? (
-              <EmptyChart label="Sin datos este mes" />
-            ) : (
-              <ResponsiveContainer width="100%" height={240}>
-                <BarChart
-                  layout="vertical"
-                  data={metrics!.mechanicStats}
-                  margin={{ top: 4, right: 16, left: 8, bottom: 0 }}
+                {key === "ordenesChart" && (
+                  <ChartCard title="Órdenes últimos 6 meses">
+                    {(metrics?.monthlyStats?.length ?? 0) === 0 ? (
+                      <EmptyChart />
+                    ) : (
+                      <ResponsiveContainer width="100%" height={240}>
+                        <BarChart data={metrics!.monthlyStats} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                          <XAxis dataKey="month" tick={{ fontSize: 12, fill: "#6b7280" }} axisLine={false} tickLine={false} />
+                          <YAxis
+                            tick={{ fontSize: 11, fill: "#9ca3af" }}
+                            axisLine={false}
+                            tickLine={false}
+                            allowDecimals={false}
+                            width={32}
+                          />
+                          <Tooltip
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            formatter={(value: any) => [Number(value) || 0, "Órdenes"]}
+                            contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #e5e7eb" }}
+                          />
+                          <Bar dataKey="orders" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    )}
+                  </ChartCard>
+                )}
+
+                {key === "estadoChart" && (
+                  <ChartCard title="Órdenes por estado">
+                    {pieData.length === 0 ? (
+                      <EmptyChart />
+                    ) : (
+                      <ResponsiveContainer width="100%" height={240}>
+                        <PieChart>
+                          <Pie
+                            data={pieData}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={55}
+                            outerRadius={90}
+                            paddingAngle={3}
+                            dataKey="value"
+                          >
+                            {pieData.map((entry) => (
+                              <Cell key={entry.key} fill={STATUS_COLORS[entry.key] ?? "#94a3b8"} />
+                            ))}
+                          </Pie>
+                          <Tooltip
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            formatter={(value: any, _: any, props: any) => {
+                              const v = Number(value) || 0;
+                              return [`${v} orden${v !== 1 ? "es" : ""}`, props?.payload?.name ?? ""];
+                            }}
+                            contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #e5e7eb" }}
+                          />
+                          <Legend
+                            iconType="circle"
+                            iconSize={8}
+                            formatter={(value) => (
+                              <span style={{ fontSize: 12, color: "#374151" }}>{value}</span>
+                            )}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    )}
+                  </ChartCard>
+                )}
+
+                {key === "mecanicoChart" && (
+                  <ChartCard title="Rendimiento por mecánico este mes">
+                    {(metrics?.mechanicStats?.length ?? 0) === 0 ? (
+                      <EmptyChart label="Sin datos este mes" />
+                    ) : (
+                      <ResponsiveContainer width="100%" height={240}>
+                        <BarChart
+                          layout="vertical"
+                          data={metrics!.mechanicStats}
+                          margin={{ top: 4, right: 16, left: 8, bottom: 0 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" horizontal={false} />
+                          <XAxis
+                            type="number"
+                            tick={{ fontSize: 11, fill: "#9ca3af" }}
+                            axisLine={false}
+                            tickLine={false}
+                            allowDecimals={false}
+                          />
+                          <YAxis
+                            type="category"
+                            dataKey="name"
+                            tick={{ fontSize: 12, fill: "#374151" }}
+                            axisLine={false}
+                            tickLine={false}
+                            width={90}
+                          />
+                          <Tooltip
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            formatter={(value: any, name: any) => {
+                              const v = Number(value) || 0;
+                              return name === "orders"
+                                ? [`${v} orden${v !== 1 ? "es" : ""}`, "Órdenes"]
+                                : [fmt(v), "Ingresos"];
+                            }}
+                            contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #e5e7eb" }}
+                          />
+                          <Bar dataKey="orders" fill="#8b5cf6" radius={[0, 4, 4, 0]} name="orders" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    )}
+                  </ChartCard>
+                )}
+              </SortableWidget>
+            ))}
+          </div>
+        </SortableContext>
+      </DndContext>
+
+      {/* Agregar widgets ocultos */}
+      {editMode && hiddenWidgets.length > 0 && (
+        <div className="relative">
+          <Button variant="outline" size="sm" onClick={() => setAddMenuOpen((v) => !v)} className="gap-1.5 border-dashed">
+            <Plus className="h-4 w-4" />
+            Agregar tarjeta
+          </Button>
+          {addMenuOpen && (
+            <div className="absolute z-20 mt-1 w-64 max-h-72 overflow-y-auto rounded-lg border bg-white shadow-lg py-1">
+              {hiddenWidgets.map((w) => (
+                <button
+                  key={w.key}
+                  onClick={() => handleAddWidget(w.key)}
+                  className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center justify-between gap-2"
                 >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" horizontal={false} />
-                  <XAxis
-                    type="number"
-                    tick={{ fontSize: 11, fill: "#9ca3af" }}
-                    axisLine={false}
-                    tickLine={false}
-                    allowDecimals={false}
-                  />
-                  <YAxis
-                    type="category"
-                    dataKey="name"
-                    tick={{ fontSize: 12, fill: "#374151" }}
-                    axisLine={false}
-                    tickLine={false}
-                    width={90}
-                  />
-                  <Tooltip
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    formatter={(value: any, name: any) => {
-                      const v = Number(value) || 0;
-                      return name === "orders"
-                        ? [`${v} orden${v !== 1 ? "es" : ""}`, "Órdenes"]
-                        : [fmt(v), "Ingresos"];
-                    }}
-                    contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #e5e7eb" }}
-                  />
-                  <Bar dataKey="orders" fill="#8b5cf6" radius={[0, 4, 4, 0]} name="orders" />
-                </BarChart>
-              </ResponsiveContainer>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+                  {w.label}
+                  <Plus className="h-3.5 w-3.5 text-gray-300" />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Orders table */}
       <Card>

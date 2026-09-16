@@ -20,5 +20,8 @@ public class User
     public byte[]? AvatarPhoto { get; set; }
     public string? AvatarContentType { get; set; }
 
+    /// <summary>JSON de string[] con las keys del catálogo de widgets del dashboard, en el orden elegido. Null = layout por defecto.</summary>
+    public string? DashboardLayout { get; set; }
+
     public Tenant Tenant { get; set; } = null!;
 }
