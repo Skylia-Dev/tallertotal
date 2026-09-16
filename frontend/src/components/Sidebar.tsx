@@ -91,8 +91,8 @@ export function Sidebar() {
         )}
       </nav>
       {process.env.NEXT_PUBLIC_APP_VERSION && (
-        <div className="px-3 py-2.5 border-t border-slate-800 shrink-0">
-          <p className="text-[10px] text-slate-600 font-mono text-center">
+        <div className="px-3 py-3 border-t border-slate-800 shrink-0">
+          <p className="text-sm text-slate-300 font-mono font-semibold text-center">
             {process.env.NEXT_PUBLIC_APP_VERSION}
           </p>
         </div>
