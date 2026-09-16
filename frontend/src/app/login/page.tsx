@@ -71,7 +71,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-full flex">
+    <div className="force-light min-h-full flex bg-background text-foreground">
       {/* Left panel - branding */}
       <div className="hidden lg:flex lg:w-3/5 relative flex-col justify-between p-12 overflow-hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}
