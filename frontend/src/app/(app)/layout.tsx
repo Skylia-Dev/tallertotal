@@ -8,7 +8,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <ModuleConfigProvider>
       <SessionActivityTracker />
-      <div className="h-full flex bg-gradient-to-br from-slate-50 via-blue-50/25 to-slate-50">
+      <div className="h-full flex bg-background">
         <div className="hidden md:flex">
           <Sidebar />
         </div>

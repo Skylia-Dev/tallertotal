@@ -290,11 +290,13 @@ export const sessionConfigApi = {
   pingActivity: () => request<void>("/users/me/activity", { method: "PUT" }),
 };
 
-// Módulos visibles — cualquiera lee, solo SuperAdmin puede editar (el backend lo valida)
+// Módulos visibles por rol — cualquiera lee los propios, solo SuperAdmin ve/edita la matriz completa
+// (el backend lo valida igual)
 export const tenantModuleConfigApi = {
   get: () => request<{ hiddenModules: string[] }>("/tenant/modules"),
-  update: (hiddenModules: string[]) =>
-    request<{ hiddenModules: string[] }>("/tenant/modules", { method: "PUT", body: JSON.stringify({ hiddenModules }) }),
+  getAll: () => request<Record<string, string[]>>("/tenant/modules/all"),
+  update: (role: string, hiddenModules: string[]) =>
+    request<{ hiddenModules: string[] }>(`/tenant/modules/${role}`, { method: "PUT", body: JSON.stringify({ hiddenModules }) }),
 };
 
 // Dashboard

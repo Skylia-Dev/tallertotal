@@ -43,8 +43,8 @@ export default function PresupuestosPage() {
     <div className="space-y-6 max-w-5xl mx-auto">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Presupuestos</h1>
-          <p className="text-sm text-gray-500 mt-1">{presupuestos.length} registrados</p>
+          <h1 className="text-2xl font-bold text-foreground">Presupuestos</h1>
+          <p className="text-sm text-muted-foreground mt-1">{presupuestos.length} registrados</p>
         </div>
         <Link href="/presupuestos/nuevo">
           <Button>
@@ -59,17 +59,17 @@ export default function PresupuestosPage() {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="py-12 text-center text-sm text-gray-400">Cargando...</div>
+            <div className="py-12 text-center text-sm text-muted-foreground">Cargando...</div>
           ) : presupuestos.length === 0 ? (
             <div className="py-12 text-center space-y-2">
-              <FileText className="h-8 w-8 text-gray-300 mx-auto" />
-              <p className="text-sm text-gray-400">No hay presupuestos registrados</p>
+              <FileText className="h-8 w-8 text-muted-foreground/50 mx-auto" />
+              <p className="text-sm text-muted-foreground">No hay presupuestos registrados</p>
             </div>
           ) : (
             <div className="overflow-x-auto rounded-md border">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-gray-50">
+                  <TableRow className="bg-muted">
                     <TableHead>Fecha</TableHead>
                     <TableHead>Cliente</TableHead>
                     <TableHead>Vencimiento</TableHead>
@@ -80,11 +80,11 @@ export default function PresupuestosPage() {
                 </TableHeader>
                 <TableBody>
                   {presupuestos.map((p) => (
-                    <TableRow key={p.id} className={`hover:bg-gray-50 ${p.vencido ? "opacity-60" : ""}`}>
-                      <TableCell className="text-sm text-gray-600">{new Date(p.fecha).toLocaleDateString("es-AR")}</TableCell>
+                    <TableRow key={p.id} className={`hover:bg-muted/60 ${p.vencido ? "opacity-60" : ""}`}>
+                      <TableCell className="text-sm text-muted-foreground">{new Date(p.fecha).toLocaleDateString("es-AR")}</TableCell>
                       <TableCell className="font-medium">{p.customerName ?? "Consumidor final"}</TableCell>
                       <TableCell className="text-sm">
-                        <span className={p.vencido ? "text-red-600 font-medium" : "text-gray-600"}>
+                        <span className={p.vencido ? "text-red-600 font-medium" : "text-muted-foreground"}>
                           {new Date(p.vencimiento).toLocaleDateString("es-AR")}{p.vencido ? " (vencido)" : ""}
                         </span>
                       </TableCell>

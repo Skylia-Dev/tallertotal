@@ -31,13 +31,13 @@ export function Topbar() {
   };
 
   return (
-    <div className="h-14 shrink-0 border-b bg-white flex items-center justify-between gap-2 px-4 md:px-6">
+    <div className="h-14 shrink-0 border-b bg-card flex items-center justify-between gap-2 px-4 md:px-6">
       {username && (
-        <div className="flex items-center gap-1.5 text-sm text-gray-500 min-w-0">
+        <div className="flex items-center gap-1.5 text-sm text-muted-foreground min-w-0">
           <UserRound className="h-4 w-4 shrink-0" />
           <span className="truncate">
-            <span className="hidden sm:inline text-gray-400">Usuario:</span>{" "}
-            <span className="font-medium text-gray-700">{username}</span>
+            <span className="hidden sm:inline text-muted-foreground/70">Usuario:</span>{" "}
+            <span className="font-medium text-foreground">{username}</span>
           </span>
         </div>
       )}
@@ -51,7 +51,7 @@ export function Topbar() {
           title="Configuración"
           className={cn(
             "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-            pathname === "/configuracion" ? "bg-blue-50 text-blue-600" : "text-gray-500 hover:bg-gray-100 hover:text-gray-900"
+            pathname === "/configuracion" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
           )}
         >
           <Settings className="h-4 w-4 shrink-0" />
@@ -64,7 +64,7 @@ export function Topbar() {
       <button
         onClick={() => setChangePasswordOpen(true)}
         title="Cambiar contraseña"
-        className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+        className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
       >
         <KeyRound className="h-4 w-4 shrink-0" />
         <span className="hidden sm:inline">Contraseña</span>
@@ -73,7 +73,7 @@ export function Topbar() {
       <button
         onClick={() => setTwoFactorOpen(true)}
         title="Autenticación de dos factores"
-        className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+        className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
       >
         <ShieldCheck className="h-4 w-4 shrink-0" />
         <span className="hidden sm:inline">Seguridad</span>
@@ -82,7 +82,7 @@ export function Topbar() {
       <button
         onClick={handleLogout}
         title="Cerrar sesión"
-        className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-gray-500 hover:bg-red-50 hover:text-red-600 transition-colors"
+        className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
       >
         <LogOut className="h-4 w-4 shrink-0" />
         <span className="hidden sm:inline">Cerrar sesión</span>

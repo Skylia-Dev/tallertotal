@@ -34,8 +34,8 @@ export default function AuditoriaPage() {
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Auditoría</h1>
-        <p className="text-sm text-gray-500 mt-1">Historial de acciones sobre compras, ventas, deudas y caja</p>
+        <h1 className="text-2xl font-bold text-foreground">Auditoría</h1>
+        <p className="text-sm text-muted-foreground mt-1">Historial de acciones sobre compras, ventas, deudas y caja</p>
       </div>
 
       <Card>
@@ -44,17 +44,17 @@ export default function AuditoriaPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           {loading ? (
-            <div className="py-12 text-center text-sm text-gray-400">Cargando...</div>
+            <div className="py-12 text-center text-sm text-muted-foreground">Cargando...</div>
           ) : items.length === 0 ? (
             <div className="py-12 text-center space-y-2">
-              <History className="h-8 w-8 text-gray-300 mx-auto" />
-              <p className="text-sm text-gray-400">No hay actividad registrada</p>
+              <History className="h-8 w-8 text-muted-foreground/50 mx-auto" />
+              <p className="text-sm text-muted-foreground">No hay actividad registrada</p>
             </div>
           ) : (
             <div className="overflow-x-auto rounded-md border">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-gray-50">
+                  <TableRow className="bg-muted">
                     <TableHead>Fecha</TableHead>
                     <TableHead>Usuario</TableHead>
                     <TableHead>Acción</TableHead>
@@ -63,11 +63,11 @@ export default function AuditoriaPage() {
                 </TableHeader>
                 <TableBody>
                   {items.map((l) => (
-                    <TableRow key={l.id} className="hover:bg-gray-50">
-                      <TableCell className="text-sm text-gray-600">{new Date(l.createdAt).toLocaleString("es-AR")}</TableCell>
+                    <TableRow key={l.id} className="hover:bg-muted/60">
+                      <TableCell className="text-sm text-muted-foreground">{new Date(l.createdAt).toLocaleString("es-AR")}</TableCell>
                       <TableCell className="font-medium">{l.username}</TableCell>
-                      <TableCell className="text-sm text-gray-500">{l.action}</TableCell>
-                      <TableCell className="text-sm text-gray-700">{l.description}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{l.action}</TableCell>
+                      <TableCell className="text-sm text-foreground">{l.description}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

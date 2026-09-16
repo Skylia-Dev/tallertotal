@@ -36,17 +36,17 @@ export function BottomNav() {
     : navItems.filter(({ moduleKey }) => moduleKey === null || !hiddenModules.has(moduleKey));
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 flex md:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border flex md:hidden">
       {items.map(({ href, label, icon: Icon }) => (
         <Link
           key={href}
           href={href}
           className={cn(
             "flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-xs font-medium transition-colors",
-            pathname === href ? "text-blue-600" : "text-gray-400"
+            pathname === href ? "text-blue-600" : "text-muted-foreground"
           )}
         >
-          <Icon className={cn("h-5 w-5", pathname === href ? "text-blue-600" : "text-gray-400")} />
+          <Icon className={cn("h-5 w-5", pathname === href ? "text-blue-600" : "text-muted-foreground")} />
           {label}
         </Link>
       ))}

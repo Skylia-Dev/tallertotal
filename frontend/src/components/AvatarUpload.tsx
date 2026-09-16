@@ -40,7 +40,7 @@ export function AvatarUpload() {
   return (
     <label
       title="Cambiar foto de perfil"
-      className="relative h-9 w-9 rounded-full overflow-hidden border-2 border-gray-200 bg-gray-100 cursor-pointer shrink-0 flex items-center justify-center hover:border-blue-400 transition-colors group"
+      className="relative h-9 w-9 rounded-full overflow-hidden border-2 border-border bg-muted cursor-pointer shrink-0 flex items-center justify-center hover:border-primary transition-colors group"
     >
       <input type="file" accept="image/*" className="hidden" onChange={handleChange} />
       {!error ? (
@@ -52,11 +52,11 @@ export function AvatarUpload() {
           onError={() => setError(true)}
         />
       ) : (
-        <UserRound className="h-4 w-4 text-gray-400" />
+        <UserRound className="h-4 w-4 text-muted-foreground" />
       )}
       {/* Insignia de cámara siempre visible: sin esto, el círculo se confunde con un simple avatar decorativo */}
-      <div className="absolute -bottom-0.5 -right-0.5 h-4 w-4 rounded-full bg-blue-600 border-2 border-white flex items-center justify-center group-hover:bg-blue-700 transition-colors">
-        <Camera className="h-2.5 w-2.5 text-white" />
+      <div className="absolute -bottom-0.5 -right-0.5 h-4 w-4 rounded-full bg-primary border-2 border-card flex items-center justify-center group-hover:opacity-90 transition-opacity">
+        <Camera className="h-2.5 w-2.5 text-primary-foreground" />
       </div>
       {uploading && (
         <div className="absolute inset-0 bg-black/50 flex items-center justify-center">

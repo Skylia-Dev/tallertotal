@@ -25,7 +25,7 @@ export function ThemePicker() {
       <button
         onClick={() => setOpen((v) => !v)}
         title="Apariencia"
-        className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+        className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
       >
         <Palette className="h-4 w-4 shrink-0" />
         <span className="hidden sm:inline">Apariencia</span>

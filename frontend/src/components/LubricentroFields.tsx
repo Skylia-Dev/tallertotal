@@ -52,12 +52,12 @@ export function LubricentroFields({ value, onChange }: { value: LubricentroDetai
         <Label>Filtros cambiados</Label>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {FILTER_OPTIONS.map((f) => (
-            <label key={f.key} className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+            <label key={f.key} className="flex items-center gap-2 text-sm text-foreground cursor-pointer">
               <input
                 type="checkbox"
                 checked={value[f.key]}
                 onChange={(e) => set(f.key, e.target.checked)}
-                className="h-4 w-4 rounded border-gray-300 cursor-pointer"
+                className="h-4 w-4 rounded border-border cursor-pointer"
               />
               {f.label}
             </label>

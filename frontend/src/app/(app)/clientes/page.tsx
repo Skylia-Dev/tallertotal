@@ -129,8 +129,8 @@ export default function ClientesPage() {
     <div className="space-y-6 max-w-5xl mx-auto">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Clientes</h1>
-          <p className="text-sm text-gray-500 mt-1">{customers.length} registrados</p>
+          <h1 className="text-2xl font-bold text-foreground">Clientes</h1>
+          <p className="text-sm text-muted-foreground mt-1">{customers.length} registrados</p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger render={
@@ -187,24 +187,24 @@ export default function ClientesPage() {
           />
 
           {loading ? (
-            <div className="py-12 text-center text-sm text-gray-400">Cargando...</div>
+            <div className="py-12 text-center text-sm text-muted-foreground">Cargando...</div>
           ) : customers.length === 0 ? (
             <div className="py-12 text-center space-y-2">
-              <Users className="h-8 w-8 text-gray-300 mx-auto" />
-              <p className="text-sm text-gray-400">No hay clientes{search ? " que coincidan" : ""}</p>
+              <Users className="h-8 w-8 text-muted-foreground/50 mx-auto" />
+              <p className="text-sm text-muted-foreground">No hay clientes{search ? " que coincidan" : ""}</p>
             </div>
           ) : (
             <div className="overflow-x-auto rounded-md border">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-gray-50">
+                  <TableRow className="bg-muted">
                     <TableHead className="w-10">
                       <input
                         type="checkbox"
                         checked={allSelected}
                         ref={(el) => { if (el) el.indeterminate = someSelected && !allSelected; }}
                         onChange={toggleAll}
-                        className="h-4 w-4 rounded border-gray-300 cursor-pointer"
+                        className="h-4 w-4 rounded border-border cursor-pointer"
                         aria-label="Seleccionar todos"
                       />
                     </TableHead>
@@ -217,21 +217,21 @@ export default function ClientesPage() {
                 </TableHeader>
                 <TableBody>
                   {paginated.map((c) => (
-                    <TableRow key={c.id} className={`hover:bg-gray-50 ${selected.has(c.id) ? "bg-blue-50/60" : ""}`}>
+                    <TableRow key={c.id} className={`hover:bg-muted/60 ${selected.has(c.id) ? "bg-blue-50/60" : ""}`}>
                       <TableCell>
                         <input
                           type="checkbox"
                           checked={selected.has(c.id)}
                           onChange={() => toggleOne(c.id)}
-                          className="h-4 w-4 rounded border-gray-300 cursor-pointer"
+                          className="h-4 w-4 rounded border-border cursor-pointer"
                           aria-label={`Seleccionar ${c.name}`}
                         />
                       </TableCell>
                       <TableCell className="font-medium">{c.name}</TableCell>
-                      <TableCell className="text-sm text-gray-600">{c.phone}</TableCell>
-                      <TableCell className="text-sm text-gray-500">{c.email ?? "—"}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{c.phone}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{c.email ?? "—"}</TableCell>
                       <TableCell className="text-center">
-                        <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 text-xs font-medium text-gray-600">
+                        <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-muted text-xs font-medium text-muted-foreground">
                           {c.vehicleCount}
                         </span>
                       </TableCell>
@@ -271,7 +271,7 @@ export default function ClientesPage() {
           <DialogHeader>
             <DialogTitle>Eliminar cliente</DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-muted-foreground">
             ¿Estás seguro de eliminar a <span className="font-semibold">{deleteTarget?.name}</span>?
             Se eliminarán también sus vehículos e historial de órdenes.
           </p>

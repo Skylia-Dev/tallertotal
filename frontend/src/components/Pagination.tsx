@@ -18,9 +18,9 @@ export function Pagination({ total, page, pageSize, onPageChange, onPageSizeChan
   const to = Math.min(page * pageSize, total);
 
   return (
-    <div className="flex items-center justify-between pt-3 border-t border-gray-100 mt-1">
+    <div className="flex items-center justify-between pt-3 border-t border-border mt-1">
       {/* Left: count info */}
-      <span className="text-xs text-gray-400 select-none">
+      <span className="text-xs text-muted-foreground select-none">
         {total === 0 ? "0 resultados" : `${from}–${to} de ${total}`}
       </span>
 
@@ -29,7 +29,7 @@ export function Pagination({ total, page, pageSize, onPageChange, onPageSizeChan
         <button
           onClick={() => onPageChange(page - 1)}
           disabled={page <= 1}
-          className="h-8 w-8 flex items-center justify-center rounded-md border border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          className="h-8 w-8 flex items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-muted/60 hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           aria-label="Página anterior"
         >
           <ChevronLeft className="h-4 w-4" />
@@ -42,7 +42,7 @@ export function Pagination({ total, page, pageSize, onPageChange, onPageSizeChan
               onPageSizeChange(Number(e.target.value));
               onPageChange(1);
             }}
-            className="h-8 rounded-md border border-gray-200 bg-white px-2 text-xs text-gray-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500/30 hover:border-gray-300 transition-colors"
+            className="h-8 rounded-md border border-border bg-card px-2 text-xs text-foreground cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring/30 hover:border-primary transition-colors"
             aria-label="Filas por página"
           >
             {PAGE_SIZES.map((s) => (
@@ -50,7 +50,7 @@ export function Pagination({ total, page, pageSize, onPageChange, onPageSizeChan
             ))}
           </select>
 
-          <span className="text-xs text-gray-400 whitespace-nowrap px-1 select-none">
+          <span className="text-xs text-muted-foreground whitespace-nowrap px-1 select-none">
             {totalPages > 1 ? `pág. ${page} / ${totalPages}` : ""}
           </span>
         </div>
@@ -58,7 +58,7 @@ export function Pagination({ total, page, pageSize, onPageChange, onPageSizeChan
         <button
           onClick={() => onPageChange(page + 1)}
           disabled={page >= totalPages}
-          className="h-8 w-8 flex items-center justify-center rounded-md border border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          className="h-8 w-8 flex items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-muted/60 hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           aria-label="Página siguiente"
         >
           <ChevronRight className="h-4 w-4" />

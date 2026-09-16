@@ -38,8 +38,8 @@ export default function VentasPage() {
     <div className="space-y-6 max-w-5xl mx-auto">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Ventas</h1>
-          <p className="text-sm text-gray-500 mt-1">{ventas.length} registradas</p>
+          <h1 className="text-2xl font-bold text-foreground">Ventas</h1>
+          <p className="text-sm text-muted-foreground mt-1">{ventas.length} registradas</p>
         </div>
         <Link href="/ventas/nueva">
           <Button>
@@ -54,17 +54,17 @@ export default function VentasPage() {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="py-12 text-center text-sm text-gray-400">Cargando...</div>
+            <div className="py-12 text-center text-sm text-muted-foreground">Cargando...</div>
           ) : ventas.length === 0 ? (
             <div className="py-12 text-center space-y-2">
-              <Receipt className="h-8 w-8 text-gray-300 mx-auto" />
-              <p className="text-sm text-gray-400">No hay ventas registradas</p>
+              <Receipt className="h-8 w-8 text-muted-foreground/50 mx-auto" />
+              <p className="text-sm text-muted-foreground">No hay ventas registradas</p>
             </div>
           ) : (
             <div className="overflow-x-auto rounded-md border">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-gray-50">
+                  <TableRow className="bg-muted">
                     <TableHead>Fecha</TableHead>
                     <TableHead>Cliente</TableHead>
                     <TableHead className="text-center">Artículos</TableHead>
@@ -74,11 +74,11 @@ export default function VentasPage() {
                 </TableHeader>
                 <TableBody>
                   {ventas.map((v) => (
-                    <TableRow key={v.id} className="hover:bg-gray-50">
-                      <TableCell className="text-sm text-gray-600">{new Date(v.fecha).toLocaleDateString("es-AR")}</TableCell>
+                    <TableRow key={v.id} className="hover:bg-muted/60">
+                      <TableCell className="text-sm text-muted-foreground">{new Date(v.fecha).toLocaleDateString("es-AR")}</TableCell>
                       <TableCell className="font-medium">{v.customerName ?? "Consumidor final"}</TableCell>
                       <TableCell className="text-center">{v.itemsCount}</TableCell>
-                      <TableCell className="text-sm text-gray-600">{formaPagoLabel[v.formaPago] ?? v.formaPago}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{formaPagoLabel[v.formaPago] ?? v.formaPago}</TableCell>
                       <TableCell className="text-right font-semibold">${v.total.toLocaleString("es-AR")}</TableCell>
                     </TableRow>
                   ))}

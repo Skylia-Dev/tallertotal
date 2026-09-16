@@ -57,8 +57,8 @@ export default function DeudasPage() {
     <div className="space-y-6 max-w-5xl mx-auto">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Deudas</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1 className="text-2xl font-bold text-foreground">Deudas</h1>
+          <p className="text-sm text-muted-foreground mt-1">
             {deudas.length} registradas
             {totalPendiente > 0 && <span className="text-amber-600 font-medium"> · ${totalPendiente.toLocaleString("es-AR")} pendiente</span>}
           </p>
@@ -78,17 +78,17 @@ export default function DeudasPage() {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="py-12 text-center text-sm text-gray-400">Cargando...</div>
+            <div className="py-12 text-center text-sm text-muted-foreground">Cargando...</div>
           ) : deudas.length === 0 ? (
             <div className="py-12 text-center space-y-2">
-              <Wallet className="h-8 w-8 text-gray-300 mx-auto" />
-              <p className="text-sm text-gray-400">No hay deudas{onlyPending ? " pendientes" : ""}</p>
+              <Wallet className="h-8 w-8 text-muted-foreground/50 mx-auto" />
+              <p className="text-sm text-muted-foreground">No hay deudas{onlyPending ? " pendientes" : ""}</p>
             </div>
           ) : (
             <div className="overflow-x-auto rounded-md border">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-gray-50">
+                  <TableRow className="bg-muted">
                     <TableHead>Cliente</TableHead>
                     <TableHead>Fecha</TableHead>
                     <TableHead className="text-right">Monto original</TableHead>
@@ -99,11 +99,11 @@ export default function DeudasPage() {
                 </TableHeader>
                 <TableBody>
                   {deudas.map((d) => (
-                    <TableRow key={d.id} className="hover:bg-gray-50">
+                    <TableRow key={d.id} className="hover:bg-muted/60">
                       <TableCell className="font-medium">{d.customerName}</TableCell>
-                      <TableCell className="text-sm text-gray-600">{new Date(d.createdAt).toLocaleDateString("es-AR")}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{new Date(d.createdAt).toLocaleDateString("es-AR")}</TableCell>
                       <TableCell className="text-right">${d.montoOriginal.toLocaleString("es-AR")}</TableCell>
-                      <TableCell className="text-right text-sm text-gray-600">${d.montoPagado.toLocaleString("es-AR")}</TableCell>
+                      <TableCell className="text-right text-sm text-muted-foreground">${d.montoPagado.toLocaleString("es-AR")}</TableCell>
                       <TableCell className="text-right font-semibold">
                         <span className={d.saldoPendiente > 0 ? "text-amber-600" : "text-green-600"}>
                           ${d.saldoPendiente.toLocaleString("es-AR")}
@@ -131,7 +131,7 @@ export default function DeudasPage() {
             <DialogTitle>Registrar pago — {payTarget?.customerName}</DialogTitle>
           </DialogHeader>
           <div className="space-y-2 py-2">
-            <p className="text-sm text-gray-500">Saldo pendiente: ${payTarget?.saldoPendiente.toLocaleString("es-AR")}</p>
+            <p className="text-sm text-muted-foreground">Saldo pendiente: ${payTarget?.saldoPendiente.toLocaleString("es-AR")}</p>
             <Input
               type="number" min={0} step="0.01"
               value={monto}

@@ -57,10 +57,10 @@ export function VehicleSelect({ customer, selected, onSelect }: Props) {
         <div className="flex items-center gap-2">
           <Check className="h-4 w-4 text-green-600" />
           <div>
-            <p className="text-sm font-semibold text-gray-900">
+            <p className="text-sm font-semibold text-foreground">
               {selected.licensePlate} — {selected.brand} {selected.model} {selected.year}
             </p>
-            {selected.color && <p className="text-xs text-gray-500">{selected.color}</p>}
+            {selected.color && <p className="text-xs text-muted-foreground">{selected.color}</p>}
           </div>
         </div>
         <Button variant="ghost" size="sm" onClick={() => onSelect(null as unknown as Vehicle)}>
@@ -80,16 +80,16 @@ export function VehicleSelect({ customer, selected, onSelect }: Props) {
               onClick={() => onSelect(v)}
               className="flex items-center gap-3 p-3 border rounded-lg hover:bg-blue-50 hover:border-blue-300 text-left transition-colors"
             >
-              <Car className="h-5 w-5 text-gray-400 shrink-0" />
+              <Car className="h-5 w-5 text-muted-foreground shrink-0" />
               <div>
                 <p className="text-sm font-semibold font-mono">{v.licensePlate}</p>
-                <p className="text-xs text-gray-500">{v.brand} {v.model} {v.year}</p>
+                <p className="text-xs text-muted-foreground">{v.brand} {v.model} {v.year}</p>
               </div>
             </button>
           ))}
         </div>
       ) : (
-        <p className="text-sm text-gray-500">Este cliente no tiene vehículos registrados.</p>
+        <p className="text-sm text-muted-foreground">Este cliente no tiene vehículos registrados.</p>
       )}
 
       {!showCreate ? (
@@ -98,7 +98,7 @@ export function VehicleSelect({ customer, selected, onSelect }: Props) {
         </Button>
       ) : (
         <Card className="p-4 space-y-3">
-          <p className="text-sm font-semibold text-gray-700">Nuevo vehículo</p>
+          <p className="text-sm font-semibold text-foreground">Nuevo vehículo</p>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <div className="space-y-1">
               <Label>Placa *</Label>

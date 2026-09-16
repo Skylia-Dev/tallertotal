@@ -31,8 +31,8 @@ export default function ComprasPage() {
     <div className="space-y-6 max-w-5xl mx-auto">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Compras</h1>
-          <p className="text-sm text-gray-500 mt-1">{compras.length} registradas</p>
+          <h1 className="text-2xl font-bold text-foreground">Compras</h1>
+          <p className="text-sm text-muted-foreground mt-1">{compras.length} registradas</p>
         </div>
         <Link href="/compras/nueva">
           <Button>
@@ -47,17 +47,17 @@ export default function ComprasPage() {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="py-12 text-center text-sm text-gray-400">Cargando...</div>
+            <div className="py-12 text-center text-sm text-muted-foreground">Cargando...</div>
           ) : compras.length === 0 ? (
             <div className="py-12 text-center space-y-2">
-              <ShoppingBag className="h-8 w-8 text-gray-300 mx-auto" />
-              <p className="text-sm text-gray-400">No hay compras registradas</p>
+              <ShoppingBag className="h-8 w-8 text-muted-foreground/50 mx-auto" />
+              <p className="text-sm text-muted-foreground">No hay compras registradas</p>
             </div>
           ) : (
             <div className="overflow-x-auto rounded-md border">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-gray-50">
+                  <TableRow className="bg-muted">
                     <TableHead>Fecha</TableHead>
                     <TableHead>Proveedor</TableHead>
                     <TableHead className="text-center">Artículos</TableHead>
@@ -68,12 +68,12 @@ export default function ComprasPage() {
                 </TableHeader>
                 <TableBody>
                   {compras.map((c) => (
-                    <TableRow key={c.id} className="hover:bg-gray-50">
-                      <TableCell className="text-sm text-gray-600">{new Date(c.fecha).toLocaleDateString("es-AR")}</TableCell>
+                    <TableRow key={c.id} className="hover:bg-muted/60">
+                      <TableCell className="text-sm text-muted-foreground">{new Date(c.fecha).toLocaleDateString("es-AR")}</TableCell>
                       <TableCell className="font-medium">{c.proveedorNombre}</TableCell>
                       <TableCell className="text-center">{c.itemsCount}</TableCell>
                       <TableCell className="text-right">${c.total.toLocaleString("es-AR")}</TableCell>
-                      <TableCell className="text-right text-sm text-gray-600">
+                      <TableCell className="text-right text-sm text-muted-foreground">
                         {c.saldoPendiente > 0 ? `$${c.saldoPendiente.toLocaleString("es-AR")}` : "—"}
                       </TableCell>
                       <TableCell className="text-center">

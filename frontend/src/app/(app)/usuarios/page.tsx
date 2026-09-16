@@ -200,8 +200,8 @@ export default function UsuariosPage() {
   if (!canManage) {
     return (
       <div className="max-w-md mx-auto py-16 text-center space-y-2">
-        <ShieldAlert className="h-8 w-8 text-gray-300 mx-auto" />
-        <p className="text-sm text-gray-500">Solo el dueño del taller puede gestionar usuarios</p>
+        <ShieldAlert className="h-8 w-8 text-muted-foreground/50 mx-auto" />
+        <p className="text-sm text-muted-foreground">Solo el dueño del taller puede gestionar usuarios</p>
       </div>
     );
   }
@@ -210,8 +210,8 @@ export default function UsuariosPage() {
     <div className="space-y-6 max-w-3xl mx-auto">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Usuarios</h1>
-          <p className="text-sm text-gray-500 mt-1">Usuarios con acceso al sistema</p>
+          <h1 className="text-2xl font-bold text-foreground">Usuarios</h1>
+          <p className="text-sm text-muted-foreground mt-1">Usuarios con acceso al sistema</p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger render={
@@ -276,17 +276,17 @@ export default function UsuariosPage() {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="py-12 text-center text-sm text-gray-400">Cargando...</div>
+            <div className="py-12 text-center text-sm text-muted-foreground">Cargando...</div>
           ) : users.length === 0 ? (
             <div className="py-12 text-center space-y-2">
-              <UserRound className="h-8 w-8 text-gray-300 mx-auto" />
-              <p className="text-sm text-gray-400">No hay usuarios registrados</p>
+              <UserRound className="h-8 w-8 text-muted-foreground/50 mx-auto" />
+              <p className="text-sm text-muted-foreground">No hay usuarios registrados</p>
             </div>
           ) : (
             <div className="overflow-x-auto rounded-md border">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-gray-50">
+                  <TableRow className="bg-muted">
                     <TableHead>Usuario</TableHead>
                     <TableHead>Nombre</TableHead>
                     <TableHead>Rol</TableHead>
@@ -297,21 +297,21 @@ export default function UsuariosPage() {
                 </TableHeader>
                 <TableBody>
                   {users.map((u) => (
-                    <TableRow key={u.id} className={`hover:bg-gray-50 ${u.isActive === false ? "opacity-50" : ""}`}>
+                    <TableRow key={u.id} className={`hover:bg-muted/60 ${u.isActive === false ? "opacity-50" : ""}`}>
                       <TableCell className="font-medium">{u.username}</TableCell>
-                      <TableCell className="text-sm text-gray-600">
+                      <TableCell className="text-sm text-muted-foreground">
                         {u.name ?? "—"}
-                        {u.specialty && <span className="text-gray-400"> · {u.specialty}</span>}
+                        {u.specialty && <span className="text-muted-foreground"> · {u.specialty}</span>}
                       </TableCell>
-                      <TableCell className="text-sm text-gray-600">{roleLabel[u.role] ?? u.role}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{roleLabel[u.role] ?? u.role}</TableCell>
                       <TableCell>
                         {u.role === "Mechanic" && (
-                          <Badge variant="outline" className={u.isActive ? "border-green-300 text-green-700 bg-green-50" : "border-gray-300 text-gray-500 bg-gray-50"}>
+                          <Badge variant="outline" className={u.isActive ? "border-green-300 text-green-700 bg-green-50" : "border-border text-muted-foreground bg-muted"}>
                             {u.isActive ? "Activo" : "Inactivo"}
                           </Badge>
                         )}
                       </TableCell>
-                      <TableCell className="text-sm text-gray-500">{new Date(u.createdAt).toLocaleDateString("es-AR")}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{new Date(u.createdAt).toLocaleDateString("es-AR")}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-1">
                           {u.role === "Mechanic" && (
@@ -321,7 +321,7 @@ export default function UsuariosPage() {
                                 onClick={() => handleToggle(u)}
                                 disabled={togglingId === u.id}
                                 title={u.isActive ? "Desactivar" : "Activar"}
-                                className="text-gray-400 hover:text-blue-600"
+                                className="text-muted-foreground hover:text-blue-600"
                               >
                                 {u.isActive ? <ToggleRight className="h-3.5 w-3.5" /> : <ToggleLeft className="h-3.5 w-3.5" />}
                               </Button>
@@ -355,7 +355,7 @@ export default function UsuariosPage() {
           <DialogHeader>
             <DialogTitle>Eliminar usuario</DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-muted-foreground">
             ¿Estás seguro de eliminar a <span className="font-semibold">{deleteTarget?.username}</span>? Perderá acceso al sistema.
           </p>
           <DialogFooter>

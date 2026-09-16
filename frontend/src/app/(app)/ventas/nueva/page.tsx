@@ -115,12 +115,12 @@ function NuevaVentaForm() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="flex items-center gap-3">
-        <button onClick={() => router.push("/ventas")} className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors">
+        <button onClick={() => router.push("/ventas")} className="p-1.5 rounded-lg text-muted-foreground hover:bg-accent transition-colors">
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Nueva Venta</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Venta directa de mostrador</p>
+          <h1 className="text-2xl font-bold text-foreground">Nueva Venta</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Venta directa de mostrador</p>
         </div>
       </div>
 
@@ -131,7 +131,7 @@ function NuevaVentaForm() {
             <select
               value={customerId}
               onChange={(e) => setCustomerId(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              className="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-card"
             >
               <option value="">Consumidor final</option>
               {customers.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -142,7 +142,7 @@ function NuevaVentaForm() {
             <select
               value={formaPago}
               onChange={(e) => setFormaPago(e.target.value as PaymentMethod)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              className="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-card"
             >
               {formasPago.map((f) => <option key={f.value} value={f.value}>{f.label}</option>)}
             </select>
@@ -156,11 +156,11 @@ function NuevaVentaForm() {
         </CardHeader>
         <CardContent>
           {items.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-4">Todavía no agregaste artículos</p>
+            <p className="text-sm text-muted-foreground text-center py-4">Todavía no agregaste artículos</p>
           ) : (
             <table className="w-full text-sm mb-3">
               <thead>
-                <tr className="text-xs text-gray-500 border-b border-gray-100">
+                <tr className="text-xs text-muted-foreground border-b border-border">
                   <th className="text-left pb-2 font-semibold">Artículo</th>
                   <th className="text-center pb-2 font-semibold w-20">Cant.</th>
                   <th className="text-right pb-2 font-semibold w-32">Precio</th>
@@ -171,27 +171,27 @@ function NuevaVentaForm() {
               <tbody className="divide-y divide-gray-50">
                 {items.map((item) => (
                   <tr key={item.articuloId}>
-                    <td className="py-2 font-medium text-gray-900 pr-2">
+                    <td className="py-2 font-medium text-foreground pr-2">
                       {item.label}
-                      <span className="block text-xs text-gray-400 font-normal">stock: {item.stockDisponible}</span>
+                      <span className="block text-xs text-muted-foreground font-normal">stock: {item.stockDisponible}</span>
                     </td>
                     <td className="py-2 text-center">
                       <input
                         type="number" min={1} max={item.stockDisponible} value={item.cantidad}
                         onChange={(e) => updateItem(item.articuloId, "cantidad", e.target.value)}
-                        className="w-16 border border-gray-300 rounded-md px-2 py-1 text-sm text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-16 border border-border rounded-md px-2 py-1 text-sm text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </td>
                     <td className="py-2 text-right">
                       <input
                         type="number" min={0} step="0.01" value={item.precio}
                         onChange={(e) => updateItem(item.articuloId, "precio", e.target.value)}
-                        className="w-28 border border-gray-300 rounded-md px-2 py-1 text-sm text-right focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-28 border border-border rounded-md px-2 py-1 text-sm text-right focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </td>
-                    <td className="py-2 text-right font-semibold text-gray-900">{fmt(item.precio * item.cantidad)}</td>
+                    <td className="py-2 text-right font-semibold text-foreground">{fmt(item.precio * item.cantidad)}</td>
                     <td className="py-2 pl-2">
-                      <button type="button" onClick={() => setItems((p) => p.filter((i) => i.articuloId !== item.articuloId))} className="text-gray-300 hover:text-red-500 transition-colors">
+                      <button type="button" onClick={() => setItems((p) => p.filter((i) => i.articuloId !== item.articuloId))} className="text-muted-foreground/50 hover:text-red-500 transition-colors">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </td>
@@ -202,11 +202,11 @@ function NuevaVentaForm() {
           )}
           {articulosDisponibles.length > 0 && (
             <div className="flex items-center gap-2 mt-2">
-              <Plus className="w-4 h-4 text-gray-400 flex-shrink-0" />
+              <Plus className="w-4 h-4 text-muted-foreground flex-shrink-0" />
               <select
                 value={articuloToAdd}
                 onChange={(e) => handleAddArticulo(e.target.value)}
-                className="flex-1 border border-dashed border-gray-300 rounded-lg px-3 py-1.5 text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                className="flex-1 border border-dashed border-border rounded-lg px-3 py-1.5 text-sm text-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 bg-card"
               >
                 <option value="">Agregar artículo...</option>
                 {articulosDisponibles.map((a) => (
@@ -220,7 +220,7 @@ function NuevaVentaForm() {
 
       <Card>
         <CardContent className="pt-6 space-y-3">
-          <div className="flex justify-between items-center text-sm text-gray-600">
+          <div className="flex justify-between items-center text-sm text-muted-foreground">
             <span>Subtotal</span>
             <span>{fmt(subtotal)}</span>
           </div>
@@ -229,11 +229,11 @@ function NuevaVentaForm() {
             <input
               type="number" min={0} step="0.01" value={descuento}
               onChange={(e) => setDescuento(Math.max(0, parseFloat(e.target.value) || 0))}
-              className="w-32 border border-gray-300 rounded-md px-2 py-1 text-sm text-right focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-32 border border-border rounded-md px-2 py-1 text-sm text-right focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          <div className="flex justify-between items-center pt-2 border-t border-gray-100">
-            <span className="text-base font-bold text-gray-900">Total</span>
+          <div className="flex justify-between items-center pt-2 border-t border-border">
+            <span className="text-base font-bold text-foreground">Total</span>
             <span className="text-xl font-bold text-blue-600">{fmt(total)}</span>
           </div>
         </CardContent>

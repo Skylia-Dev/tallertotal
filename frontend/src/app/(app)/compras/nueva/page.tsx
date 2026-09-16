@@ -80,12 +80,12 @@ export default function NuevaCompraPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="flex items-center gap-3">
-        <button onClick={() => router.push("/compras")} className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors">
+        <button onClick={() => router.push("/compras")} className="p-1.5 rounded-lg text-muted-foreground hover:bg-accent transition-colors">
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Nueva Compra</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Registrá una compra a proveedor</p>
+          <h1 className="text-2xl font-bold text-foreground">Nueva Compra</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Registrá una compra a proveedor</p>
         </div>
       </div>
 
@@ -96,7 +96,7 @@ export default function NuevaCompraPage() {
             <select
               value={proveedorId}
               onChange={(e) => setProveedorId(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              className="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-card"
             >
               <option value="">Seleccioná un proveedor...</option>
               {proveedores.map((p) => <option key={p.id} value={p.id}>{p.nombre}</option>)}
@@ -110,7 +110,7 @@ export default function NuevaCompraPage() {
             >
               <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${pagoInmediato ? "translate-x-5" : "translate-x-1"}`} />
             </button>
-            <span className="text-sm font-medium text-gray-700">
+            <span className="text-sm font-medium text-foreground">
               {pagoInmediato ? "Pago inmediato" : "Pago a cuenta (queda pendiente)"}
             </span>
           </div>
@@ -123,11 +123,11 @@ export default function NuevaCompraPage() {
         </CardHeader>
         <CardContent>
           {items.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-4">Todavía no agregaste artículos</p>
+            <p className="text-sm text-muted-foreground text-center py-4">Todavía no agregaste artículos</p>
           ) : (
             <table className="w-full text-sm mb-3">
               <thead>
-                <tr className="text-xs text-gray-500 border-b border-gray-100">
+                <tr className="text-xs text-muted-foreground border-b border-border">
                   <th className="text-left pb-2 font-semibold">Artículo</th>
                   <th className="text-center pb-2 font-semibold w-20">Cant.</th>
                   <th className="text-right pb-2 font-semibold w-32">P. Compra</th>
@@ -138,24 +138,24 @@ export default function NuevaCompraPage() {
               <tbody className="divide-y divide-gray-50">
                 {items.map((item) => (
                   <tr key={item.articuloId}>
-                    <td className="py-2 font-medium text-gray-900 pr-2">{item.label}</td>
+                    <td className="py-2 font-medium text-foreground pr-2">{item.label}</td>
                     <td className="py-2 text-center">
                       <input
                         type="number" min={1} value={item.cantidad}
                         onChange={(e) => updateItem(item.articuloId, "cantidad", e.target.value)}
-                        className="w-16 border border-gray-300 rounded-md px-2 py-1 text-sm text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-16 border border-border rounded-md px-2 py-1 text-sm text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </td>
                     <td className="py-2 text-right">
                       <input
                         type="number" min={0} step="0.01" value={item.precio}
                         onChange={(e) => updateItem(item.articuloId, "precio", e.target.value)}
-                        className="w-28 border border-gray-300 rounded-md px-2 py-1 text-sm text-right focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-28 border border-border rounded-md px-2 py-1 text-sm text-right focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </td>
-                    <td className="py-2 text-right font-semibold text-gray-900">{fmt(item.precio * item.cantidad)}</td>
+                    <td className="py-2 text-right font-semibold text-foreground">{fmt(item.precio * item.cantidad)}</td>
                     <td className="py-2 pl-2">
-                      <button type="button" onClick={() => setItems((p) => p.filter((i) => i.articuloId !== item.articuloId))} className="text-gray-300 hover:text-red-500 transition-colors">
+                      <button type="button" onClick={() => setItems((p) => p.filter((i) => i.articuloId !== item.articuloId))} className="text-muted-foreground/50 hover:text-red-500 transition-colors">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </td>
@@ -166,11 +166,11 @@ export default function NuevaCompraPage() {
           )}
           {articulosDisponibles.length > 0 && (
             <div className="flex items-center gap-2 mt-2">
-              <Plus className="w-4 h-4 text-gray-400 flex-shrink-0" />
+              <Plus className="w-4 h-4 text-muted-foreground flex-shrink-0" />
               <select
                 value={articuloToAdd}
                 onChange={(e) => handleAddArticulo(e.target.value)}
-                className="flex-1 border border-dashed border-gray-300 rounded-lg px-3 py-1.5 text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                className="flex-1 border border-dashed border-border rounded-lg px-3 py-1.5 text-sm text-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 bg-card"
               >
                 <option value="">Agregar artículo...</option>
                 {articulosDisponibles.map((a) => (
@@ -184,7 +184,7 @@ export default function NuevaCompraPage() {
 
       <Card>
         <CardContent className="pt-6 flex justify-between items-center">
-          <span className="text-base font-bold text-gray-900">Total</span>
+          <span className="text-base font-bold text-foreground">Total</span>
           <span className="text-xl font-bold text-blue-600">{fmt(total)}</span>
         </CardContent>
       </Card>

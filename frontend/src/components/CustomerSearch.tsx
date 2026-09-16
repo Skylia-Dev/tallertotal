@@ -59,8 +59,8 @@ export function CustomerSearch({ selected, onSelect }: Props) {
         <div className="flex items-center gap-2">
           <Check className="h-4 w-4 text-green-600" />
           <div>
-            <p className="text-sm font-semibold text-gray-900">{selected.name}</p>
-            <p className="text-xs text-gray-500">{selected.phone}{selected.email ? ` · ${selected.email}` : ""}</p>
+            <p className="text-sm font-semibold text-foreground">{selected.name}</p>
+            <p className="text-xs text-muted-foreground">{selected.phone}{selected.email ? ` · ${selected.email}` : ""}</p>
           </div>
         </div>
         <Button variant="ghost" size="sm" onClick={() => onSelect(null as unknown as Customer)}>
@@ -73,7 +73,7 @@ export function CustomerSearch({ selected, onSelect }: Props) {
   return (
     <div className="space-y-3">
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           placeholder="Buscar cliente por nombre o teléfono..."
           value={query}
@@ -88,20 +88,20 @@ export function CustomerSearch({ selected, onSelect }: Props) {
             <button
               key={c.id}
               onClick={() => { onSelect(c); setQuery(""); setResults([]); }}
-              className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 text-left transition-colors"
+              className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/60 text-left transition-colors"
             >
               <div>
-                <p className="text-sm font-medium text-gray-900">{c.name}</p>
-                <p className="text-xs text-gray-500">{c.phone}{c.email ? ` · ${c.email}` : ""}</p>
+                <p className="text-sm font-medium text-foreground">{c.name}</p>
+                <p className="text-xs text-muted-foreground">{c.phone}{c.email ? ` · ${c.email}` : ""}</p>
               </div>
-              <span className="text-xs text-gray-400">{c.vehicleCount} vehículo{c.vehicleCount !== 1 ? "s" : ""}</span>
+              <span className="text-xs text-muted-foreground">{c.vehicleCount} vehículo{c.vehicleCount !== 1 ? "s" : ""}</span>
             </button>
           ))}
         </Card>
       )}
 
       {query.length >= 2 && results.length === 0 && (
-        <p className="text-sm text-gray-500 px-1">No se encontraron clientes.</p>
+        <p className="text-sm text-muted-foreground px-1">No se encontraron clientes.</p>
       )}
 
       {!showCreate ? (
@@ -110,7 +110,7 @@ export function CustomerSearch({ selected, onSelect }: Props) {
         </Button>
       ) : (
         <Card className="p-4 space-y-3">
-          <p className="text-sm font-semibold text-gray-700">Nuevo cliente</p>
+          <p className="text-sm font-semibold text-foreground">Nuevo cliente</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1">
               <Label>Nombre *</Label>

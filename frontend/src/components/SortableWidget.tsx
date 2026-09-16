@@ -29,7 +29,7 @@ export function SortableWidget({
             {...listeners}
             type="button"
             title="Arrastrar para reordenar"
-            className="absolute -top-2 -left-2 z-10 h-6 w-6 rounded-full bg-white border border-gray-300 shadow-sm flex items-center justify-center cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-700"
+            className="absolute -top-2 -left-2 z-10 h-6 w-6 rounded-full bg-card border border-border shadow-sm flex items-center justify-center cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground"
           >
             <GripVertical className="h-3.5 w-3.5" />
           </button>
@@ -37,7 +37,7 @@ export function SortableWidget({
             type="button"
             onClick={onHide}
             title="Ocultar"
-            className="absolute -top-2 -right-2 z-10 h-6 w-6 rounded-full bg-white border border-red-200 shadow-sm flex items-center justify-center text-red-400 hover:text-red-600 hover:border-red-400"
+            className="absolute -top-2 -right-2 z-10 h-6 w-6 rounded-full bg-card border border-red-200 shadow-sm flex items-center justify-center text-red-400 hover:text-red-600 hover:border-red-400"
           >
             <X className="h-3.5 w-3.5" />
           </button>

@@ -64,7 +64,7 @@ const COLOR_CLASSES: Record<string, { border: string; iconBg: string; iconColor:
   violet:  { border: "border-l-violet-500",  iconBg: "bg-violet-50",  iconColor: "text-violet-600" },
   teal:    { border: "border-l-teal-500",    iconBg: "bg-teal-50",    iconColor: "text-teal-600" },
   red:     { border: "border-l-red-500",     iconBg: "bg-red-50",     iconColor: "text-red-500" },
-  gray:    { border: "border-l-gray-300",    iconBg: "bg-gray-50",    iconColor: "text-gray-400" },
+  gray:    { border: "border-l-border",       iconBg: "bg-muted",     iconColor: "text-muted-foreground" },
   cyan:    { border: "border-l-cyan-500",    iconBg: "bg-cyan-50",    iconColor: "text-cyan-600" },
   amber:   { border: "border-l-amber-500",   iconBg: "bg-amber-50",   iconColor: "text-amber-600" },
   indigo:  { border: "border-l-indigo-500",  iconBg: "bg-indigo-50",  iconColor: "text-indigo-600" },
@@ -81,8 +81,8 @@ function KpiCardContent({ label, value, icon: Icon, color, sub }: {
       <CardContent className="pt-5 pb-4">
         <div className="flex items-center justify-between gap-2">
           <div className="min-w-0">
-            <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">{label}</p>
-            <p className="text-xl font-bold text-gray-900 mt-1 truncate">{value}</p>
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">{label}</p>
+            <p className="text-xl font-bold text-foreground mt-1 truncate">{value}</p>
             {sub}
           </div>
           <div className={`p-2.5 rounded-xl shrink-0 ${c.iconBg}`}>
@@ -98,7 +98,7 @@ function ChartCard({ title, children }: { title: string; children: React.ReactNo
   return (
     <Card className="h-full">
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-semibold text-gray-700">{title}</CardTitle>
+        <CardTitle className="text-sm font-semibold text-foreground">{title}</CardTitle>
       </CardHeader>
       <CardContent>{children}</CardContent>
     </Card>
@@ -117,25 +117,25 @@ function renderKpiWidget(
     case "ordersThisMonth":
       return <KpiCardContent label="Órdenes del mes" value={String(metrics?.ordersThisMonth ?? 0)} icon={ClipboardList} color="blue" sub={<DeltaBadge delta={ordDelta} />} />;
     case "avgTicket":
-      return <KpiCardContent label="Ticket promedio" value={fmt(metrics?.avgTicket ?? 0)} icon={TicketPercent} color="violet" sub={<p className="text-xs text-gray-400 mt-1">órdenes completadas</p>} />;
+      return <KpiCardContent label="Ticket promedio" value={fmt(metrics?.avgTicket ?? 0)} icon={TicketPercent} color="violet" sub={<p className="text-xs text-muted-foreground mt-1">órdenes completadas</p>} />;
     case "completionRate":
-      return <KpiCardContent label="Tasa completado" value={`${(metrics?.completionRate ?? 0).toFixed(1)}%`} icon={CheckCircle} color="teal" sub={<p className="text-xs text-gray-400 mt-1">del mes actual</p>} />;
+      return <KpiCardContent label="Tasa completado" value={`${(metrics?.completionRate ?? 0).toFixed(1)}%`} icon={CheckCircle} color="teal" sub={<p className="text-xs text-muted-foreground mt-1">del mes actual</p>} />;
     case "overdueCount":
-      return <KpiCardContent label="Órdenes vencidas" value={String(metrics?.overdueCount ?? 0)} icon={AlertTriangle} color={(metrics?.overdueCount ?? 0) > 0 ? "red" : "gray"} sub={<p className="text-xs text-gray-400 mt-1">plazo superado</p>} />;
+      return <KpiCardContent label="Órdenes vencidas" value={String(metrics?.overdueCount ?? 0)} icon={AlertTriangle} color={(metrics?.overdueCount ?? 0) > 0 ? "red" : "gray"} sub={<p className="text-xs text-muted-foreground mt-1">plazo superado</p>} />;
     case "ventasThisMonth":
-      return <KpiCardContent label="Ventas del mes" value={fmt(metrics?.ventasThisMonth ?? 0)} icon={ShoppingCart} color="cyan" sub={<p className="text-xs text-gray-400 mt-1">mostrador + POS</p>} />;
+      return <KpiCardContent label="Ventas del mes" value={fmt(metrics?.ventasThisMonth ?? 0)} icon={ShoppingCart} color="cyan" sub={<p className="text-xs text-muted-foreground mt-1">mostrador + POS</p>} />;
     case "deudasPendientes":
-      return <KpiCardContent label="Deudas pendientes" value={fmt(metrics?.deudasPendientesTotal ?? 0)} icon={Wallet} color="amber" sub={<p className="text-xs text-gray-400 mt-1">saldo por cobrar</p>} />;
+      return <KpiCardContent label="Deudas pendientes" value={fmt(metrics?.deudasPendientesTotal ?? 0)} icon={Wallet} color="amber" sub={<p className="text-xs text-muted-foreground mt-1">saldo por cobrar</p>} />;
     case "presupuestosVigentes":
-      return <KpiCardContent label="Presupuestos vigentes" value={String(metrics?.presupuestosVigentes ?? 0)} icon={FileText} color="indigo" sub={<p className="text-xs text-gray-400 mt-1">no vencidos</p>} />;
+      return <KpiCardContent label="Presupuestos vigentes" value={String(metrics?.presupuestosVigentes ?? 0)} icon={FileText} color="indigo" sub={<p className="text-xs text-muted-foreground mt-1">no vencidos</p>} />;
     case "cajaBalance":
       return <KpiCardContent label="Balance de caja" value={fmt(metrics?.cajaBalance ?? 0)} icon={Wallet} color="green" />;
     case "articulosStockBajo":
-      return <KpiCardContent label="Stock bajo" value={String(metrics?.articulosStockBajo ?? 0)} icon={PackageX} color={(metrics?.articulosStockBajo ?? 0) > 0 ? "red" : "gray"} sub={<p className="text-xs text-gray-400 mt-1">artículos activos</p>} />;
+      return <KpiCardContent label="Stock bajo" value={String(metrics?.articulosStockBajo ?? 0)} icon={PackageX} color={(metrics?.articulosStockBajo ?? 0) > 0 ? "red" : "gray"} sub={<p className="text-xs text-muted-foreground mt-1">artículos activos</p>} />;
     case "lubricentroVencimientos":
-      return <KpiCardContent label="Vencimientos lubricentro" value={String(metrics?.lubricentroVencimientos ?? 0)} icon={Droplets} color="amber" sub={<p className="text-xs text-gray-400 mt-1">próx. 30 días</p>} />;
+      return <KpiCardContent label="Vencimientos lubricentro" value={String(metrics?.lubricentroVencimientos ?? 0)} icon={Droplets} color="amber" sub={<p className="text-xs text-muted-foreground mt-1">próx. 30 días</p>} />;
     case "clientesNuevos":
-      return <KpiCardContent label="Clientes nuevos" value={String(metrics?.clientesNuevosEsteMes ?? 0)} icon={UserPlus} color="pink" sub={<p className="text-xs text-gray-400 mt-1">este mes</p>} />;
+      return <KpiCardContent label="Clientes nuevos" value={String(metrics?.clientesNuevosEsteMes ?? 0)} icon={UserPlus} color="pink" sub={<p className="text-xs text-muted-foreground mt-1">este mes</p>} />;
     default:
       return null;
   }
@@ -295,8 +295,8 @@ function OfficeDashboard() {
       {/* Header */}
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-sm text-gray-500 mt-1 capitalize">
+          <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
+          <p className="text-sm text-muted-foreground mt-1 capitalize">
             Resumen del taller · {monthName} {new Date().getFullYear()}
           </p>
         </div>
@@ -312,15 +312,15 @@ function OfficeDashboard() {
                 Agregar tarjeta
               </Button>
               {addMenuOpen && (
-                <div className="absolute right-0 z-20 mt-1 w-64 max-h-72 overflow-y-auto rounded-lg border bg-white shadow-lg py-1">
+                <div className="absolute right-0 z-20 mt-1 w-64 max-h-72 overflow-y-auto rounded-lg border bg-card shadow-lg py-1">
                   {hiddenWidgets.map((w) => (
                     <button
                       key={w.key}
                       onClick={() => handleAddWidget(w.key)}
-                      className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center justify-between gap-2"
+                      className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-muted flex items-center justify-between gap-2"
                     >
                       {w.label}
-                      <Plus className="h-3.5 w-3.5 text-gray-300" />
+                      <Plus className="h-3.5 w-3.5 text-muted-foreground" />
                     </button>
                   ))}
                 </div>
@@ -360,10 +360,10 @@ function OfficeDashboard() {
                     ) : (
                       <ResponsiveContainer width="100%" height={240}>
                         <BarChart data={metrics!.monthlyStats} margin={{ top: 4, right: 8, left: 8, bottom: 0 }}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                          <XAxis dataKey="month" tick={{ fontSize: 12, fill: "#6b7280" }} axisLine={false} tickLine={false} />
+                          <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                          <XAxis dataKey="month" tick={{ fontSize: 12, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} />
                           <YAxis
-                            tick={{ fontSize: 11, fill: "#9ca3af" }}
+                            tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
                             axisLine={false}
                             tickLine={false}
                             tickFormatter={(v) => "$" + (v as number).toLocaleString("es-AR")}
@@ -372,7 +372,7 @@ function OfficeDashboard() {
                           <Tooltip
                             // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             formatter={(value: any) => [fmt(Number(value) || 0), "Ingresos"]}
-                            contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #e5e7eb" }}
+                            contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid var(--border)", backgroundColor: "var(--popover)", color: "var(--popover-foreground)" }}
                           />
                           <Bar dataKey="revenue" fill="#10b981" radius={[4, 4, 0, 0]} />
                         </BarChart>
@@ -388,10 +388,10 @@ function OfficeDashboard() {
                     ) : (
                       <ResponsiveContainer width="100%" height={240}>
                         <BarChart data={metrics!.monthlyStats} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                          <XAxis dataKey="month" tick={{ fontSize: 12, fill: "#6b7280" }} axisLine={false} tickLine={false} />
+                          <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                          <XAxis dataKey="month" tick={{ fontSize: 12, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} />
                           <YAxis
-                            tick={{ fontSize: 11, fill: "#9ca3af" }}
+                            tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
                             axisLine={false}
                             tickLine={false}
                             allowDecimals={false}
@@ -400,7 +400,7 @@ function OfficeDashboard() {
                           <Tooltip
                             // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             formatter={(value: any) => [Number(value) || 0, "Órdenes"]}
-                            contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #e5e7eb" }}
+                            contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid var(--border)", backgroundColor: "var(--popover)", color: "var(--popover-foreground)" }}
                           />
                           <Bar dataKey="orders" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                         </BarChart>
@@ -435,13 +435,13 @@ function OfficeDashboard() {
                               const v = Number(value) || 0;
                               return [`${v} orden${v !== 1 ? "es" : ""}`, props?.payload?.name ?? ""];
                             }}
-                            contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #e5e7eb" }}
+                            contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid var(--border)", backgroundColor: "var(--popover)", color: "var(--popover-foreground)" }}
                           />
                           <Legend
                             iconType="circle"
                             iconSize={8}
                             formatter={(value) => (
-                              <span style={{ fontSize: 12, color: "#374151" }}>{value}</span>
+                              <span style={{ fontSize: 12, color: "var(--foreground)" }}>{value}</span>
                             )}
                           />
                         </PieChart>
@@ -461,10 +461,10 @@ function OfficeDashboard() {
                           data={metrics!.mechanicStats}
                           margin={{ top: 4, right: 16, left: 8, bottom: 0 }}
                         >
-                          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" horizontal={false} />
+                          <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
                           <XAxis
                             type="number"
-                            tick={{ fontSize: 11, fill: "#9ca3af" }}
+                            tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
                             axisLine={false}
                             tickLine={false}
                             allowDecimals={false}
@@ -472,7 +472,7 @@ function OfficeDashboard() {
                           <YAxis
                             type="category"
                             dataKey="name"
-                            tick={{ fontSize: 12, fill: "#374151" }}
+                            tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
                             axisLine={false}
                             tickLine={false}
                             width={90}
@@ -485,7 +485,7 @@ function OfficeDashboard() {
                                 ? [`${v} orden${v !== 1 ? "es" : ""}`, "Órdenes"]
                                 : [fmt(v), "Ingresos"];
                             }}
-                            contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #e5e7eb" }}
+                            contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid var(--border)", backgroundColor: "var(--popover)", color: "var(--popover-foreground)" }}
                           />
                           <Bar dataKey="orders" fill="#8b5cf6" radius={[0, 4, 4, 0]} name="orders" />
                         </BarChart>
@@ -506,15 +506,15 @@ function OfficeDashboard() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-col sm:flex-row gap-3">
-            <div className="flex gap-1 bg-gray-100 p-1 rounded-lg overflow-x-auto">
+            <div className="flex gap-1 bg-muted p-1 rounded-lg overflow-x-auto">
               {STATUS_TABS.map((tab) => (
                 <button
                   key={tab.value}
                   onClick={() => setActiveTab(tab.value)}
                   className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
                     activeTab === tab.value
-                      ? "bg-white text-gray-900 shadow-sm"
-                      : "text-gray-500 hover:text-gray-700"
+                      ? "bg-card text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   {tab.label}
@@ -530,33 +530,33 @@ function OfficeDashboard() {
           </div>
 
           {loading ? (
-            <div className="py-12 text-center text-sm text-gray-400">Cargando...</div>
+            <div className="py-12 text-center text-sm text-muted-foreground">Cargando...</div>
           ) : filtered.length === 0 ? (
-            <div className="py-12 text-center text-sm text-gray-400">No hay órdenes que mostrar</div>
+            <div className="py-12 text-center text-sm text-muted-foreground">No hay órdenes que mostrar</div>
           ) : (
             <>
               {/* Mobile: cards */}
               <div className="md:hidden space-y-3">
                 {paginated.map((order) => (
-                  <div key={order.id} className="bg-white rounded-xl border border-gray-200 p-4 space-y-3">
+                  <div key={order.id} className="bg-card rounded-xl border border-border p-4 space-y-3">
                     <div className="flex items-start justify-between">
                       <div>
-                        <span className="font-mono font-bold text-sm text-gray-900">{order.licensePlate}</span>
-                        <p className="text-sm text-gray-600 mt-0.5">{order.vehicleDescription}</p>
+                        <span className="font-mono font-bold text-sm text-foreground">{order.licensePlate}</span>
+                        <p className="text-sm text-muted-foreground mt-0.5">{order.vehicleDescription}</p>
                       </div>
                       <StatusBadge status={order.status} />
                     </div>
                     <div className="flex items-center justify-between text-sm">
                       <div>
-                        <p className="font-medium text-gray-900">{order.customerName}</p>
-                        <p className="text-xs text-gray-400">{order.customerPhone}</p>
+                        <p className="font-medium text-foreground">{order.customerName}</p>
+                        <p className="text-xs text-muted-foreground">{order.customerPhone}</p>
                       </div>
-                      <p className="font-semibold text-gray-900">
+                      <p className="font-semibold text-foreground">
                         ${order.totalEstimate.toLocaleString("es-AR", { minimumFractionDigits: 2 })}
                       </p>
                     </div>
                     <div className="flex items-center justify-between">
-                      <p className="text-xs text-gray-400">
+                      <p className="text-xs text-muted-foreground">
                         {new Date(order.createdAt).toLocaleDateString("es-AR")}
                         {order.assignedMechanic && ` · ${order.assignedMechanic}`}
                       </p>
@@ -583,7 +583,7 @@ function OfficeDashboard() {
               <div className="hidden md:block overflow-x-auto rounded-md border">
                 <Table>
                   <TableHeader>
-                    <TableRow className="bg-gray-50">
+                    <TableRow className="bg-muted">
                       <TableHead>Placa</TableHead>
                       <TableHead>Vehículo</TableHead>
                       <TableHead>Cliente</TableHead>
@@ -596,19 +596,19 @@ function OfficeDashboard() {
                   </TableHeader>
                   <TableBody>
                     {paginated.map((order) => (
-                      <TableRow key={order.id} className="hover:bg-gray-50">
+                      <TableRow key={order.id} className="hover:bg-muted">
                         <TableCell className="font-mono font-semibold text-sm">{order.licensePlate}</TableCell>
                         <TableCell className="text-sm">{order.vehicleDescription}</TableCell>
                         <TableCell>
                           <div className="text-sm font-medium">{order.customerName}</div>
-                          <div className="text-xs text-gray-400">{order.customerPhone}</div>
+                          <div className="text-xs text-muted-foreground">{order.customerPhone}</div>
                         </TableCell>
-                        <TableCell className="text-sm text-gray-600">{order.assignedMechanic ?? "—"}</TableCell>
+                        <TableCell className="text-sm text-muted-foreground">{order.assignedMechanic ?? "—"}</TableCell>
                         <TableCell><StatusBadge status={order.status} /></TableCell>
                         <TableCell className="text-right text-sm font-medium">
                           ${order.totalEstimate.toLocaleString("es-AR", { minimumFractionDigits: 2 })}
                         </TableCell>
-                        <TableCell className="text-sm text-gray-500">
+                        <TableCell className="text-sm text-muted-foreground">
                           {new Date(order.createdAt).toLocaleDateString("es-AR")}
                         </TableCell>
                         <TableCell>
@@ -650,7 +650,7 @@ function OfficeDashboard() {
 // ── Helper components ──────────────────────────────────────────────────────────
 
 function DeltaBadge({ delta }: { delta: number | null }) {
-  if (delta === null) return <p className="text-xs text-gray-400 mt-1">sin datos previos</p>;
+  if (delta === null) return <p className="text-xs text-muted-foreground mt-1">sin datos previos</p>;
   const up = delta >= 0;
   return (
     <p className={`text-xs mt-1 flex items-center gap-0.5 ${up ? "text-emerald-600" : "text-red-500"}`}>
@@ -666,7 +666,7 @@ function DeltaBadge({ delta }: { delta: number | null }) {
 
 function EmptyChart({ label = "Sin datos" }: { label?: string }) {
   return (
-    <div className="flex items-center justify-center h-[240px] text-sm text-gray-400">
+    <div className="flex items-center justify-center h-[240px] text-sm text-muted-foreground">
       {label}
     </div>
   );
@@ -707,33 +707,33 @@ function MechanicDashboard() {
   return (
     <div className="space-y-6 max-w-3xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-sm text-gray-500 mt-1">Resumen de tu trabajo</p>
+        <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
+        <p className="text-sm text-muted-foreground mt-1">Resumen de tu trabajo</p>
       </div>
 
       <div className="grid grid-cols-3 gap-4">
         <Card className="border-l-4 border-l-blue-500">
           <CardContent className="pt-5 pb-4">
-            <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Activas</p>
-            <p className="text-2xl font-bold text-gray-900 mt-1">{orders === null ? "—" : activas}</p>
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Activas</p>
+            <p className="text-2xl font-bold text-foreground mt-1">{orders === null ? "—" : activas}</p>
           </CardContent>
         </Card>
         <Card className="border-l-4 border-l-emerald-500">
           <CardContent className="pt-5 pb-4">
-            <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Completadas este mes</p>
-            <p className="text-2xl font-bold text-gray-900 mt-1">{orders === null ? "—" : completadasEsteMes}</p>
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Completadas este mes</p>
+            <p className="text-2xl font-bold text-foreground mt-1">{orders === null ? "—" : completadasEsteMes}</p>
           </CardContent>
         </Card>
         <Card className="border-l-4 border-l-red-500">
           <CardContent className="pt-5 pb-4">
-            <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Vencidas</p>
-            <p className="text-2xl font-bold text-gray-900 mt-1">{orders === null ? "—" : vencidas}</p>
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Vencidas</p>
+            <p className="text-2xl font-bold text-foreground mt-1">{orders === null ? "—" : vencidas}</p>
           </CardContent>
         </Card>
       </div>
 
-      <p className="text-sm text-gray-400">
-        Para el detalle de cada orden, andá a <span className="font-medium text-gray-500">Mis Órdenes</span> en el menú.
+      <p className="text-sm text-muted-foreground">
+        Para el detalle de cada orden, andá a <span className="font-medium text-muted-foreground">Mis Órdenes</span> en el menú.
       </p>
     </div>
   );

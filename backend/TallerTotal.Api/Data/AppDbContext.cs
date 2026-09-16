@@ -29,6 +29,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<CajaMovimiento> CajaMovimientos => Set<CajaMovimiento>();
     public DbSet<ActivityLog> ActivityLogs => Set<ActivityLog>();
     public DbSet<LoginTicket> LoginTickets => Set<LoginTicket>();
+    public DbSet<RoleModuleConfig> RoleModuleConfigs => Set<RoleModuleConfig>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -36,8 +37,19 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         {
             e.HasKey(x => x.Id);
             e.Property(x => x.Name).HasMaxLength(150).IsRequired();
-            e.Property(x => x.HiddenModulesJson).HasMaxLength(2000);
             e.Property(x => x.SessionTimeoutMinutes).HasDefaultValue(30);
+        });
+
+        modelBuilder.Entity<RoleModuleConfig>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Role).HasConversion<string>();
+            e.Property(x => x.HiddenModulesJson).HasMaxLength(2000);
+            e.HasIndex(x => new { x.TenantId, x.Role }).IsUnique();
+            e.HasOne(x => x.Tenant)
+                .WithMany(x => x.RoleModuleConfigs)
+                .HasForeignKey(x => x.TenantId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<User>(e =>

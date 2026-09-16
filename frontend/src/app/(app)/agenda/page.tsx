@@ -14,7 +14,7 @@ import {
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
 function urgencyClass(daysLeft: number | null): string {
-  if (daysLeft === null) return "text-gray-400";
+  if (daysLeft === null) return "text-muted-foreground";
   if (daysLeft <= 0)  return "text-red-600 font-semibold";
   if (daysLeft <= 14) return "text-orange-500 font-semibold";
   if (daysLeft <= 30) return "text-amber-500";
@@ -22,7 +22,7 @@ function urgencyClass(daysLeft: number | null): string {
 }
 
 function urgencyIcon(daysLeft: number | null) {
-  if (daysLeft === null) return <Clock className="h-4 w-4 text-gray-300" />;
+  if (daysLeft === null) return <Clock className="h-4 w-4 text-muted-foreground/50" />;
   if (daysLeft <= 0)  return <AlertTriangle className="h-4 w-4 text-red-500" />;
   if (daysLeft <= 30) return <Clock className="h-4 w-4 text-amber-500" />;
   return <CheckCircle className="h-4 w-4 text-emerald-500" />;
@@ -158,11 +158,11 @@ export default function AgendaPage() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
             <CalendarClock className="h-6 w-6 text-blue-600" />
             Agenda de Servicios
           </h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-sm text-muted-foreground mt-1">
             Subí órdenes de servicio en PDF y recibí alertas automáticas
           </p>
         </div>
@@ -182,19 +182,19 @@ export default function AgendaPage() {
         <div className="grid grid-cols-3 gap-4">
           <Card className="border-l-4 border-l-red-500">
             <CardContent className="pt-4 pb-3">
-              <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">Vencidos</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium">Vencidos</p>
               <p className="text-2xl font-bold text-red-600 mt-1">{overdueCount}</p>
             </CardContent>
           </Card>
           <Card className="border-l-4 border-l-amber-500">
             <CardContent className="pt-4 pb-3">
-              <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">Próximos 30 días</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium">Próximos 30 días</p>
               <p className="text-2xl font-bold text-amber-600 mt-1">{soonCount}</p>
             </CardContent>
           </Card>
           <Card className="border-l-4 border-l-emerald-500">
             <CardContent className="pt-4 pb-3">
-              <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">Al día</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium">Al día</p>
               <p className="text-2xl font-bold text-emerald-600 mt-1">{okCount}</p>
             </CardContent>
           </Card>
@@ -208,7 +208,7 @@ export default function AgendaPage() {
         onDrop={handleDrop}
         onClick={() => fileInputRef.current?.click()}
         className={`border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-colors
-          ${dragging ? "border-blue-400 bg-blue-50" : "border-gray-200 hover:border-blue-300 hover:bg-gray-50"}`}
+          ${dragging ? "border-blue-400 bg-blue-50" : "border-border hover:border-blue-300 hover:bg-muted/60"}`}
       >
         <input
           ref={fileInputRef}
@@ -217,18 +217,18 @@ export default function AgendaPage() {
           className="hidden"
           onChange={handleFileChange}
         />
-        <Upload className={`h-8 w-8 mx-auto mb-3 ${dragging ? "text-blue-500" : "text-gray-300"}`} />
-        <p className="text-sm font-medium text-gray-700">
+        <Upload className={`h-8 w-8 mx-auto mb-3 ${dragging ? "text-blue-500" : "text-muted-foreground/50"}`} />
+        <p className="text-sm font-medium text-foreground">
           {uploading ? "Subiendo..." : "Arrastrá un PDF o hacé clic para seleccionar"}
         </p>
-        <p className="text-xs text-gray-400 mt-1">Órdenes de servicio recibidas por email</p>
+        <p className="text-xs text-muted-foreground mt-1">Órdenes de servicio recibidas por email</p>
       </div>
 
       {/* Documents list */}
       {loading ? (
-        <div className="py-12 text-center text-sm text-gray-400">Cargando...</div>
+        <div className="py-12 text-center text-sm text-muted-foreground">Cargando...</div>
       ) : documents.length === 0 ? (
-        <div className="py-12 text-center text-sm text-gray-400">
+        <div className="py-12 text-center text-sm text-muted-foreground">
           No hay documentos aún. Subí un PDF para comenzar.
         </div>
       ) : (
@@ -244,14 +244,14 @@ export default function AgendaPage() {
                     <div className="flex items-start gap-3 min-w-0">
                       <FileText className="h-5 w-5 text-blue-500 shrink-0 mt-0.5" />
                       <div className="min-w-0">
-                        <p className="text-sm font-semibold text-gray-900 truncate">{doc.fileName}</p>
-                        <p className="text-xs text-gray-400 mt-0.5">
+                        <p className="text-sm font-semibold text-foreground truncate">{doc.fileName}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
                           Subido el {new Date(doc.uploadedAt).toLocaleDateString("es-AR")}
                           {doc.vehicleLicensePlate && (
-                            <span className="ml-2 font-mono font-medium text-gray-600">· {doc.vehicleLicensePlate}</span>
+                            <span className="ml-2 font-mono font-medium text-muted-foreground">· {doc.vehicleLicensePlate}</span>
                           )}
                           {doc.vehicleDescription && (
-                            <span className="ml-1 text-gray-500">— {doc.vehicleDescription}</span>
+                            <span className="ml-1 text-muted-foreground">— {doc.vehicleDescription}</span>
                           )}
                         </p>
                       </div>
@@ -275,7 +275,7 @@ export default function AgendaPage() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="gap-1 text-gray-500"
+                          className="gap-1 text-muted-foreground"
                           onClick={() => toggleExpanded(doc.id)}
                         >
                           {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
@@ -287,7 +287,7 @@ export default function AgendaPage() {
                       <Button
                         variant="ghost"
                         size="icon-sm"
-                        className="text-gray-300 hover:text-red-500"
+                        className="text-muted-foreground/50 hover:text-red-500"
                         onClick={() => handleDelete(doc.id)}
                       >
                         <Trash2 className="h-4 w-4" />
@@ -310,18 +310,18 @@ export default function AgendaPage() {
                       {doc.entries.map((entry) => (
                         <div
                           key={entry.id}
-                          className="flex items-center justify-between gap-3 py-2 px-3 rounded-lg bg-gray-50"
+                          className="flex items-center justify-between gap-3 py-2 px-3 rounded-lg bg-muted"
                         >
                           <div className="flex items-center gap-2 min-w-0">
                             {urgencyIcon(entry.daysUntilDue)}
-                            <span className="text-sm font-medium text-gray-800 truncate">
+                            <span className="text-sm font-medium text-foreground truncate">
                               {entry.serviceType}
                             </span>
                             {entry.intervalMonths && (
-                              <span className="text-xs text-gray-400">cada {entry.intervalMonths} meses</span>
+                              <span className="text-xs text-muted-foreground">cada {entry.intervalMonths} meses</span>
                             )}
                             {entry.intervalKm && (
-                              <span className="text-xs text-gray-400">/ {entry.intervalKm.toLocaleString()} km</span>
+                              <span className="text-xs text-muted-foreground">/ {entry.intervalKm.toLocaleString()} km</span>
                             )}
                           </div>
                           <div className="text-right shrink-0">
@@ -329,7 +329,7 @@ export default function AgendaPage() {
                               {daysLabel(entry.daysUntilDue)}
                             </p>
                             {entry.nextDueDate && (
-                              <p className="text-xs text-gray-400">
+                              <p className="text-xs text-muted-foreground">
                                 {new Date(entry.nextDueDate + "T00:00:00").toLocaleDateString("es-AR")}
                               </p>
                             )}

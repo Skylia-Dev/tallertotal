@@ -108,8 +108,8 @@ export default function ArticulosPage() {
     <div className="space-y-6 max-w-5xl mx-auto">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Artículos</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1 className="text-2xl font-bold text-foreground">Artículos</h1>
+          <p className="text-sm text-muted-foreground mt-1">
             {articulos.length} registrados
             {lowStockCount > 0 && (
               <span className="text-amber-600 font-medium"> · {lowStockCount} con stock bajo</span>
@@ -190,17 +190,17 @@ export default function ArticulosPage() {
           </div>
 
           {loading ? (
-            <div className="py-12 text-center text-sm text-gray-400">Cargando...</div>
+            <div className="py-12 text-center text-sm text-muted-foreground">Cargando...</div>
           ) : articulos.length === 0 ? (
             <div className="py-12 text-center space-y-2">
-              <Package className="h-8 w-8 text-gray-300 mx-auto" />
-              <p className="text-sm text-gray-400">No hay artículos{search ? " que coincidan" : ""}</p>
+              <Package className="h-8 w-8 text-muted-foreground/50 mx-auto" />
+              <p className="text-sm text-muted-foreground">No hay artículos{search ? " que coincidan" : ""}</p>
             </div>
           ) : (
             <div className="overflow-x-auto rounded-md border">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-gray-50">
+                  <TableRow className="bg-muted">
                     <TableHead>Marca</TableHead>
                     <TableHead>Modelo</TableHead>
                     <TableHead>Descripción</TableHead>
@@ -212,13 +212,13 @@ export default function ArticulosPage() {
                 </TableHeader>
                 <TableBody>
                   {paginated.map((a) => (
-                    <TableRow key={a.id} className={`hover:bg-gray-50 ${!a.activo ? "opacity-50" : ""}`}>
+                    <TableRow key={a.id} className={`hover:bg-muted/60 ${!a.activo ? "opacity-50" : ""}`}>
                       <TableCell className="font-medium">{a.marca}</TableCell>
                       <TableCell>{a.modelo}</TableCell>
-                      <TableCell className="text-sm text-gray-500">{a.descripcion ?? "—"}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{a.descripcion ?? "—"}</TableCell>
                       <TableCell className="text-center">
                         <span className={`inline-flex items-center justify-center min-w-6 h-6 px-1.5 rounded-full text-xs font-medium ${
-                          a.stock <= a.stockMinimo ? "bg-amber-100 text-amber-700" : "bg-gray-100 text-gray-600"
+                          a.stock <= a.stockMinimo ? "bg-amber-100 text-amber-700" : "bg-muted text-muted-foreground"
                         }`}>
                           {a.stock}
                         </span>
@@ -226,7 +226,7 @@ export default function ArticulosPage() {
                       <TableCell className="text-right text-sm">${a.precio.toLocaleString("es-AR")}</TableCell>
                       <TableCell className="text-center">
                         <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                          a.activo ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"
+                          a.activo ? "bg-green-100 text-green-700" : "bg-muted text-muted-foreground"
                         }`}>
                           {a.activo ? "Activo" : "Inactivo"}
                         </span>
@@ -269,7 +269,7 @@ export default function ArticulosPage() {
           <DialogHeader>
             <DialogTitle>Eliminar artículo</DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-muted-foreground">
             ¿Estás seguro de eliminar <span className="font-semibold">{deleteTarget?.marca} {deleteTarget?.modelo}</span>?
           </p>
           <DialogFooter>

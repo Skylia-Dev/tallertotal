@@ -110,8 +110,8 @@ export default function ProveedoresPage() {
     <div className="space-y-6 max-w-5xl mx-auto">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Proveedores</h1>
-          <p className="text-sm text-gray-500 mt-1">{proveedores.length} registrados</p>
+          <h1 className="text-2xl font-bold text-foreground">Proveedores</h1>
+          <p className="text-sm text-muted-foreground mt-1">{proveedores.length} registrados</p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger render={
@@ -164,17 +164,17 @@ export default function ProveedoresPage() {
           />
 
           {loading ? (
-            <div className="py-12 text-center text-sm text-gray-400">Cargando...</div>
+            <div className="py-12 text-center text-sm text-muted-foreground">Cargando...</div>
           ) : proveedores.length === 0 ? (
             <div className="py-12 text-center space-y-2">
-              <Truck className="h-8 w-8 text-gray-300 mx-auto" />
-              <p className="text-sm text-gray-400">No hay proveedores{search ? " que coincidan" : ""}</p>
+              <Truck className="h-8 w-8 text-muted-foreground/50 mx-auto" />
+              <p className="text-sm text-muted-foreground">No hay proveedores{search ? " que coincidan" : ""}</p>
             </div>
           ) : (
             <div className="overflow-x-auto rounded-md border">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-gray-50">
+                  <TableRow className="bg-muted">
                     <TableHead>Nombre</TableHead>
                     <TableHead>Contacto</TableHead>
                     <TableHead>Teléfono</TableHead>
@@ -185,14 +185,14 @@ export default function ProveedoresPage() {
                 </TableHeader>
                 <TableBody>
                   {paginated.map((p) => (
-                    <TableRow key={p.id} className={`hover:bg-gray-50 ${!p.activo ? "opacity-50" : ""}`}>
+                    <TableRow key={p.id} className={`hover:bg-muted/60 ${!p.activo ? "opacity-50" : ""}`}>
                       <TableCell className="font-medium">{p.nombre}</TableCell>
-                      <TableCell className="text-sm text-gray-600">{p.contacto ?? "—"}</TableCell>
-                      <TableCell className="text-sm text-gray-600">{p.telefono ?? "—"}</TableCell>
-                      <TableCell className="text-sm text-gray-500">{p.email ?? "—"}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{p.contacto ?? "—"}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{p.telefono ?? "—"}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{p.email ?? "—"}</TableCell>
                       <TableCell className="text-center">
                         <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                          p.activo ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"
+                          p.activo ? "bg-green-100 text-green-700" : "bg-muted text-muted-foreground"
                         }`}>
                           {p.activo ? "Activo" : "Inactivo"}
                         </span>
@@ -235,7 +235,7 @@ export default function ProveedoresPage() {
           <DialogHeader>
             <DialogTitle>Eliminar proveedor</DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-muted-foreground">
             ¿Estás seguro de eliminar a <span className="font-semibold">{deleteTarget?.nombre}</span>?
           </p>
           <DialogFooter>

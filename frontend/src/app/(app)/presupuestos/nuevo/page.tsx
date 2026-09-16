@@ -83,12 +83,12 @@ export default function NuevoPresupuestoPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="flex items-center gap-3">
-        <button onClick={() => router.push("/presupuestos")} className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors">
+        <button onClick={() => router.push("/presupuestos")} className="p-1.5 rounded-lg text-muted-foreground hover:bg-accent transition-colors">
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Nuevo Presupuesto</h1>
-          <p className="text-sm text-gray-500 mt-0.5">El precio se toma del artículo al momento de crearlo</p>
+          <h1 className="text-2xl font-bold text-foreground">Nuevo Presupuesto</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">El precio se toma del artículo al momento de crearlo</p>
         </div>
       </div>
 
@@ -99,7 +99,7 @@ export default function NuevoPresupuestoPage() {
             <select
               value={customerId}
               onChange={(e) => setCustomerId(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              className="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-card"
             >
               <option value="">Consumidor final</option>
               {customers.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -122,11 +122,11 @@ export default function NuevoPresupuestoPage() {
         </CardHeader>
         <CardContent>
           {items.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-4">Todavía no agregaste artículos</p>
+            <p className="text-sm text-muted-foreground text-center py-4">Todavía no agregaste artículos</p>
           ) : (
             <table className="w-full text-sm mb-3">
               <thead>
-                <tr className="text-xs text-gray-500 border-b border-gray-100">
+                <tr className="text-xs text-muted-foreground border-b border-border">
                   <th className="text-left pb-2 font-semibold">Artículo</th>
                   <th className="text-center pb-2 font-semibold w-20">Cant.</th>
                   <th className="text-right pb-2 font-semibold w-28">Precio</th>
@@ -137,18 +137,18 @@ export default function NuevoPresupuestoPage() {
               <tbody className="divide-y divide-gray-50">
                 {items.map((item) => (
                   <tr key={item.articuloId}>
-                    <td className="py-2 font-medium text-gray-900 pr-2">{item.label}</td>
+                    <td className="py-2 font-medium text-foreground pr-2">{item.label}</td>
                     <td className="py-2 text-center">
                       <input
                         type="number" min={1} value={item.cantidad}
                         onChange={(e) => updateCantidad(item.articuloId, e.target.value)}
-                        className="w-16 border border-gray-300 rounded-md px-2 py-1 text-sm text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-16 border border-border rounded-md px-2 py-1 text-sm text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </td>
-                    <td className="py-2 text-right text-gray-600">{fmt(item.precio)}</td>
-                    <td className="py-2 text-right font-semibold text-gray-900">{fmt(item.precio * item.cantidad)}</td>
+                    <td className="py-2 text-right text-muted-foreground">{fmt(item.precio)}</td>
+                    <td className="py-2 text-right font-semibold text-foreground">{fmt(item.precio * item.cantidad)}</td>
                     <td className="py-2 pl-2">
-                      <button type="button" onClick={() => setItems((p) => p.filter((i) => i.articuloId !== item.articuloId))} className="text-gray-300 hover:text-red-500 transition-colors">
+                      <button type="button" onClick={() => setItems((p) => p.filter((i) => i.articuloId !== item.articuloId))} className="text-muted-foreground/50 hover:text-red-500 transition-colors">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </td>
@@ -159,11 +159,11 @@ export default function NuevoPresupuestoPage() {
           )}
           {articulosDisponibles.length > 0 && (
             <div className="flex items-center gap-2 mt-2">
-              <Plus className="w-4 h-4 text-gray-400 flex-shrink-0" />
+              <Plus className="w-4 h-4 text-muted-foreground flex-shrink-0" />
               <select
                 value={articuloToAdd}
                 onChange={(e) => handleAddArticulo(e.target.value)}
-                className="flex-1 border border-dashed border-gray-300 rounded-lg px-3 py-1.5 text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                className="flex-1 border border-dashed border-border rounded-lg px-3 py-1.5 text-sm text-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 bg-card"
               >
                 <option value="">Agregar artículo...</option>
                 {articulosDisponibles.map((a) => (
@@ -177,7 +177,7 @@ export default function NuevoPresupuestoPage() {
 
       <Card>
         <CardContent className="pt-6 flex justify-between items-center">
-          <span className="text-base font-bold text-gray-900">Total</span>
+          <span className="text-base font-bold text-foreground">Total</span>
           <span className="text-xl font-bold text-blue-600">{fmt(total)}</span>
         </CardContent>
       </Card>

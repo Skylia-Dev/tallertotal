@@ -39,18 +39,18 @@ export default function VencimientosPage() {
           <ArrowLeft className="h-4 w-4" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
             <Droplets className="h-5 w-5 text-amber-600" />
             Vencimientos de Lubricentro
           </h1>
-          <p className="text-sm text-gray-500 mt-0.5">Próximo cambio de aceite por vehículo, según km y fecha</p>
+          <p className="text-sm text-muted-foreground mt-0.5">Próximo cambio de aceite por vehículo, según km y fecha</p>
         </div>
       </div>
 
       {items === null ? (
-        <div className="py-12 text-center text-sm text-gray-400">Cargando...</div>
+        <div className="py-12 text-center text-sm text-muted-foreground">Cargando...</div>
       ) : items.length === 0 ? (
-        <div className="py-12 text-center text-sm text-gray-400">
+        <div className="py-12 text-center text-sm text-muted-foreground">
           Todavía no hay órdenes de Lubricentro completadas con próximo cambio registrado.
         </div>
       ) : (
@@ -68,15 +68,15 @@ export default function VencimientosPage() {
                   <Card key={v.vehicleId} className={`border-l-4 ${cfg.cls.split(" ")[0]}`}>
                     <CardContent className="py-3 flex items-center justify-between gap-4 flex-wrap">
                       <div>
-                        <p className="text-sm font-semibold font-mono text-gray-900">{v.licensePlate} <span className="font-sans font-normal text-gray-500">— {v.vehicleDescription}</span></p>
-                        <p className="text-xs text-gray-500">{v.customerName} · {v.customerPhone}</p>
+                        <p className="text-sm font-semibold font-mono text-foreground">{v.licensePlate} <span className="font-sans font-normal text-muted-foreground">— {v.vehicleDescription}</span></p>
+                        <p className="text-xs text-muted-foreground">{v.customerName} · {v.customerPhone}</p>
                       </div>
-                      <div className="flex items-center gap-4 text-xs text-gray-600">
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
                         {v.nextServiceDate && (
                           <span>
                             Próx. fecha: <span className="font-medium">{new Date(v.nextServiceDate + "T00:00:00").toLocaleDateString("es-AR")}</span>
                             {v.daysRemaining !== null && v.daysRemaining !== undefined && (
-                              <span className="text-gray-400"> ({v.daysRemaining <= 0 ? `venció hace ${Math.abs(v.daysRemaining)}d` : `en ${v.daysRemaining}d`})</span>
+                              <span className="text-muted-foreground"> ({v.daysRemaining <= 0 ? `venció hace ${Math.abs(v.daysRemaining)}d` : `en ${v.daysRemaining}d`})</span>
                             )}
                           </span>
                         )}
@@ -84,7 +84,7 @@ export default function VencimientosPage() {
                           <span>
                             Próx. km: <span className="font-medium">{v.nextServiceKm.toLocaleString("es-AR")}</span>
                             {v.kmRemaining !== null && v.kmRemaining !== undefined && (
-                              <span className="text-gray-400"> ({v.kmRemaining <= 0 ? `superado por ${Math.abs(v.kmRemaining).toLocaleString("es-AR")}km` : `faltan ${v.kmRemaining.toLocaleString("es-AR")}km`})</span>
+                              <span className="text-muted-foreground"> ({v.kmRemaining <= 0 ? `superado por ${Math.abs(v.kmRemaining).toLocaleString("es-AR")}km` : `faltan ${v.kmRemaining.toLocaleString("es-AR")}km`})</span>
                             )}
                           </span>
                         )}

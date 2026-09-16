@@ -46,7 +46,7 @@ const TYPE_LABELS: Record<ServiceOrderType, string> = {
 };
 
 function TypeBadge({ type }: { type: ServiceOrderType }) {
-  if (type === "General") return <span className="text-xs text-gray-500">General</span>;
+  if (type === "General") return <span className="text-xs text-muted-foreground">General</span>;
   return (
     <span className="inline-flex items-center gap-1 text-xs font-medium px-1.5 py-0.5 rounded border text-amber-700 bg-amber-50 border-amber-200">
       <Droplets className="h-3 w-3" /> Lubricentro
@@ -86,7 +86,7 @@ function SortHead({ col, label, current, dir, onSort, className }: {
   const active = current === col;
   return (
     <TableHead className={className}>
-      <button onClick={() => onSort(col)} className="flex items-center gap-1 hover:text-gray-900 transition-colors select-none">
+      <button onClick={() => onSort(col)} className="flex items-center gap-1 hover:text-foreground transition-colors select-none">
         {label}
         {active
           ? dir === "asc" ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />
@@ -357,14 +357,14 @@ function EditOrderDialog({ order, mechanics, onSaved, onClose }: {
             ))}
           </div>
           <div className="flex items-center justify-between pt-1 text-sm">
-            <span className="text-gray-500">Total estimado</span>
-            <span className="font-semibold text-gray-900">
+            <span className="text-muted-foreground">Total estimado</span>
+            <span className="font-semibold text-foreground">
               ${totalEstimate.toLocaleString("es-AR", { minimumFractionDigits: 2 })}
             </span>
           </div>
           {(status === "Completed" || order.totalFinal > 0) && (
             <div className="flex items-center justify-between gap-4">
-              <span className="text-sm text-gray-500 shrink-0">Total final cobrado</span>
+              <span className="text-sm text-muted-foreground shrink-0">Total final cobrado</span>
               <Input
                 type="number"
                 value={totalFinal}
@@ -572,8 +572,8 @@ export default function OrdenesPage() {
     <div className="space-y-6 max-w-7xl mx-auto">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Órdenes de Servicio</h1>
-          <p className="text-sm text-gray-500 mt-1">{orders.length} órdenes en total</p>
+          <h1 className="text-2xl font-bold text-foreground">Órdenes de Servicio</h1>
+          <p className="text-sm text-muted-foreground mt-1">{orders.length} órdenes en total</p>
         </div>
         <div className="flex items-center gap-2">
           <Link href="/ordenes/vencimientos" className={buttonVariants({ variant: "outline" })}>
@@ -602,13 +602,13 @@ export default function OrdenesPage() {
           {/* Filters row */}
           <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
             {/* Status tabs */}
-            <div className="flex flex-wrap gap-1 bg-gray-100 p-1 rounded-lg">
+            <div className="flex flex-wrap gap-1 bg-muted p-1 rounded-lg">
               {STATUS_TABS.map((tab) => (
                 <button
                   key={tab.value}
                   onClick={() => setActiveTab(tab.value)}
                   className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                    activeTab === tab.value ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
+                    activeTab === tab.value ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   {tab.label}
@@ -657,7 +657,7 @@ export default function OrdenesPage() {
                 className="w-[150px] text-sm"
                 title="Desde"
               />
-              <span className="text-gray-400 text-sm shrink-0">→</span>
+              <span className="text-muted-foreground text-sm shrink-0">→</span>
               <Input
                 type="date"
                 value={dateTo}
@@ -668,7 +668,7 @@ export default function OrdenesPage() {
               {(dateFrom || dateTo) && (
                 <button
                   onClick={() => { setDateFrom(""); setDateTo(""); }}
-                  className="text-xs text-gray-400 hover:text-gray-700 underline shrink-0"
+                  className="text-xs text-muted-foreground hover:text-foreground underline shrink-0"
                 >
                   Limpiar
                 </button>
@@ -677,22 +677,22 @@ export default function OrdenesPage() {
           </div>
 
           {loading ? (
-            <div className="py-12 text-center text-sm text-gray-400">Cargando...</div>
+            <div className="py-12 text-center text-sm text-muted-foreground">Cargando...</div>
           ) : filtered.length === 0 ? (
-            <div className="py-12 text-center text-sm text-gray-400">No hay órdenes que mostrar</div>
+            <div className="py-12 text-center text-sm text-muted-foreground">No hay órdenes que mostrar</div>
           ) : (
             <>
               <div className="overflow-x-auto rounded-md border">
                 <Table>
                   <TableHeader>
-                    <TableRow className="bg-gray-50">
+                    <TableRow className="bg-muted">
                       <TableHead className="w-10">
                         <input
                           type="checkbox"
                           checked={allSelected}
                           ref={(el) => { if (el) el.indeterminate = someSelected && !allSelected; }}
                           onChange={toggleAll}
-                          className="h-4 w-4 rounded border-gray-300 cursor-pointer"
+                          className="h-4 w-4 rounded border-border cursor-pointer"
                           aria-label="Seleccionar todas"
                         />
                       </TableHead>
@@ -713,14 +713,14 @@ export default function OrdenesPage() {
                     {paginated.map((order) => (
                       <TableRow
                         key={order.id}
-                        className={`hover:bg-gray-50 ${selected.has(order.id) ? "bg-blue-50/60" : ""}`}
+                        className={`hover:bg-muted/60 ${selected.has(order.id) ? "bg-blue-50/60" : ""}`}
                       >
                         <TableCell>
                           <input
                             type="checkbox"
                             checked={selected.has(order.id)}
                             onChange={() => toggleOne(order.id)}
-                            className="h-4 w-4 rounded border-gray-300 cursor-pointer"
+                            className="h-4 w-4 rounded border-border cursor-pointer"
                           />
                         </TableCell>
                         <TableCell className="font-mono font-semibold text-sm">{order.licensePlate}</TableCell>
@@ -728,9 +728,9 @@ export default function OrdenesPage() {
                         <TableCell className="text-sm">{order.vehicleDescription}</TableCell>
                         <TableCell>
                           <div className="text-sm font-medium">{order.customerName}</div>
-                          <div className="text-xs text-gray-400">{order.customerPhone}</div>
+                          <div className="text-xs text-muted-foreground">{order.customerPhone}</div>
                         </TableCell>
-                        <TableCell className="text-sm text-gray-600">
+                        <TableCell className="text-sm text-muted-foreground">
                           {order.assignedMechanic ?? "—"}
                           {order.internalNotes && (
                             <p className="text-xs text-amber-600 italic mt-0.5 max-w-[140px] truncate" title={order.internalNotes}>
@@ -747,12 +747,12 @@ export default function OrdenesPage() {
                         <TableCell className="text-right text-sm font-medium">
                           ${order.totalEstimate.toLocaleString("es-AR", { minimumFractionDigits: 2 })}
                         </TableCell>
-                        <TableCell className="text-sm text-gray-500">
+                        <TableCell className="text-sm text-muted-foreground">
                           {order.estimatedDeliveryAt
                             ? new Date(order.estimatedDeliveryAt + "T00:00:00").toLocaleDateString("es-AR")
                             : "—"}
                         </TableCell>
-                        <TableCell className="text-sm text-gray-500">
+                        <TableCell className="text-sm text-muted-foreground">
                           {new Date(order.createdAt).toLocaleDateString("es-AR")}
                         </TableCell>
                         <TableCell>
@@ -775,7 +775,7 @@ export default function OrdenesPage() {
                               <Button variant="ghost" size="icon-sm"
                                 title="Enviar presupuesto al cliente (WhatsApp)"
                                 onClick={() => handleQuote(order.id, "Pending")}
-                                className="text-gray-400 hover:text-blue-600">
+                                className="text-muted-foreground hover:text-blue-600">
                                 <FileText className="h-3.5 w-3.5" />
                               </Button>
                             )}
@@ -785,13 +785,13 @@ export default function OrdenesPage() {
                                 <Button variant="ghost" size="icon-sm"
                                   title="Aprobar presupuesto"
                                   onClick={() => handleQuote(order.id, "Approved")}
-                                  className="text-gray-400 hover:text-green-600">
+                                  className="text-muted-foreground hover:text-green-600">
                                   <CheckCircle className="h-3.5 w-3.5" />
                                 </Button>
                                 <Button variant="ghost" size="icon-sm"
                                   title="Rechazar presupuesto"
                                   onClick={() => handleQuote(order.id, "Rejected")}
-                                  className="text-gray-400 hover:text-red-600">
+                                  className="text-muted-foreground hover:text-red-600">
                                   <XCircle className="h-3.5 w-3.5" />
                                 </Button>
                               </>
@@ -800,14 +800,14 @@ export default function OrdenesPage() {
                             <Button variant="ghost" size="icon-sm"
                               title="Editar orden"
                               onClick={() => setEditOrder(order)}
-                              className="text-gray-400 hover:text-blue-600">
+                              className="text-muted-foreground hover:text-blue-600">
                               <Pencil className="h-3.5 w-3.5" />
                             </Button>
                             {/* Imprimir */}
                             <Button variant="ghost" size="icon-sm"
                               title="Imprimir orden"
                               onClick={() => window.open(`/imprimir/${order.id}`, "_blank")}
-                              className="text-gray-400 hover:text-blue-600">
+                              className="text-muted-foreground hover:text-blue-600">
                               <Printer className="h-3.5 w-3.5" />
                             </Button>
                             {/* Copiar link del portal */}
@@ -818,21 +818,21 @@ export default function OrdenesPage() {
                                 navigator.clipboard.writeText(url);
                                 toast.success("Link del portal copiado");
                               }}
-                              className="text-gray-400 hover:text-emerald-600">
+                              className="text-muted-foreground hover:text-emerald-600">
                               <Link2 className="h-3.5 w-3.5" />
                             </Button>
                             {/* Historial */}
                             <Button variant="ghost" size="icon-sm"
                               title="Ver historial de cambios"
                               onClick={() => openLogs(order.id)}
-                              className="text-gray-400 hover:text-violet-600">
+                              className="text-muted-foreground hover:text-violet-600">
                               <History className="h-3.5 w-3.5" />
                             </Button>
                             {/* Exportar Excel */}
                             <Button variant="ghost" size="icon-sm"
                               title="Exportar a Excel"
                               onClick={() => exportOne(order)}
-                              className="text-gray-400 hover:text-green-600">
+                              className="text-muted-foreground hover:text-green-600">
                               <Download className="h-3.5 w-3.5" />
                             </Button>
                             {/* Link de pago MP — solo para órdenes completadas */}
@@ -843,7 +843,7 @@ export default function OrdenesPage() {
                                   : "Generar link de pago y enviar por WhatsApp"}
                                 onClick={() => handlePaymentLink(order)}
                                 disabled={generatingPayment.has(order.id)}
-                                className={order.mpPaymentLinkUrl ? "text-blue-500 hover:text-blue-700" : "text-gray-400 hover:text-blue-600"}>
+                                className={order.mpPaymentLinkUrl ? "text-blue-500 hover:text-blue-700" : "text-muted-foreground hover:text-blue-600"}>
                                 {order.mpPaymentLinkUrl ? <Copy className="h-3.5 w-3.5" /> : <CreditCard className="h-3.5 w-3.5" />}
                               </Button>
                             )}
@@ -887,24 +887,24 @@ export default function OrdenesPage() {
             </DialogTitle>
           </DialogHeader>
           {logsLoading ? (
-            <div className="py-8 text-center text-sm text-gray-400">Cargando...</div>
+            <div className="py-8 text-center text-sm text-muted-foreground">Cargando...</div>
           ) : logs.length === 0 ? (
-            <div className="py-8 text-center text-sm text-gray-400">Sin historial registrado</div>
+            <div className="py-8 text-center text-sm text-muted-foreground">Sin historial registrado</div>
           ) : (
             <div className="space-y-3 max-h-96 overflow-y-auto pr-1 py-1">
               {logs.map((log) => (
                 <div key={log.id} className="flex gap-3">
                   <div className="mt-1.5 w-2 h-2 rounded-full bg-blue-400 shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-gray-800">{formatLogEvent(log.event)}</div>
+                    <div className="text-sm font-medium text-foreground">{formatLogEvent(log.event)}</div>
                     {log.oldValue && log.newValue && (
-                      <div className="text-xs text-gray-500 mt-0.5">
+                      <div className="text-xs text-muted-foreground mt-0.5">
                         <span className="line-through text-red-400">{log.oldValue}</span>
-                        <span className="mx-1 text-gray-300">→</span>
+                        <span className="mx-1 text-muted-foreground/50">→</span>
                         <span className="text-green-600 font-medium">{log.newValue}</span>
                       </div>
                     )}
-                    <div className="text-xs text-gray-400 mt-0.5">
+                    <div className="text-xs text-muted-foreground mt-0.5">
                       {log.changedBy} · {new Date(log.changedAt).toLocaleString("es-AR", { dateStyle: "short", timeStyle: "short" })}
                     </div>
                   </div>

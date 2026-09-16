@@ -32,10 +32,10 @@ export function ServiceItemsForm({ items, onChange }: Props) {
   return (
     <div className="space-y-3">
       {items.length === 0 ? (
-        <p className="text-sm text-gray-400 py-2">No hay items. Agregá mano de obra o repuestos.</p>
+        <p className="text-sm text-muted-foreground py-2">No hay items. Agregá mano de obra o repuestos.</p>
       ) : (
         <div className="space-y-2">
-          <div className="hidden sm:grid grid-cols-12 gap-2 px-1 text-xs font-medium text-gray-500 uppercase tracking-wide">
+          <div className="hidden sm:grid grid-cols-12 gap-2 px-1 text-xs font-medium text-muted-foreground uppercase tracking-wide">
             <span className="col-span-5">Descripción</span>
             <span className="col-span-2">Tipo</span>
             <span className="col-span-1 text-right">Cant.</span>
@@ -89,7 +89,7 @@ export function ServiceItemsForm({ items, onChange }: Props) {
                   placeholder="0.00"
                 />
               </div>
-              <div className="col-span-5 sm:col-span-1 text-right text-sm font-medium text-gray-700 pr-1">
+              <div className="col-span-5 sm:col-span-1 text-right text-sm font-medium text-foreground pr-1">
                 ${(item.quantity * item.unitPrice).toLocaleString("es-AR", { minimumFractionDigits: 0 })}
               </div>
               <div className="col-span-1">
@@ -106,8 +106,8 @@ export function ServiceItemsForm({ items, onChange }: Props) {
           ))}
 
           <div className="flex justify-end pt-2 border-t">
-            <span className="text-sm text-gray-500 mr-3">Total estimado:</span>
-            <span className="text-base font-bold text-gray-900">
+            <span className="text-sm text-muted-foreground mr-3">Total estimado:</span>
+            <span className="text-base font-bold text-foreground">
               ${total.toLocaleString("es-AR", { minimumFractionDigits: 2 })}
             </span>
           </div>

@@ -233,8 +233,8 @@ export default function VehiculosPage() {
     <div className="space-y-6 max-w-5xl mx-auto">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Vehículos</h1>
-          <p className="text-sm text-gray-500 mt-1">{vehicles.length} registrados</p>
+          <h1 className="text-2xl font-bold text-foreground">Vehículos</h1>
+          <p className="text-sm text-muted-foreground mt-1">{vehicles.length} registrados</p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger render={
@@ -252,7 +252,7 @@ export default function VehiculosPage() {
               <div className="space-y-1">
                 <Label required>Cliente</Label>
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                   <Input
                     placeholder="Buscar cliente..."
                     value={customerSearch}
@@ -271,10 +271,10 @@ export default function VehiculosPage() {
                       <button
                         key={c.id}
                         onClick={() => { setForm({ ...form, customerId: c.id }); setCustomerSearch(c.name); }}
-                        className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50"
+                        className="w-full px-3 py-2 text-left text-sm hover:bg-muted/60"
                       >
                         <span className="font-medium">{c.name}</span>
-                        <span className="text-gray-400 ml-2">{c.phone}</span>
+                        <span className="text-muted-foreground ml-2">{c.phone}</span>
                       </button>
                     ))}
                   </Card>
@@ -400,24 +400,24 @@ export default function VehiculosPage() {
           />
 
           {loading ? (
-            <div className="py-12 text-center text-sm text-gray-400">Cargando...</div>
+            <div className="py-12 text-center text-sm text-muted-foreground">Cargando...</div>
           ) : vehicles.length === 0 ? (
             <div className="py-12 text-center space-y-2">
-              <Car className="h-8 w-8 text-gray-300 mx-auto" />
-              <p className="text-sm text-gray-400">No hay vehículos{plateSearch ? " con esa placa" : ""}</p>
+              <Car className="h-8 w-8 text-muted-foreground/50 mx-auto" />
+              <p className="text-sm text-muted-foreground">No hay vehículos{plateSearch ? " con esa placa" : ""}</p>
             </div>
           ) : (
             <div className="overflow-x-auto rounded-md border">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-gray-50">
+                  <TableRow className="bg-muted">
                     <TableHead className="w-10">
                       <input
                         type="checkbox"
                         checked={allSelected}
                         ref={(el) => { if (el) el.indeterminate = someSelected && !allSelected; }}
                         onChange={toggleAll}
-                        className="h-4 w-4 rounded border-gray-300 cursor-pointer"
+                        className="h-4 w-4 rounded border-border cursor-pointer"
                         aria-label="Seleccionar todos"
                       />
                     </TableHead>
@@ -431,33 +431,33 @@ export default function VehiculosPage() {
                 </TableHeader>
                 <TableBody>
                   {paginated.map((v) => (
-                    <TableRow key={v.id} className={`hover:bg-gray-50 ${selected.has(v.id) ? "bg-blue-50/60" : ""}`}>
+                    <TableRow key={v.id} className={`hover:bg-muted/60 ${selected.has(v.id) ? "bg-blue-50/60" : ""}`}>
                       <TableCell>
                         <input
                           type="checkbox"
                           checked={selected.has(v.id)}
                           onChange={() => toggleOne(v.id)}
-                          className="h-4 w-4 rounded border-gray-300 cursor-pointer"
+                          className="h-4 w-4 rounded border-border cursor-pointer"
                           aria-label={`Seleccionar ${v.licensePlate}`}
                         />
                       </TableCell>
                       <TableCell className="font-mono font-bold text-sm">{v.licensePlate}</TableCell>
                       <TableCell>
                         <div className="text-sm font-medium">{v.brand} {v.model}</div>
-                        <div className="text-xs text-gray-400">{v.year}</div>
+                        <div className="text-xs text-muted-foreground">{v.year}</div>
                       </TableCell>
-                      <TableCell className="text-sm text-gray-600">{v.color ?? "—"}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{v.color ?? "—"}</TableCell>
                       <TableCell>
                         <span className="text-sm font-medium text-blue-700">{v.customerName}</span>
                       </TableCell>
-                      <TableCell className="text-xs text-gray-500 max-w-[140px] truncate">{v.notes ?? "—"}</TableCell>
+                      <TableCell className="text-xs text-muted-foreground max-w-[140px] truncate">{v.notes ?? "—"}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-1">
                           <Button
                             variant="ghost" size="icon-sm"
                             onClick={() => openHistory(v)}
                             title="Ver historial de órdenes"
-                            className="text-gray-400 hover:text-blue-600"
+                            className="text-muted-foreground hover:text-blue-600"
                           >
                             <ClipboardList className="h-3.5 w-3.5" />
                           </Button>
@@ -497,14 +497,14 @@ export default function VehiculosPage() {
             </DialogTitle>
           </DialogHeader>
           {historyLoading ? (
-            <div className="py-8 text-center text-sm text-gray-400">Cargando...</div>
+            <div className="py-8 text-center text-sm text-muted-foreground">Cargando...</div>
           ) : historyOrders.length === 0 ? (
-            <div className="py-8 text-center text-sm text-gray-400">Este vehículo no tiene órdenes registradas</div>
+            <div className="py-8 text-center text-sm text-muted-foreground">Este vehículo no tiene órdenes registradas</div>
           ) : (
             <div className="overflow-x-auto rounded-md border max-h-96 overflow-y-auto">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-gray-50">
+                  <TableRow className="bg-muted">
                     <TableHead>Fecha</TableHead>
                     <TableHead>Estado</TableHead>
                     <TableHead>Mecánico</TableHead>
@@ -515,12 +515,12 @@ export default function VehiculosPage() {
                 <TableBody>
                   {historyOrders.map((o) => (
                     <TableRow key={o.id}>
-                      <TableCell className="text-sm text-gray-500 whitespace-nowrap">
+                      <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
                         {new Date(o.createdAt).toLocaleDateString("es-AR")}
                       </TableCell>
                       <TableCell><StatusBadge status={o.status} /></TableCell>
-                      <TableCell className="text-sm text-gray-600">{o.assignedMechanic ?? "—"}</TableCell>
-                      <TableCell className="text-sm text-gray-600 max-w-[200px] truncate" title={o.diagnosisNotes}>
+                      <TableCell className="text-sm text-muted-foreground">{o.assignedMechanic ?? "—"}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground max-w-[200px] truncate" title={o.diagnosisNotes}>
                         {o.diagnosisNotes || "—"}
                       </TableCell>
                       <TableCell className="text-right text-sm font-medium">
@@ -544,7 +544,7 @@ export default function VehiculosPage() {
           <DialogHeader>
             <DialogTitle>Eliminar vehículo</DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-muted-foreground">
             ¿Eliminar <span className="font-semibold">{deleteTarget?.licensePlate} — {deleteTarget?.brand} {deleteTarget?.model}</span>?
             Se eliminarán también sus órdenes de servicio.
           </p>

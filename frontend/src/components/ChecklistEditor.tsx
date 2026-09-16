@@ -20,7 +20,7 @@ function TriStateButton({
       onClick={onClick}
       className={cn(
         "h-7 w-7 rounded-md flex items-center justify-center border transition-colors",
-        active ? activeClass : "border-gray-200 text-gray-300 hover:border-gray-300 hover:text-gray-400"
+        active ? activeClass : "border-border text-muted-foreground/50 hover:border-border hover:text-muted-foreground"
       )}
     >
       {children}
@@ -33,7 +33,7 @@ export function ChecklistEditor({ items, onChange }: { items: ChecklistRow[]; on
     <div className="rounded-lg border divide-y">
       {items.map((item) => (
         <div key={item.key} className="flex items-center justify-between gap-3 px-3 py-2">
-          <span className="text-sm text-gray-700">{item.description}</span>
+          <span className="text-sm text-foreground">{item.description}</span>
           <div className="flex items-center gap-1 shrink-0">
             <TriStateButton
               active={item.checked === true}
@@ -52,7 +52,7 @@ export function ChecklistEditor({ items, onChange }: { items: ChecklistRow[]; on
             <TriStateButton
               active={item.checked === null}
               onClick={() => onChange(item.key, null)}
-              activeClass="border-gray-400 bg-gray-100 text-gray-500"
+              activeClass="border-gray-400 bg-muted text-muted-foreground"
             >
               <Minus className="h-3.5 w-3.5" />
             </TriStateButton>

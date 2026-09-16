@@ -117,8 +117,8 @@ export default function NuevaOrdenPage() {
           <ArrowLeft className="h-4 w-4" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Nueva Orden de Servicio</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Completá los pasos para registrar el trabajo</p>
+          <h1 className="text-2xl font-bold text-foreground">Nueva Orden de Servicio</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Completá los pasos para registrar el trabajo</p>
         </div>
       </div>
 
@@ -136,13 +136,13 @@ export default function NuevaOrdenPage() {
                   ? "bg-green-500 border-green-500 text-white"
                   : i === step
                   ? "bg-blue-600 border-blue-600 text-white"
-                  : "bg-white border-gray-300 text-gray-400"
+                  : "bg-card border-border text-muted-foreground"
               )}>
                 {i < step ? <CheckCircle className="h-4 w-4" /> : i + 1}
               </div>
               <span className={cn(
                 "text-sm font-medium hidden sm:block",
-                i === step ? "text-blue-700" : i < step ? "text-green-600" : "text-gray-400"
+                i === step ? "text-blue-700" : i < step ? "text-green-600" : "text-muted-foreground"
               )}>
                 {label}
               </span>
@@ -178,8 +178,8 @@ export default function NuevaOrdenPage() {
             <CardTitle className="text-base">2. Seleccioná el vehículo</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-xs text-gray-500 mb-3">
-              Cliente: <span className="font-medium text-gray-700">{customer.name}</span>
+            <p className="text-xs text-muted-foreground mb-3">
+              Cliente: <span className="font-medium text-foreground">{customer.name}</span>
             </p>
             <VehicleSelect customer={customer} selected={vehicle} onSelect={handleSelectVehicle} />
             {vehicle && (
@@ -198,14 +198,14 @@ export default function NuevaOrdenPage() {
             <CardTitle className="text-base">3. Detalle de la orden</CardTitle>
           </CardHeader>
           <CardContent className="space-y-5">
-            <div className="p-3 bg-gray-50 rounded-lg text-sm space-y-0.5">
-              <p><span className="text-gray-500">Cliente:</span> <span className="font-medium">{customer?.name}</span></p>
-              <p><span className="text-gray-500">Vehículo:</span> <span className="font-medium font-mono">{vehicle.licensePlate}</span> — {vehicle.brand} {vehicle.model} {vehicle.year}</p>
+            <div className="p-3 bg-muted rounded-lg text-sm space-y-0.5">
+              <p><span className="text-muted-foreground">Cliente:</span> <span className="font-medium">{customer?.name}</span></p>
+              <p><span className="text-muted-foreground">Vehículo:</span> <span className="font-medium font-mono">{vehicle.licensePlate}</span> — {vehicle.brand} {vehicle.model} {vehicle.year}</p>
             </div>
 
             <div className="space-y-1.5">
               <Label>Tipo de orden</Label>
-              <div className="flex flex-wrap gap-1 bg-gray-100 p-1 rounded-lg w-fit">
+              <div className="flex flex-wrap gap-1 bg-muted p-1 rounded-lg w-fit">
                 {ORDER_TYPES.map((t) => (
                   <button
                     key={t.value}
@@ -213,7 +213,7 @@ export default function NuevaOrdenPage() {
                     onClick={() => setOrderType(t.value)}
                     className={cn(
                       "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors",
-                      orderType === t.value ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
+                      orderType === t.value ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
                     )}
                   >
                     <t.icon className="h-3.5 w-3.5" />
