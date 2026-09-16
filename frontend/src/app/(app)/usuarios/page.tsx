@@ -32,6 +32,72 @@ const assignableRoles = [
   { value: "Mechanic", label: "Mecánico" },
 ];
 
+// Especialidades típicas de un taller mecánico. "Otro" queda siempre al final
+// y habilita un campo de texto libre para lo que no está en la lista.
+const SPECIALTY_OPTIONS = [
+  "Motor y transmision",
+  "Motor diesel",
+  "Electricidad",
+  "Inyeccion electronica",
+  "Frenos y suspension",
+  "Aire acondicionado",
+  "Chapa y pintura",
+  "Alineacion y balanceo",
+  "Sistemas de escape",
+  "Neumaticos y gomeria",
+  "Lubricentro",
+  "Gral. multimarca",
+];
+const SPECIALTY_NONE = "__none__";
+const SPECIALTY_OTHER = "__other__";
+
+function SpecialtySelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const isKnown = SPECIALTY_OPTIONS.includes(value);
+  // "mode" es estado propio (no derivado de `value` en cada render): así, al elegir
+  // "Otro" con el campo todavía vacío, no colapsa de nuevo a "Sin especialidad".
+  const [mode, setMode] = useState<"catalog" | "other">(value !== "" && !isKnown ? "other" : "catalog");
+  const [customDraft, setCustomDraft] = useState(mode === "other" ? value : "");
+
+  const selectValue = mode === "other" ? SPECIALTY_OTHER : value === "" ? SPECIALTY_NONE : value;
+
+  return (
+    <div className="space-y-2">
+      <Select
+        value={selectValue}
+        onValueChange={(v) => {
+          if (!v) return;
+          if (v === SPECIALTY_NONE) { setMode("catalog"); onChange(""); }
+          else if (v === SPECIALTY_OTHER) { setMode("other"); onChange(customDraft); }
+          else { setMode("catalog"); onChange(v); }
+        }}
+      >
+        <SelectTrigger className="w-full">
+          <SelectValue>
+            {(v: string) => {
+              if (v === SPECIALTY_NONE) return "Sin especialidad";
+              if (v === SPECIALTY_OTHER) return "Otro";
+              return v;
+            }}
+          </SelectValue>
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value={SPECIALTY_NONE}>Sin especialidad</SelectItem>
+          {SPECIALTY_OPTIONS.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+          <SelectItem value={SPECIALTY_OTHER}>Otro</SelectItem>
+        </SelectContent>
+      </Select>
+      {mode === "other" && (
+        <Input
+          value={customDraft}
+          onChange={(e) => { setCustomDraft(e.target.value); onChange(e.target.value); }}
+          placeholder="Especificar especialidad"
+          autoFocus
+        />
+      )}
+    </div>
+  );
+}
+
 // Roles que no se pueden borrar desde acá: el dueño y el superadmin de la plataforma
 const undeletableRoles = new Set(["Owner", "SuperAdmin"]);
 
@@ -201,7 +267,7 @@ export default function UsuariosPage() {
                   </div>
                   <div className="space-y-1">
                     <Label>Especialidad</Label>
-                    <Input value={form.specialty ?? ""} onChange={(e) => setForm({ ...form, specialty: e.target.value })} placeholder="Motor, frenos, electricidad..." />
+                    <SpecialtySelect value={form.specialty ?? ""} onChange={(v) => setForm({ ...form, specialty: v })} />
                   </div>
                 </>
               )}
@@ -329,7 +395,7 @@ export default function UsuariosPage() {
             </div>
             <div className="space-y-1">
               <Label>Especialidad</Label>
-              <Input value={editForm.specialty} onChange={(e) => setEditForm({ ...editForm, specialty: e.target.value })} placeholder="Motor, frenos, electricidad..." />
+              <SpecialtySelect value={editForm.specialty} onChange={(v) => setEditForm({ ...editForm, specialty: v })} />
             </div>
           </div>
           <DialogFooter>
