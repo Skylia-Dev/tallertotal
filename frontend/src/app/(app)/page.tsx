@@ -300,10 +300,38 @@ function OfficeDashboard() {
             Resumen del taller · {monthName} {new Date().getFullYear()}
           </p>
         </div>
-        <Button variant="outline" size="sm" onClick={() => setEditMode((v) => !v)} className="gap-1.5">
-          <Settings2 className="h-4 w-4" />
-          {editMode ? "Listo" : "Personalizar"}
-        </Button>
+        <div className="flex items-center gap-2">
+          {editMode && hiddenWidgets.length > 0 && (
+            <div className="relative">
+              <Button
+                size="sm"
+                onClick={() => setAddMenuOpen((v) => !v)}
+                className="gap-1.5 bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+              >
+                <Plus className="h-4 w-4" />
+                Agregar tarjeta
+              </Button>
+              {addMenuOpen && (
+                <div className="absolute right-0 z-20 mt-1 w-64 max-h-72 overflow-y-auto rounded-lg border bg-white shadow-lg py-1">
+                  {hiddenWidgets.map((w) => (
+                    <button
+                      key={w.key}
+                      onClick={() => handleAddWidget(w.key)}
+                      className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center justify-between gap-2"
+                    >
+                      {w.label}
+                      <Plus className="h-3.5 w-3.5 text-gray-300" />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+          <Button variant="outline" size="sm" onClick={() => setEditMode((v) => !v)} className="gap-1.5">
+            <Settings2 className="h-4 w-4" />
+            {editMode ? "Listo" : "Personalizar"}
+          </Button>
+        </div>
       </div>
 
       {/* KPI cards — personalizables */}
@@ -470,30 +498,6 @@ function OfficeDashboard() {
           </div>
         </SortableContext>
       </DndContext>
-
-      {/* Agregar widgets ocultos */}
-      {editMode && hiddenWidgets.length > 0 && (
-        <div className="relative">
-          <Button variant="outline" size="sm" onClick={() => setAddMenuOpen((v) => !v)} className="gap-1.5 border-dashed">
-            <Plus className="h-4 w-4" />
-            Agregar tarjeta
-          </Button>
-          {addMenuOpen && (
-            <div className="absolute z-20 mt-1 w-64 max-h-72 overflow-y-auto rounded-lg border bg-white shadow-lg py-1">
-              {hiddenWidgets.map((w) => (
-                <button
-                  key={w.key}
-                  onClick={() => handleAddWidget(w.key)}
-                  className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center justify-between gap-2"
-                >
-                  {w.label}
-                  <Plus className="h-3.5 w-3.5 text-gray-300" />
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
 
       {/* Orders table */}
       <Card>
