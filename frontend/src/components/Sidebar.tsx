@@ -65,10 +65,10 @@ export function Sidebar() {
 
   return (
     <aside className="w-60 bg-slate-900 border-r border-slate-800 flex flex-col shrink-0">
-      <div className="p-5 border-b border-slate-800 flex items-start justify-between gap-2">
+      <div className="p-5 border-b border-slate-800">
         <TallerTotalLogo dark />
         {process.env.NEXT_PUBLIC_APP_VERSION && (
-          <span className="mt-1 shrink-0 text-[11px] font-mono font-semibold text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded">
+          <span className="mt-1.5 inline-block text-[11px] font-mono font-semibold text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded">
             {process.env.NEXT_PUBLIC_APP_VERSION}
           </span>
         )}

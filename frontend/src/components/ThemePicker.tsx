@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Palette, Sun, Moon, Check } from "lucide-react";
+import { Palette, Sun, Moon, Contrast, Check } from "lucide-react";
 import { ACCENTS } from "@/lib/theme";
 import { useThemeSettings } from "@/contexts/ThemeContext";
 import { cn } from "@/lib/utils";
@@ -45,6 +45,15 @@ export function ThemePicker() {
               <Sun className="w-3.5 h-3.5" /> Claro
             </button>
             <button
+              onClick={() => setMode("tenue")}
+              className={cn(
+                "flex-1 flex items-center justify-center gap-1.5 rounded-md py-1.5 text-xs font-medium border transition-colors",
+                mode === "tenue" ? "bg-primary text-primary-foreground border-primary" : "border-border text-muted-foreground hover:bg-accent"
+              )}
+            >
+              <Contrast className="w-3.5 h-3.5" /> Tenue
+            </button>
+            <button
               onClick={() => setMode("dark")}
               className={cn(
                 "flex-1 flex items-center justify-center gap-1.5 rounded-md py-1.5 text-xs font-medium border transition-colors",
@@ -67,7 +76,7 @@ export function ThemePicker() {
                     title={accent.name}
                     aria-label={accent.name}
                     className="relative w-7 h-7 rounded-full flex items-center justify-center ring-1 ring-border"
-                    style={{ backgroundColor: mode === "dark" ? accent.dark : accent.light }}
+                    style={{ backgroundColor: mode === "dark" ? accent.dark : mode === "tenue" ? accent.tenue : accent.light }}
                   >
                     {active && <Check className="w-3.5 h-3.5 text-white drop-shadow" />}
                   </button>

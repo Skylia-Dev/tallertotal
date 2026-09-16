@@ -26,7 +26,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     try {
       const savedMode = localStorage.getItem(COLOR_MODE_STORAGE_KEY);
-      if (savedMode === "light" || savedMode === "dark") {
+      if (savedMode === "light" || savedMode === "dark" || savedMode === "tenue") {
         setModeState(savedMode);
       } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
         setModeState("dark");
@@ -43,6 +43,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", mode === "dark");
+    document.documentElement.classList.toggle("tenue", mode === "tenue");
   }, [mode]);
 
   useEffect(() => {

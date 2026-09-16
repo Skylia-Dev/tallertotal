@@ -18,10 +18,11 @@ const THEME_INIT_SCRIPT = `
 (function () {
   try {
     var mode = localStorage.getItem("tallertotal-color-mode");
-    if (mode !== "light" && mode !== "dark") {
+    if (mode !== "light" && mode !== "dark" && mode !== "tenue") {
       mode = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
     }
     if (mode === "dark") document.documentElement.classList.add("dark");
+    if (mode === "tenue") document.documentElement.classList.add("tenue");
 
     var accent = localStorage.getItem("tallertotal-accent");
     if (accent && accent !== "azul") {
