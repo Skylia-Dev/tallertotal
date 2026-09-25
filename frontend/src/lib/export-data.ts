@@ -31,7 +31,7 @@ export function exportCustomersToExcel(customers: Customer[], filename = "client
 
 export function exportVehiclesToExcel(vehicles: Vehicle[], filename = "vehiculos.xlsx") {
   const rows = vehicles.map((v) => ({
-    Placa: v.licensePlate,
+    Patente: v.licensePlate,
     Marca: v.brand,
     Modelo: v.model,
     Año: v.year,
@@ -42,7 +42,7 @@ export function exportVehiclesToExcel(vehicles: Vehicle[], filename = "vehiculos
 
   const ws = XLSX.utils.json_to_sheet(rows);
   ws["!cols"] = [
-    { wch: 12 }, // Placa
+    { wch: 12 }, // Patente
     { wch: 16 }, // Marca
     { wch: 16 }, // Modelo
     { wch: 8 },  // Año

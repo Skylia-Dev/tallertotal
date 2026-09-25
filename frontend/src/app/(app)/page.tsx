@@ -522,7 +522,7 @@ function OfficeDashboard() {
               ))}
             </div>
             <Input
-              placeholder="Buscar por placa, cliente o mecánico..."
+              placeholder="Buscar por patente, cliente o mecánico..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="sm:max-w-xs"
@@ -584,7 +584,7 @@ function OfficeDashboard() {
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-muted">
-                      <TableHead>Placa</TableHead>
+                      <TableHead>Patente</TableHead>
                       <TableHead>Vehículo</TableHead>
                       <TableHead>Cliente</TableHead>
                       <TableHead>Mecánico</TableHead>

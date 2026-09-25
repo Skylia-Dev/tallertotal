@@ -630,7 +630,7 @@ export default function OrdenesPage() {
 
             {/* Search */}
             <Input
-              placeholder="Buscar por placa, cliente o mecánico..."
+              placeholder="Buscar por patente, cliente o mecánico..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="sm:max-w-xs"
@@ -696,7 +696,7 @@ export default function OrdenesPage() {
                           aria-label="Seleccionar todas"
                         />
                       </TableHead>
-                      <SortHead col="licensePlate" label="Placa" current={sortCol} dir={sortDir} onSort={handleSort} />
+                      <SortHead col="licensePlate" label="Patente" current={sortCol} dir={sortDir} onSort={handleSort} />
                       <TableHead>Tipo</TableHead>
                       <TableHead>Vehículo</TableHead>
                       <SortHead col="customerName" label="Cliente" current={sortCol} dir={sortDir} onSort={handleSort} />

@@ -101,7 +101,7 @@ export function VehicleSelect({ customer, selected, onSelect }: Props) {
           <p className="text-sm font-semibold text-foreground">Nuevo vehículo</p>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <div className="space-y-1">
-              <Label>Placa *</Label>
+              <Label>Patente *</Label>
               <Input
                 value={form.licensePlate}
                 onChange={(e) => setForm({ ...form, licensePlate: e.target.value.toUpperCase() })}

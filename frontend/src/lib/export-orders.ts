@@ -19,7 +19,7 @@ function fmtDate(s?: string) {
 
 export function exportOrdersToExcel(orders: ServiceOrder[], filename = "ordenes.xlsx") {
   const rows = orders.map((o) => ({
-    Placa: o.licensePlate,
+    Patente: o.licensePlate,
     Vehículo: o.vehicleDescription,
     Cliente: o.customerName,
     Teléfono: o.customerPhone,
@@ -37,7 +37,7 @@ export function exportOrdersToExcel(orders: ServiceOrder[], filename = "ordenes.
 
   // Column widths
   ws["!cols"] = [
-    { wch: 12 }, // Placa
+    { wch: 12 }, // Patente
     { wch: 22 }, // Vehículo
     { wch: 22 }, // Cliente
     { wch: 18 }, // Teléfono

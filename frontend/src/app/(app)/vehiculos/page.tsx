@@ -284,9 +284,9 @@ export default function VehiculosPage() {
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                {/* Placa */}
+                {/* Patente */}
                 <div className="space-y-1">
-                  <Label required>Placa</Label>
+                  <Label required>Patente</Label>
                   <Input
                     value={form.licensePlate}
                     onChange={(e) => setForm({ ...form, licensePlate: e.target.value.toUpperCase() })}
@@ -395,7 +395,7 @@ export default function VehiculosPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <Input
-            placeholder="Buscar por placa..."
+            placeholder="Buscar por patente..."
             value={plateSearch}
             onChange={(e) => setPlateSearch(e.target.value.toUpperCase())}
             className="max-w-xs font-mono"
@@ -406,7 +406,7 @@ export default function VehiculosPage() {
           ) : vehicles.length === 0 ? (
             <div className="py-12 text-center space-y-2">
               <Car className="h-8 w-8 text-muted-foreground/50 mx-auto" />
-              <p className="text-sm text-muted-foreground">No hay vehículos{plateSearch ? " con esa placa" : ""}</p>
+              <p className="text-sm text-muted-foreground">No hay vehículos{plateSearch ? " con esa patente" : ""}</p>
             </div>
           ) : (
             <div className="overflow-x-auto rounded-md border">
@@ -423,7 +423,7 @@ export default function VehiculosPage() {
                         aria-label="Seleccionar todos"
                       />
                     </TableHead>
-                    <TableHead>Placa</TableHead>
+                    <TableHead>Patente</TableHead>
                     <TableHead>Vehículo</TableHead>
                     <TableHead>Color</TableHead>
                     <TableHead>Cliente</TableHead>
