@@ -104,7 +104,8 @@ public record UpcomingLubricentroDto(
     int? LastKnownMileage,
     int? KmRemaining,
     int? DaysRemaining,
-    string DueStatus
+    string DueStatus,
+    Guid VehiclePortalToken
 );
 
 // Public portal DTO — no sensitive internal data

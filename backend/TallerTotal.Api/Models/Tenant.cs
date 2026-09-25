@@ -5,6 +5,9 @@ public class Tenant
     public Guid Id { get; set; }
     public string Name { get; set; } = "";
     public bool IsActive { get; set; } = true;
+
+    /// <summary>Teléfono de WhatsApp del taller, usado en la Libreta Digital pública (botón "Pedir turno").</summary>
+    public string? Phone { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     /// <summary>Minutos de inactividad antes de cerrar la sesión automáticamente. 0 = deshabilitado.</summary>

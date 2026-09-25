@@ -38,6 +38,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.HasKey(x => x.Id);
             e.Property(x => x.Name).HasMaxLength(150).IsRequired();
             e.Property(x => x.SessionTimeoutMinutes).HasDefaultValue(30);
+            e.Property(x => x.Phone).HasMaxLength(30);
         });
 
         modelBuilder.Entity<RoleModuleConfig>(e =>
@@ -96,6 +97,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.Property(x => x.Model).HasMaxLength(60).IsRequired();
             e.Property(x => x.Color).HasMaxLength(40);
             e.HasIndex(x => x.LicensePlate);
+            e.HasIndex(x => x.PortalToken).IsUnique();
             e.HasOne(x => x.Customer)
                 .WithMany(x => x.Vehicles)
                 .HasForeignKey(x => x.CustomerId)

@@ -29,7 +29,7 @@ public class VehiclesController(AppDbContext db) : ControllerBase
             query = query.Where(v => v.CustomerId == customerId);
 
         return await query
-            .Select(v => new VehicleDto(v.Id, v.CustomerId, v.Customer.Name, v.LicensePlate, v.Brand, v.Model, v.Year, v.Color, v.Notes))
+            .Select(v => new VehicleDto(v.Id, v.CustomerId, v.Customer.Name, v.Customer.Phone, v.LicensePlate, v.Brand, v.Model, v.Year, v.Color, v.Notes, v.PortalToken))
             .ToListAsync();
     }
 
@@ -40,7 +40,7 @@ public class VehiclesController(AppDbContext db) : ControllerBase
             .Include(x => x.Customer)
             .FirstOrDefaultAsync(x => x.Id == id && x.Customer.TenantId == TenantId);
         if (v is null) return NotFound();
-        return new VehicleDto(v.Id, v.CustomerId, v.Customer.Name, v.LicensePlate, v.Brand, v.Model, v.Year, v.Color, v.Notes);
+        return new VehicleDto(v.Id, v.CustomerId, v.Customer.Name, v.Customer.Phone, v.LicensePlate, v.Brand, v.Model, v.Year, v.Color, v.Notes, v.PortalToken);
     }
 
     [HttpPost]
@@ -64,7 +64,7 @@ public class VehiclesController(AppDbContext db) : ControllerBase
 
         await db.Entry(vehicle).Reference(v => v.Customer).LoadAsync();
         return CreatedAtAction(nameof(GetById), new { id = vehicle.Id },
-            new VehicleDto(vehicle.Id, vehicle.CustomerId, vehicle.Customer.Name, vehicle.LicensePlate, vehicle.Brand, vehicle.Model, vehicle.Year, vehicle.Color, vehicle.Notes));
+            new VehicleDto(vehicle.Id, vehicle.CustomerId, vehicle.Customer.Name, vehicle.Customer.Phone, vehicle.LicensePlate, vehicle.Brand, vehicle.Model, vehicle.Year, vehicle.Color, vehicle.Notes, vehicle.PortalToken));
     }
 
     [HttpDelete("{id:guid}")]
@@ -103,6 +103,6 @@ public class VehiclesController(AppDbContext db) : ControllerBase
         vehicle.Notes = dto.Notes;
         await db.SaveChangesAsync();
 
-        return new VehicleDto(vehicle.Id, vehicle.CustomerId, vehicle.Customer.Name, vehicle.LicensePlate, vehicle.Brand, vehicle.Model, vehicle.Year, vehicle.Color, vehicle.Notes);
+        return new VehicleDto(vehicle.Id, vehicle.CustomerId, vehicle.Customer.Name, vehicle.Customer.Phone, vehicle.LicensePlate, vehicle.Brand, vehicle.Model, vehicle.Year, vehicle.Color, vehicle.Notes, vehicle.PortalToken);
     }
 }

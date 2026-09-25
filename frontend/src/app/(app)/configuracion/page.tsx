@@ -14,6 +14,7 @@ import {
 import {
   adminApi,
   tenantModuleConfigApi,
+  tenantProfileApi,
   sessionConfigApi,
   type WhatsAppStatusResponse,
   type WhatsAppQrResponse,
@@ -615,6 +616,65 @@ function SessionTimeoutCard() {
   );
 }
 
+// Teléfono de WhatsApp del taller, usado en la Libreta Digital pública (branding + botón "Pedir turno")
+function TallerCard() {
+  const [phone, setPhone] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    tenantProfileApi.get()
+      .then((p) => setPhone(p.phone ?? ""))
+      .catch(() => toast.error("No se pudo cargar la configuración del taller"))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await tenantProfileApi.update(phone);
+      toast.success("Guardado ✓");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Error al guardar");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-sm font-semibold flex items-center gap-2">
+          <QrCode className="h-4 w-4" /> Libreta Digital del vehículo
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3 text-sm">
+        {loading ? (
+          <p className="text-xs text-muted-foreground">Cargando…</p>
+        ) : (
+          <>
+            <p className="text-xs text-muted-foreground">
+              WhatsApp del taller que se muestra en la libreta pública de cada vehículo (botón &quot;Pedir turno&quot;).
+            </p>
+            <div className="flex items-center gap-2">
+              <Input
+                type="tel"
+                placeholder="+54 9 291 ..."
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="text-sm"
+              />
+              <Button size="sm" onClick={handleSave} disabled={saving} className="h-8 text-xs shrink-0">
+                {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : "Guardar"}
+              </Button>
+            </div>
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 // ── Integraciones tab ─────────────────────────────────────────────────────────
 
 function IntegracionesTab() {
@@ -624,6 +684,7 @@ function IntegracionesTab() {
       <EmailCard />
       <PushCard />
       <SessionTimeoutCard />
+      <TallerCard />
     </div>
   );
 }

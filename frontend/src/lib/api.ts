@@ -13,6 +13,7 @@ import type {
   Mechanic,
   CreateMechanicDto,
   PortalOrder,
+  Libreta,
   Articulo,
   CreateArticuloDto,
   Proveedor,
@@ -290,6 +291,13 @@ export const sessionConfigApi = {
   pingActivity: () => request<void>("/users/me/activity", { method: "PUT" }),
 };
 
+// Datos del taller para la Libreta Digital pública (nombre + teléfono de WhatsApp)
+export const tenantProfileApi = {
+  get: () => request<{ name: string; phone?: string }>("/tenant/profile"),
+  update: (phone: string) =>
+    request<{ name: string; phone?: string }>("/tenant/profile", { method: "PUT", body: JSON.stringify({ phone }) }),
+};
+
 // Módulos visibles por rol — cualquiera lee los propios, solo SuperAdmin ve/edita la matriz completa
 // (el backend lo valida igual)
 export const tenantModuleConfigApi = {
@@ -342,6 +350,14 @@ export const portalApi = {
     const url = BACKEND_URL
       ? `${BACKEND_URL}/api/portal/${token}`
       : `/api/portal-proxy/${token}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  },
+  getLibreta: async (token: string): Promise<Libreta> => {
+    const url = BACKEND_URL
+      ? `${BACKEND_URL}/api/portal/vehicle/${token}`
+      : `/api/portal-proxy/vehicle/${token}`;
     const res = await fetch(url);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json();

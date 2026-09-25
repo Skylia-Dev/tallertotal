@@ -16,12 +16,14 @@ export interface Vehicle {
   id: string;
   customerId: string;
   customerName: string;
+  customerPhone: string;
   licensePlate: string;
   brand: string;
   model: string;
   year: number;
   color?: string;
   notes?: string;
+  portalToken: string;
 }
 
 export interface ServiceItem {
@@ -98,6 +100,7 @@ export interface UpcomingLubricentro {
   kmRemaining?: number;
   daysRemaining?: number;
   dueStatus: "Vencido" | "Proximo" | "AlDia";
+  vehiclePortalToken: string;
 }
 
 // Lean read-only view exposed to the customer via /portal/[token]
@@ -115,6 +118,34 @@ export interface PortalOrder {
   createdAt: string;
   completedAt?: string;
   items: ServiceItem[];
+}
+
+// Libreta Digital — historial público del vehículo, expuesto vía /libreta/[token]
+export interface LibretaEntry {
+  date: string;
+  mileageIn?: number;
+  oilBrand?: string;
+  oilType?: string;
+  oilLiters?: number;
+  changedOilFilter: boolean;
+  changedAirFilter: boolean;
+  changedCabinFilter: boolean;
+  changedFuelFilter: boolean;
+  notes?: string;
+}
+
+export interface Libreta {
+  tallerName: string;
+  tallerPhone?: string;
+  licensePlate: string;
+  vehicleDescription: string;
+  customerName: string;
+  nextServiceDate?: string;
+  nextServiceKm?: number;
+  kmRemaining?: number;
+  daysRemaining?: number;
+  dueStatus?: "Vencido" | "Proximo" | "AlDia";
+  services: LibretaEntry[];
 }
 
 export interface ServiceOrderLog {

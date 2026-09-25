@@ -11,6 +11,9 @@ public class Vehicle
     public string? Color { get; set; }
     public string? Notes { get; set; }
 
+    /// <summary>Token público estable para la Libreta Digital (historial de services del vehículo, sin login).</summary>
+    public Guid PortalToken { get; set; } = Guid.NewGuid();
+
     public Customer Customer { get; set; } = null!;
     public ICollection<ServiceOrder> ServiceOrders { get; set; } = [];
 }

@@ -15,9 +15,12 @@ const STATUS_CONFIG: Record<UpcomingLubricentro["dueStatus"], { label: string; i
   AlDia:    { label: "Al día",        icon: CheckCircle,   cls: "border-emerald-200 bg-emerald-50 text-emerald-700" },
 };
 
-function waLink(phone: string, plate: string) {
+function waLink(phone: string, plate: string, portalToken: string) {
   const digits = phone.replace(/\D/g, "");
-  const text = encodeURIComponent(`Hola! Te escribimos de tu taller: el cambio de aceite de tu ${plate} está por vencer. ¿Coordinamos un turno?`);
+  const link = typeof window !== "undefined" ? `${window.location.origin}/libreta/${portalToken}` : "";
+  const text = encodeURIComponent(
+    `Hola! Te escribimos de tu taller: el cambio de aceite de tu ${plate} está por vencer. ¿Coordinamos un turno? Acá tenés el historial de tu vehículo: ${link}`
+  );
   return `https://wa.me/${digits}?text=${text}`;
 }
 
@@ -89,7 +92,7 @@ export default function VencimientosPage() {
                           </span>
                         )}
                         <a
-                          href={waLink(v.customerPhone, v.licensePlate)}
+                          href={waLink(v.customerPhone, v.licensePlate, v.vehiclePortalToken)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className={buttonVariants({ variant: "outline", size: "sm" }) + " gap-1.5 text-emerald-700 border-emerald-300 hover:bg-emerald-50"}

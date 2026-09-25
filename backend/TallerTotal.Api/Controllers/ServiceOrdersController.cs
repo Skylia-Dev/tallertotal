@@ -374,6 +374,7 @@ public class ServiceOrdersController(
                 o.Id,
                 o.VehicleId,
                 o.Vehicle.LicensePlate,
+                o.Vehicle.PortalToken,
                 VehicleDescription = o.Vehicle.Brand + " " + o.Vehicle.Model + " " + o.Vehicle.Year,
                 CustomerName = o.Vehicle.Customer.Name,
                 CustomerPhone = o.Vehicle.Customer.Phone,
@@ -407,7 +408,7 @@ public class ServiceOrdersController(
 
                 return new UpcomingLubricentroDto(
                     o.VehicleId, o.LicensePlate, o.VehicleDescription, o.CustomerName, o.CustomerPhone,
-                    o.Id, o.ServiceDate, o.NextServiceDate, o.NextServiceKm, km, kmRemaining, daysRemaining, dueStatus);
+                    o.Id, o.ServiceDate, o.NextServiceDate, o.NextServiceKm, km, kmRemaining, daysRemaining, dueStatus, o.PortalToken);
             })
             .OrderBy(o => o.DueStatus == "Vencido" ? 0 : o.DueStatus == "Proximo" ? 1 : 2)
             .ThenBy(o => o.DaysRemaining)

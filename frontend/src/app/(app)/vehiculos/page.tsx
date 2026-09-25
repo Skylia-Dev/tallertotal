@@ -13,8 +13,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogClose,
 } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, Car, Search, FileSpreadsheet, ClipboardList } from "lucide-react";
+import { Plus, Pencil, Trash2, Car, Search, FileSpreadsheet, ClipboardList, QrCode } from "lucide-react";
 import { Pagination } from "@/components/Pagination";
+import { LibretaShareDialog } from "@/components/LibretaShareDialog";
 import { toast } from "sonner";
 import { exportVehiclesToExcel } from "@/lib/export-data";
 
@@ -96,6 +97,7 @@ export default function VehiculosPage() {
   const [historyTarget, setHistoryTarget] = useState<Vehicle | null>(null);
   const [historyOrders, setHistoryOrders] = useState<ServiceOrder[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
+  const [shareTarget, setShareTarget] = useState<Vehicle | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -461,6 +463,14 @@ export default function VehiculosPage() {
                           >
                             <ClipboardList className="h-3.5 w-3.5" />
                           </Button>
+                          <Button
+                            variant="ghost" size="icon-sm"
+                            onClick={() => setShareTarget(v)}
+                            title="Compartir libreta digital (QR / WhatsApp)"
+                            className="text-muted-foreground hover:text-green-600"
+                          >
+                            <QrCode className="h-3.5 w-3.5" />
+                          </Button>
                           <Button variant="ghost" size="icon-sm" onClick={() => openEdit(v)}>
                             <Pencil className="h-3.5 w-3.5" />
                           </Button>
@@ -537,6 +547,15 @@ export default function VehiculosPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Compartir libreta digital */}
+      <LibretaShareDialog
+        open={!!shareTarget}
+        onOpenChange={(o) => !o && setShareTarget(null)}
+        licensePlate={shareTarget?.licensePlate ?? ""}
+        portalToken={shareTarget?.portalToken ?? ""}
+        customerPhone={shareTarget?.customerPhone}
+      />
 
       {/* Delete confirmation */}
       <Dialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
